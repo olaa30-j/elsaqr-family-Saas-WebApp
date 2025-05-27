@@ -1,17 +1,24 @@
+import { useNavigate } from "react-router-dom";
 import type { ButtonLinkProps } from "../../types/buttons";
 
-const Button = ({ children, variant = 'primary', extraStyle = '', ...props }: ButtonLinkProps) => {
+const Button = ({ children, variant = 'primary', extraStyle = '', href , ...props }: ButtonLinkProps) => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
   const variantClasses = {
     primary: 'bg-primary text-white hover:bg-primary/90',
     secondary: 'bg-secondary text-gray-800 hover:bg-secondary/80',
     danger: 'bg-red-600 text-white hover:bg-red-700',
     success: 'bg-green-600 text-white hover:bg-green-700',
     amber: 'bg-amber-600 text-white hover:bg-amber-600/90',
-    outline:''
+    outline: ''
   };
 
   return (
-    <a
+    <button
+      onClick={() => handleNavigation(href)}
       className={`
         inline-flex items-center justify-center gap-2
         whitespace-nowrap font-medium
@@ -27,7 +34,7 @@ const Button = ({ children, variant = 'primary', extraStyle = '', ...props }: Bu
       {...props}
     >
       {children}
-    </a>
+    </button>
   );
 };
 
