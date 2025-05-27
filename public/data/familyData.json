@@ -1,0 +1,239 @@
+{
+  "users": [
+    {
+      "_id": "1",
+      "tenantId": "fam123",
+      "fname": "أحمد",
+      "lname": "علي",
+      "email": "ahmed@family.com",
+      "password": "hashed_password",
+      "phone": 1234567890,
+      "image": "/images/ahmed.jpg",
+      "role": "رئيس العائلة",
+      "familyBranch": "الفرع الرئيسي",
+      "familyRelationship": "الأب",
+      "status": "مفعل",
+      "address": "القاهرة، مصر",
+      "birthday": "1970-01-15",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": true },
+        "العائلة": { "عرض": true, "إنشاء": true, "تعديل": true, "حذف": true, "إدارة": true }
+      }
+    },
+    {
+      "_id": "2",
+      "tenantId": "fam123",
+      "fname": "فاطمة",
+      "lname": "علي",
+      "email": "fatima@family.com",
+      "password": "hashed_password",
+      "phone": 1234567891,
+      "role": "عضوة",
+      "familyBranch": "الفرع الرئيسي",
+      "familyRelationship": "الأم",
+      "status": "مفعل",
+      "address": "القاهرة، مصر",
+      "birthday": "1972-05-20",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false },
+        "العائلة": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false }
+      }
+    },
+    {
+      "_id": "3",
+      "tenantId": "fam123",
+      "fname": "محمد",
+      "lname": "أحمد",
+      "email": "mohamed@family.com",
+      "password": "hashed_password",
+      "phone": 1234567892,
+      "image": "/images/mohamed.jpg",
+      "role": "عضوة",
+      "familyBranch": "الفرع الأول",
+      "familyRelationship": "الابن الأكبر",
+      "status": "مفعل",
+      "address": "القاهرة، مصر",
+      "birthday": "1995-08-10",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false },
+        "العائلة": { "عرض": true, "إنشاء": true, "تعديل": true, "حذف": false, "إدارة": false }
+      }
+    },
+    {
+      "_id": "4",
+      "tenantId": "fam123",
+      "fname": "سارة",
+      "lname": "أحمد",
+      "email": "sara@family.com",
+      "password": "hashed_password",
+      "phone": 1234567893,
+      "role": "عضوة",
+      "familyBranch": "الفرع الأول",
+      "familyRelationship": "الابنة",
+      "status": "معلق",
+      "address": "الإسكندرية، مصر",
+      "birthday": "1998-11-25",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false },
+        "العائلة": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false }
+      }
+    },
+    {
+      "_id": "5",
+      "tenantId": "fam123",
+      "fname": "أحمد",
+      "lname": "علي",
+      "email": "ahmed@family.com",
+      "password": "hashed_password",
+      "phone": 1234567890,
+      "image": "/images/ahmed.jpg",
+      "role": "رئيس العائلة",
+      "familyBranch": "الفرع الرئيسي",
+      "familyRelationship": "الأب",
+      "status": "مفعل",
+      "address": "القاهرة، مصر",
+      "birthday": "1970-01-15",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": true },
+        "العائلة": { "عرض": true, "إنشاء": true, "تعديل": true, "حذف": true, "إدارة": true }
+      }
+    },
+    {
+      "_id": "6",
+      "tenantId": "fam123",
+      "fname": "فاطمة",
+      "lname": "علي",
+      "email": "fatima@family.com",
+      "password": "hashed_password",
+      "phone": 1234567891,
+      "role": "عضوة",
+      "familyBranch": "الفرع الرئيسي",
+      "familyRelationship": "الأم",
+      "status": "مفعل",
+      "address": "القاهرة، مصر",
+      "birthday": "1972-05-20",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false },
+        "العائلة": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false }
+      }
+    },
+    {
+      "_id": "7",
+      "tenantId": "fam123",
+      "fname": "محمد",
+      "lname": "أحمد",
+      "email": "mohamed@family.com",
+      "password": "hashed_password",
+      "phone": 1234567892,
+      "image": "/images/mohamed.jpg",
+      "role": "عضوة",
+      "familyBranch": "الفرع الأول",
+      "familyRelationship": "الابن الأكبر",
+      "status": "مفعل",
+      "address": "القاهرة، مصر",
+      "birthday": "1995-08-10",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false },
+        "العائلة": { "عرض": true, "إنشاء": true, "تعديل": true, "حذف": false, "إدارة": false }
+      }
+    },
+    {
+      "_id": "8",
+      "tenantId": "fam123",
+      "fname": "سارة",
+      "lname": "أحمد",
+      "email": "sara@family.com",
+      "password": "hashed_password",
+      "phone": 1234567893,
+      "role": "عضوة",
+      "familyBranch": "الفرع الأول",
+      "familyRelationship": "الابنة",
+      "status": "معلق",
+      "address": "الإسكندرية، مصر",
+      "birthday": "1998-11-25",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false },
+        "العائلة": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false }
+      }
+    },
+    {
+      "_id": "9",
+      "tenantId": "fam123",
+      "fname": "أحمد",
+      "lname": "علي",
+      "email": "ahmed@family.com",
+      "password": "hashed_password",
+      "phone": 1234567890,
+      "image": "/images/ahmed.jpg",
+      "role": "رئيس العائلة",
+      "familyBranch": "الفرع الرئيسي",
+      "familyRelationship": "الأب",
+      "status": "مفعل",
+      "address": "القاهرة، مصر",
+      "birthday": "1970-01-15",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": true },
+        "العائلة": { "عرض": true, "إنشاء": true, "تعديل": true, "حذف": true, "إدارة": true }
+      }
+    },
+    {
+      "_id": "10",
+      "tenantId": "fam123",
+      "fname": "فاطمة",
+      "lname": "علي",
+      "email": "fatima@family.com",
+      "password": "hashed_password",
+      "phone": 1234567891,
+      "role": "عضوة",
+      "familyBranch": "الفرع الرئيسي",
+      "familyRelationship": "الأم",
+      "status": "مفعل",
+      "address": "القاهرة، مصر",
+      "birthday": "1972-05-20",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false },
+        "العائلة": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false }
+      }
+    },
+    {
+      "_id": "11",
+      "tenantId": "fam123",
+      "fname": "محمد",
+      "lname": "أحمد",
+      "email": "mohamed@family.com",
+      "password": "hashed_password",
+      "phone": 1234567892,
+      "image": "/images/mohamed.jpg",
+      "role": "عضوة",
+      "familyBranch": "الفرع الأول",
+      "familyRelationship": "الابن الأكبر",
+      "status": "مفعل",
+      "address": "القاهرة، مصر",
+      "birthday": "1995-08-10",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false },
+        "العائلة": { "عرض": true, "إنشاء": true, "تعديل": true, "حذف": false, "إدارة": false }
+      }
+    },
+    {
+      "_id": "12",
+      "tenantId": "fam123",
+      "fname": "سارة",
+      "lname": "أحمد",
+      "email": "sara@family.com",
+      "password": "hashed_password",
+      "phone": 1234567893,
+      "role": "عضوة",
+      "familyBranch": "الفرع الأول",
+      "familyRelationship": "الابنة",
+      "status": "معلق",
+      "address": "الإسكندرية، مصر",
+      "birthday": "1998-11-25",
+      "permissions": {
+        "لوحة التحكم": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false },
+        "العائلة": { "عرض": true, "إنشاء": false, "تعديل": false, "حذف": false, "إدارة": false }
+      }
+    }
+  ],
+  "totalPages": 2
+}

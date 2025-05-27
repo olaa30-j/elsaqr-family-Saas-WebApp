@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ***************************************************** Start Global Style ******************************************** */
+@layer base {
+  :root {
+    --color-primary: #2F80A2;
+    --color-secondary: rgb(176, 155, 133);
+    --color-accent: #92C4D0;
+    --color-dark: rgb(148, 116, 87);
+
+    --text-color-2: #0c0a09;
+    /* hsl(25, 5.3%, 44.7%) */
+
+    --font-cairo: 'Cairo', sans-serif;
+    --font-tajawal: 'Tajawal', sans-serif;
+
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    -moz-tab-size: 4;
+    tab-size: 4;
+    font-family: inherit;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    text-rendering: optimizeSpeed;
+    font-family: var(--font-tajawal);
+  }
+
+  section {
+    padding-block: 80px;
+    margin-inline: auto;
+  }
+}
+
+/* ***************************************************** End Global Style ********************************************** */
+
+.swiper-slide {
+  transition: transform 0.3s ease;
+}
+
+.swiper-slide-active {
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.swiper-slide-next,
+.swiper-slide-prev {
+  opacity: 0.8;
+}
+
+.swiper-pagination-bullet {
+  width: 12px;
+  height: 12px;
+  background: rgba(var(--primary), 0.3);
+  opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+  background: rgba(var(--primary), 0.8);
+  width: 24px;
+  border-radius: 8px;
+}
