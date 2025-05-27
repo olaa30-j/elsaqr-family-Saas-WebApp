@@ -37,8 +37,8 @@ export const memberApi = baseApi.injectEndpoints({
             invalidatesTags: [{ type: 'Members' as const, id: 'LIST' }],
         }),
 
-        updateMember: build.mutation<User, { id: string } & Partial<CreateMemberDto> & { imageFile?: File }>({
-            query: ({ id, imageFile, ...body }) => {
+        updateMember: build.mutation<User, { _id: string } & Partial<CreateMemberDto> & { imageFile?: File }>({
+            query: ({ _id, imageFile, ...body }) => {
                 const formData = new FormData();
                 for (const [key, value] of Object.entries(body)) {
                     if (value !== undefined && value !== null) {
@@ -49,15 +49,15 @@ export const memberApi = baseApi.injectEndpoints({
                     formData.append('image', imageFile);
                 }
                 return {
-                    url: `/user/${id}`,
+                    url: `/user/${_id}`,
                     method: 'PUT',
                     body: formData,
                     credentials: 'include'
                 };
             },
-            invalidatesTags: (_result, _error, { id }) => [
-                { type: 'Members' as const, id },
-                { type: 'Members' as const, id: 'LIST' },
+            invalidatesTags: (_result, _error, { _id }) => [
+                { type: 'Members' as const, _id },
+                { type: 'Members' as const, _id: 'LIST' },
             ],
         }),
 

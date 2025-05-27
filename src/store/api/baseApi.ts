@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { clearCredentials, setCredentials } from '../../features/auth/authSlice';
-import type { User } from '../../types/user';
+import type { User , UserData } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: '/api',
@@ -39,7 +39,7 @@ export const baseApi = createApi({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;          
-          dispatch(setCredentials({ user: data.data }));
+          dispatch(setCredentials({ user: data }));
         } catch (error) {
           console.error('Error in getAuthUser:', error);
           dispatch(clearCredentials());

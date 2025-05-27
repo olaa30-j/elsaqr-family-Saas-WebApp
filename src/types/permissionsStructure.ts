@@ -10,7 +10,7 @@ export type UserPermissions = {
 };
 
 export interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   role: 'super_admin' | 'admin' | 'user';
