@@ -21,7 +21,7 @@ const DetailsFeaturesCard: React.FC<FeatureCardProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 items-center pt-6 justify-center px-10">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-0 items-center pt-6 justify-center md:px-10 px-2">
       <div>
         <div className="flex items-center mb-4">
           <IconComponent

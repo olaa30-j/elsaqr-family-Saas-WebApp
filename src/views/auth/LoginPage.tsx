@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import LoginForm from "../../components/auth/LoginForm"
 
 const LoginPage = () => {
@@ -36,7 +37,7 @@ const LoginPage = () => {
                   <div className="bg-gray-200 h-[1px] w-full flex-1"></div>
                 </div>
 
-                <a href="/register">
+                <Link to="/register">
                   <button className="gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-amber-600/80 hover:text-white h-10 px-4 py-2 w-full flex items-center justify-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -57,7 +58,7 @@ const LoginPage = () => {
                     </svg>
                     تسجيل عضوية جديدة
                   </button>
-                </a>
+                </Link>
               </div>
             </div>
 

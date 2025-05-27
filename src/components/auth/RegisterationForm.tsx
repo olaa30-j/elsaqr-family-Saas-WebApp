@@ -10,6 +10,7 @@ import PhoneInput from '../ui/PhoneInput';
 import type { RegistrationFormData } from '../../types/authTypes';
 import { useRegistrationMutation } from '../../store/api/authApi';
 import { familyBranches, familyRelationships } from '../../types/user';
+import { Link } from 'react-router-dom';
 
 export const DEFAULT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSsuWiNNpEjZxIi0uQPyEq6qecEqY0XaI27Q&s';
 const DEFAULT_LNAME = 'الدهمش';
@@ -214,8 +215,8 @@ const RegistrationForm: React.FC = () => {
       </div>
 
       <div className="border-t border-gray-200 mt-8 pt-6">
-        <a
-          href="/login"
+        <Link
+          to="/login"
           className="flex items-center justify-center gap-2 py-3 text-lg group transition-colors"
         >
           <span className="text-gray-600 group-hover:text-gray-800 transition-colors">
@@ -232,7 +233,7 @@ const RegistrationForm: React.FC = () => {
           >
             <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
-        </a>
+        </Link>
       </div>
     </form>
   );

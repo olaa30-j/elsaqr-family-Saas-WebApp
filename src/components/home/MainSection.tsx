@@ -109,7 +109,7 @@ const MainSection = () => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-2">
           {/* Login button */}
           <Button 
-            href='/login'
+            buttonLink='/login'
             variant="primary"
             extraStyle="group relative overflow-hidden bg-gradient-to-r from-primary via-primary/95 to-primary/90"
           >
@@ -142,7 +142,7 @@ const MainSection = () => {
           <Button 
             variant="amber"
             extraStyle="group relative overflow-hidden bg-gradient-to-r from-amber-600/90 via-amber-500/85 to-amber-600/90"
-            href='/register'
+            buttonLink='/register'
           >
             <div className="absolute inset-0 overflow-hidden opacity-30">
               {[
@@ -173,7 +173,7 @@ const MainSection = () => {
           <Button 
             variant="outline"
             extraStyle="group border-2 relative overflow-hidden"
-            href=''
+            buttonLink=''
           >
             <span className="absolute inset-0 border-2 border-primary/30 rounded-md opacity-0 group-hover:opacity-100" style={{ transform: 'scale(1.06166)' }}></span>
             <span className="relative z-10 text-primary/90 group-hover:text-primary">اكتشف المزيد</span>

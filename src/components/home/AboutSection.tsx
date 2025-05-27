@@ -25,7 +25,7 @@ const AboutSection = () => {
           <div className="lg:w-1/2 h-96">
             <div className="family-illustration relative w-full h-full px-2 mx-auto">
               {/* Large top-right photo */}
-              <div className="absolute top-0 lg:right-3 left-3 lg:w-64 lg:h-64 w-48 h-52 z-10">
+              <div className="absolute md:top-0 top-4 lg:right-3 left-3 lg:w-64 lg:h-64 w-44 h-48 z-10">
                 <FamilyPhotoCard
                   src="https://res.cloudinary.com/dmhvfuuke/image/upload/v1748047250/family-gathering-1_iqrif7.jpg"
                   alt="تبادل المعايدات العائلية - 2022"
@@ -37,7 +37,7 @@ const AboutSection = () => {
               </div>
 
               {/* Medium middle-left photo */}
-              <div className="absolute top-10 right-3 lg:right-1/2 w-48 h-48 z-20">
+              <div className="absolute top-10 right-3 lg:right-1/2 md:w-48 md:h-48 w-44 h-44  z-20">
                 <FamilyPhotoCard
                   src="https://res.cloudinary.com/dmhvfuuke/image/upload/v1748047358/family-gathering-2_pxblwi.jpg"
                   alt="اللقاء الأسري - 2023"
