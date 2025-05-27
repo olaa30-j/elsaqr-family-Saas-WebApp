@@ -7,16 +7,16 @@ import { toast } from "react-toastify";
 
 const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
   const { isAuthenticated } = useAppSelector(state => state.auth);
-  let homeButton = isAuthenticated ?  '/dashboard' :'/'
+  let homeButton = isAuthenticated ? '/dashboard' : '/'
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleNavigation = (path: string) => {
-      if (!isAuthenticated) {
-        toast.warn("يرجى تسجيل الدخول")
-        navigate('/login', { state: { from: path } });
-        return;
-      }
+    if (!isAuthenticated && path !== '/') {
+      toast.warn("يرجى تسجيل الدخول")
+      navigate('/login', { state: { from: path } });
+      return;
+    }
     navigate(path);
   };
 
