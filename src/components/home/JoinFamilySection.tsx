@@ -13,7 +13,7 @@ const JoinFamilySection = () => {
                 </p>
 
                 <Button
-                    href="/login"
+                    buttonLink="/login"
                     variant="primary"
                 >
                     سجل دخولك الآن

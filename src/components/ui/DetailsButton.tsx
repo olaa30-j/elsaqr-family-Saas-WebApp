@@ -1,14 +1,20 @@
+import { useNavigate } from "react-router-dom";
 import type { DetailsButtonProps } from "../../types/buttons";
 
 const DetailsButton = ({
   children,
   extraStyle = '',
-  href,
+  buttonLink,
   ...props
 }: DetailsButtonProps) => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
   return (
-    <a
-      href={href}
+    <button
+      onClick={() => buttonLink && handleNavigation(buttonLink)}
       className={`group mt-5 text-primary/80 text-sm font-medium flex items-center cursor-pointer ${extraStyle}`}
       {...props}
     >
@@ -32,7 +38,7 @@ const DetailsButton = ({
           <path d="m12 5 7 7-7 7" />
         </svg>
       </span>
-    </a>
+    </button>
   );
 };
 

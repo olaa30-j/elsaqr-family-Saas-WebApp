@@ -34,7 +34,7 @@ const FamilyFeaturesCard = ({feature}: featureProps) => {
                         {feature.description}
                     </p>
 
-                    <DetailsButton href={""} children={"التفاصيل"}/>                        
+                    <DetailsButton buttonLink={""} children={"التفاصيل"}/>                        
                 </div>
             </div>
         </div>

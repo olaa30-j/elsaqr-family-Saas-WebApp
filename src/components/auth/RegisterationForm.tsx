@@ -85,7 +85,7 @@ const RegistrationForm: React.FC = () => {
 
       await registeration(formData).unwrap();
 
-      toast.success('تم التسجيل بنجاح! سيتم تحويلك إلى صفحة الدخول', {
+      toast.success('تم التسجيل بنجاح! سيتم مراجعة طلبك وارسال رسالة تأكيد', {
         position: 'top-center',
         autoClose: 3000,
       });
@@ -93,9 +93,9 @@ const RegistrationForm: React.FC = () => {
       reset();
       setPreviewImage(DEFAULT_IMAGE);
 
-      // setTimeout(() => {
-      //   window.location.href = '/login';
-      // }, 3000);
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 3000);
 
     } catch (error) {
       toast.error('حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى', {

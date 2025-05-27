@@ -9,11 +9,7 @@ export default defineConfig({
         target: 'http://localhost:5001/api/v1',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-        headers: {
-          'Access-Control-Allow-Origin': 'http://localhost:5173',
-          'Access-Control-Allow-Credentials': 'true'
-        }
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   }
