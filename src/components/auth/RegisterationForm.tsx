@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -36,7 +36,7 @@ const schema = yup.object().shape({
 });
 
 const RegistrationForm: React.FC = () => {
-  const [previewImage, setPreviewImage] = useState<string | null>(DEFAULT_IMAGE);
+  // const [previewImage, setPreviewImage] = useState<string | null>(DEFAULT_IMAGE);
   const [registeration] = useRegistrationMutation();
 
   const {
@@ -44,7 +44,6 @@ const RegistrationForm: React.FC = () => {
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
   } = useForm<RegistrationFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -52,20 +51,20 @@ const RegistrationForm: React.FC = () => {
     }
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setValue('image', file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setPreviewImage(DEFAULT_IMAGE);
-      setValue('image', undefined);
-    }
-  };
+  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     setValue('image', file);
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setPreviewImage(reader.result as string);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   } else {
+  //     setPreviewImage(DEFAULT_IMAGE);
+  //     setValue('image', undefined);
+  //   }
+  // };
 
 
 
@@ -91,7 +90,6 @@ const RegistrationForm: React.FC = () => {
       });
 
       reset();
-      setPreviewImage(DEFAULT_IMAGE);
 
       setTimeout(() => {
         window.location.href = '/';
@@ -109,7 +107,7 @@ const RegistrationForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="md:col-span-2">
+        {/* <div className="md:col-span-2">
           <div className="flex items-center gap-4">
             <div className="relative">
               <img
@@ -133,7 +131,7 @@ const RegistrationForm: React.FC = () => {
               />
             </div>
           </div>
-        </div>
+        </div> */}
 
         <InputField
           label="البريد الإلكتروني"

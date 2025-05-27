@@ -3,9 +3,12 @@ import { clearCredentials, setCredentials } from '../../features/auth/authSlice'
 import type { User } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_URL,
+baseUrl: import.meta.env.PROD
+    ? 'https://saas3-mocha.vercel.app/api/v1'
+    : '/api/v1',
   credentials: 'include',
   prepareHeaders: (headers) => {
+    headers.set('x-vercel-project-id', 'prj_cFdrW8o9HEbJ8ARkZMxH0wlEjlzy');
     return headers;
   },
 });
@@ -39,9 +42,8 @@ export const baseApi = createApi({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setCredentials({ user: data }));
+          dispatch(setCredentials({ user: data.data }));
         } catch (error) {
-          console.error('Error in getAuthUser:', error);
           dispatch(clearCredentials());
         }
       }

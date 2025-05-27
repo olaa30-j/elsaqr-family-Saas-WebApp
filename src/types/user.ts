@@ -33,7 +33,15 @@ export interface User {
   permissions: any;
   createdAt?: string;
   updatedAt?: string;
+  data?:any
 }
+
+export interface UserData {
+  user : {
+    data : User
+  }
+}
+
 
 export interface UserData{
     data: User;
