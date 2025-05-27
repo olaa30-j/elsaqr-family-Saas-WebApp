@@ -98,7 +98,7 @@ const routes: RouteObject[] = [
             ),
             children: [
               {
-                path: 'users', // Changed from '/users' to 'users'
+                path: 'users', 
                 element: (
                   <SuspenseLoader>
                     <UsersPage />

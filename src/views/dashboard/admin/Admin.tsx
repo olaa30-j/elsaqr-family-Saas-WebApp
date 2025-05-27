@@ -3,7 +3,7 @@ import ControlPanelSidebar from '../../../components/shared/ControlPanelSidebar'
 
 const Admin = () => {
     return (
-        <section className="flex">
+        <section className="flex px-2">
             <div className='md:relative absolute w-[25vw]'><ControlPanelSidebar /></div>
 
             <div className='w-[75vw]'>

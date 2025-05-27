@@ -16,6 +16,8 @@ export const familyRelationships = [
 ];
 
 export interface User {
+  data: User;
+  _id?:string;
   fname: string;
   lname: string;
   email: string;

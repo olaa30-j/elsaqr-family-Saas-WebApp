@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { clearCredentials, setCredentials } from '../../features/auth/authSlice';
-import { toast } from 'react-toastify';
 import type { User } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
@@ -19,7 +18,6 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
     !args.url.includes('register')) {
     if (result.error?.status === 401) {
       api.dispatch(clearCredentials());
-      toast.warning('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
     }
   }
 

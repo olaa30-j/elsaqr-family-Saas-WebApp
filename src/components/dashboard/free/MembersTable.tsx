@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import familyData from '../../../../public/data/familyData.json';
 import Modal from "../../ui/Modal";
 import RegistrationForm from "../../auth/RegisterationForm";
+import type { User } from "../../../types/user";
 
-// الأنواع (كما هي)
 export type PermissionAction = 'عرض' | 'إنشاء' | 'تعديل' | 'حذف' | 'إدارة';
 export type PermissionSection = 'لوحة التحكم' | 'العائلة' | 'المالية' | 'الأعضاء' | 'الإعلانات' | 'الفعاليات' | 'المستندات' | 'المشرف';
 
@@ -17,56 +17,41 @@ export type UserPermissions = {
     [section in PermissionSection]?: Permission;
 };
 
-export interface IUser {
-    _id: string;
-    tenantId: string;
-    fname: string;
-    lname: string;
-    email: string;
-    password: string;
-    phone: number;
-    image?: string;
-    role?: string;
-    familyBranch: string;
-    familyRelationship: string;
-    status?: string;
-    address?: string;
-    birthday?: string;
-    personalProfile?: string;
-    permissions: UserPermissions;
-}
-
-interface EmployeeTableProps {
+interface MembersTableProps {
     currentPage?: number;
     itemsPerPage?: number;
+    usersData: User[] | undefined;
 }
 
-const MembersTable: React.FC<EmployeeTableProps> = ({
+const MembersTable: React.FC<MembersTableProps> = ({
     currentPage: initialPage = 1,
-    itemsPerPage = 10
+    itemsPerPage = 10,
+    usersData
 }) => {
     const navigate = useNavigate();
-    const [users, setUsers] = useState<IUser[]>([]);
+    const [users, setUsers] = useState<User[] | undefined>(usersData);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(initialPage);
     const [totalPages, setTotalPages] = useState(1);
-    const [sortConfig, setSortConfig] = useState<{ key: keyof IUser; direction: 'asc' | 'desc' } | null>(null);
+    const [sortConfig, setSortConfig] = useState<{ key: keyof User; direction: 'asc' | 'desc' } | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+
+
 
     useEffect(() => {
         setLoading(true);
         try {
-            setUsers(familyData.users);
+            setUsers(usersData);
             setTotalPages(Math.ceil(familyData.users.length / itemsPerPage));
         } catch (error) {
             console.error('Error loading family data:', error);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [usersData]);
 
-    // دالة للترتيب
-    const handleSort = (key: keyof IUser) => {
+    const handleSort = (key: keyof User) => {
         let direction: 'asc' | 'desc' = 'asc';
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
             direction = 'desc';
@@ -74,23 +59,28 @@ const MembersTable: React.FC<EmployeeTableProps> = ({
         setSortConfig({ key, direction });
     };
 
-    // تطبيق الترتيب على البيانات
-    const sortedUsers = [...users].sort((a, b) => {
-        if (!sortConfig) return 0;
+    let sortedUsers: any = [];
+    if (users) {
+        sortedUsers = [...users].sort((a, b) => {
+            if (!sortConfig) return 0;
 
-        const aValue: any = a[sortConfig.key];
-        const bValue: any = b[sortConfig.key];
+            const aValue: any = a[sortConfig.key];
+            const bValue: any = b[sortConfig.key];
 
-        if (aValue < bValue) {
-            return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (aValue > bValue) {
-            return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
-    });
+            if (aValue < bValue) {
+                return sortConfig.direction === 'asc' ? -1 : 1;
+            }
+            if (aValue > bValue) {
+                return sortConfig.direction === 'asc' ? 1 : -1;
+            }
+            return 0;
+        });
 
-    // تطبيق التقسيم الصفحي
+        [...users].filter(user => {
+            searchTerm === "" ||
+                `${user.fname} ${user.lname}`.toLowerCase().includes(searchTerm.toLowerCase())
+        });
+    }
     const paginatedUsers = sortedUsers.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
@@ -105,7 +95,7 @@ const MembersTable: React.FC<EmployeeTableProps> = ({
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const getSortIcon = (key: keyof IUser) => {
+    const getSortIcon = (key: keyof User) => {
         if (!sortConfig || sortConfig.key !== key) {
             return (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2"
@@ -129,22 +119,39 @@ const MembersTable: React.FC<EmployeeTableProps> = ({
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-slate-800"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     return (
-        <div className="relative flex flex-col w-full h-full text-slate-700 bg-white rounded-xl shadow-sm">
+        <div className="relative flex flex-col w-full h-full text-primary bg-white rounded-xl shadow-sm">
             <div className="p-6">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                    <div>
-                        <h3 className="text-2xl font-bold text-slate-800">أعضاء العائلة</h3>
-                        <p className="text-slate-500 mt-1">قائمة بأفراد العائلة والأسرة الممتدة</p>
+                <div>
+                    <h3 className="text-2xl font-bold text-primary">أعضاء العائلة</h3>
+                    <p className="text-slate-500 mt-1">قائمة بأفراد العائلة والأسرة الممتدة</p>
+                </div>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 my-6 ">
+                    <div className="mt-4">
+                        <div className="relative w-[35vw]">
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                className="w-full pr-10 pl-4 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary"
+                                placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
                     </div>
+
                     <div className="flex flex-col sm:flex-row gap-3">
                         <button
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
                             type="button">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -152,7 +159,7 @@ const MembersTable: React.FC<EmployeeTableProps> = ({
                             تصفية النتائج
                         </button>
                         <button
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary transition-colors"
                             type="button"
                             onClick={() => setIsAddModalOpen(true)}>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -213,8 +220,8 @@ const MembersTable: React.FC<EmployeeTableProps> = ({
                         </thead>
                         <tbody className="bg-white divide-y divide-slate-200">
                             {paginatedUsers.length > 0 ? (
-                                paginatedUsers.map((user) => (
-                                    <tr key={user._id} className="hover:bg-slate-50 transition-colors">
+                                paginatedUsers.map((user: User) => (
+                                    <tr key={user?._id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex justify-center">
                                                 {user.image ? (
@@ -252,11 +259,11 @@ const MembersTable: React.FC<EmployeeTableProps> = ({
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex justify-center">
-                                                <span className={`px-2 py-1 text-xs font-semibold rounded-md ${user.status === 'مفعل' ?
-                                                        'bg-green-100 text-green-800' :
-                                                        'bg-slate-100 text-slate-800'
+                                                <span className={`px-2 py-1 text-responsive-sm font-semibold rounded-md ${user.status === 'accept' ?
+                                                    'bg-green-100 text-green-800' :
+                                                    'bg-slate-100 text-primary'
                                                     }`}>
-                                                    {user.status || 'معلق'}
+                                                    {user.status == 'accept' ? 'مفعل' : 'معلق'}
                                                 </span>
                                             </div>
                                         </td>
@@ -268,21 +275,21 @@ const MembersTable: React.FC<EmployeeTableProps> = ({
                                             {user.familyRelationship}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
-                                            <div className="flex justify-center space-x-2">
+                                            <div className="flex justify-center space-x-2 gap-2">
                                                 <button
-                                                    onClick={() => handleEdit(user._id)}
-                                                    className="text-slate-600 hover:text-slate-900 transition-colors"
+                                                    onClick={() => handleEdit(user?._id || '')}
+                                                    className="text-slate-600 hover:text-primary transition-colors"
                                                     title="تعديل"
                                                 >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
                                                 <button
-                                                    className="text-slate-600 hover:text-slate-900 transition-colors"
+                                                    className="text-red-700 hover:text-red-800 transition-colors"
                                                     title="حذف"
                                                 >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
@@ -306,17 +313,17 @@ const MembersTable: React.FC<EmployeeTableProps> = ({
                     <div className="text-sm text-slate-500">
                         عرض <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> إلى{' '}
                         <span className="font-medium">
-                            {Math.min(currentPage * itemsPerPage, users.length)}
+                            {Math.min(currentPage * itemsPerPage, users?.length || 0)}
                         </span>{' '}
-                        من <span className="font-medium">{users.length}</span> نتائج
+                        من <span className="font-medium">{users?.length}</span> نتائج
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 gap-2">
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
                             className={`px-3 py-1 rounded-md border ${currentPage === 1 ?
-                                    'bg-slate-100 text-slate-400 cursor-not-allowed' :
-                                    'bg-white text-slate-700 hover:bg-slate-50'
+                                'bg-slate-100 text-slate-400 cursor-not-allowed' :
+                                'bg-white text-primary hover:bg-slate-50'
                                 }`}
                         >
                             السابق
@@ -326,8 +333,8 @@ const MembersTable: React.FC<EmployeeTableProps> = ({
                                 key={page}
                                 onClick={() => handlePageChange(page)}
                                 className={`px-3 py-1 rounded-md ${currentPage === page ?
-                                        'bg-slate-800 text-white' :
-                                        'bg-white text-slate-700 hover:bg-slate-100 border'
+                                    'bg-primary text-white' :
+                                    'bg-white text-primary hover:bg-slate-100 border'
                                     }`}
                             >
                                 {page}
@@ -337,8 +344,8 @@ const MembersTable: React.FC<EmployeeTableProps> = ({
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages}
                             className={`px-3 py-1 rounded-md border ${currentPage === totalPages ?
-                                    'bg-slate-100 text-slate-400 cursor-not-allowed' :
-                                    'bg-white text-slate-700 hover:bg-slate-50'
+                                'bg-slate-100 text-slate-400 cursor-not-allowed' :
+                                'bg-white text-primary hover:bg-slate-50'
                                 }`}
                         >
                             التالي
@@ -347,7 +354,6 @@ const MembersTable: React.FC<EmployeeTableProps> = ({
                 </div>
             </div>
 
-            {/* Modal لإضافة عضو جديد */}
             <Modal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}

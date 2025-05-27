@@ -19,7 +19,7 @@ export default {
         tajawal: ['Tajawal', 'sans-serif'],
       },
       fontSize: {
-        'responsive-sm': 'clamp(0.8rem, 3vw, 1rem)',
+        'responsive-sm': 'clamp(0.7rem, 3vw, 0.85rem)',
         'responsive-base': 'clamp(1rem, 4vw, 1.2rem)',
         'responsive-lg': 'clamp(1.2rem, 5vw, 1.5rem)',
         'responsive-xl': 'clamp(1.5rem, 6vw, 2rem)',

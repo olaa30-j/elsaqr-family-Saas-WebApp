@@ -1,6 +1,6 @@
 import React from "react";
 import type { OptionLinkProps } from "../../types/home";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const OptionLink: React.FC<OptionLinkProps> = ({
     href,
@@ -10,15 +10,20 @@ const OptionLink: React.FC<OptionLinkProps> = ({
     borderColor = "border-border",
     hoverColor = "hover:bg-color-2/20",
 }) => {
+    const navigate = useNavigate();
+
+    const handleNavigation = (path: string) => {
+        navigate(path);
+    };
     return (
-        <Link to={href}>
+        <button  onClick={() => handleNavigation(href)}>
             <div className={`rounded-lg text-card-foreground shadow-sm transition-colors cursor-pointer border ${bgColor} ${borderColor} ${hoverColor}`}>
                 <div className="flex flex-col items-center justify-center p-4 text-center">
                     <div className="mb-2">{icon}</div>
                     <span className="font-medium">{title}</span>
                 </div>
             </div>
-        </Link>
+        </button>
     );
 };
 

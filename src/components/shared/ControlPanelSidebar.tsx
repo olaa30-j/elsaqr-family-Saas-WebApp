@@ -1,5 +1,5 @@
 import { Bell, BookOpen, FileText, LayoutDashboard, Shield, Users, TriangleAlert, BarChart4, Settings, Eye } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 const menuItems = [
     {
         icon: <LayoutDashboard className="h-5 w-5" />,
@@ -66,13 +66,15 @@ const menuItems = [
     }
 ];
 const ControlPanelSidebar = () => {
+    const { pathname } = useLocation();
+
     return (
         <aside className="h-full bg-white rounded-lg shadow-sm border p-4 flex flex-col">
             {/* العنوان */}
-            <div className="text-xl font-bold font-heading mb-6 text-primary pr-2">
+            <div className="text-xl font-bold font-heading my-3 text-primary pr-2 text-center font-cairo">
                 عائلة الصقر الدهمش
             </div>
-            <div className="text-xl font-bold font-heading mb-6 text-gray-700 pr-2">
+            <div className="text-xl font-bold font-heading mb-6 text-gray-700 pr-2 text-center">
                 لوحة التحكم
             </div>
             <nav className='className="flex-1 overflow-y-auto"'>
@@ -81,9 +83,10 @@ const ControlPanelSidebar = () => {
                         <li key={index}>
                             <Link to={item.path}>
                                 <div
-                                    className={`flex items-center p-3 rounded-md transition-colors hover:bg-muted cursor-pointer ${item.active
-                                        ? "bg-primary/10 text-primary font-medium"
-                                        : ""
+                                    className={`flex items-center p-3 rounded-md transition-colors hover:bg-muted cursor-pointer 
+                                        ${pathname === item.path
+                                            ? "bg-primary/10 text-primary font-medium"
+                                            : ""
                                         }`}
                                 >
                                     <span className="ml-3">{item.icon}</span>
