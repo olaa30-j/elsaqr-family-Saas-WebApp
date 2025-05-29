@@ -8,7 +8,7 @@ const baseQuery = fetchBaseQuery({
     : '/api',
   credentials: 'include',
   prepareHeaders: (headers) => {
-    headers.set('x-vercel-project-id', 'prj_cFdrW8o9HEb8ARkZMxH0wlEjlzy');
+    headers.set('x-vercel-project-id', 'prj_fx78oRiT5hck6P8EBIxyeR00HPy8');
     return headers;
   },
 });
