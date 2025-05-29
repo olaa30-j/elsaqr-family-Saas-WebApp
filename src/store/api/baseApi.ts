@@ -4,11 +4,11 @@ import type { User } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.PROD
-    ? 'https://saas2-one.vercel.app/api/v1'
+    ? 'https://saas88.vercel.app/api/v1'
     : '/api',
   credentials: 'include',
   prepareHeaders: (headers) => {
-    headers.set('x-vercel-project-id', 'prj_fx78oRiT5hck6P8EBIxyeR00HPy8');
+    headers.set('x-vercel-project-id', 'prj_97LW8EmfCk8W5hXRxWTpOhLjV6Zw');
     return headers;
   },
 });
