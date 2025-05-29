@@ -10,6 +10,7 @@ import { useLoginMutation } from '../../store/api/authApi';
 import type { LoginFormData } from '../../types/authTypes';
 import { useAppDispatch } from '../../store/store';
 import { setError, setLoading } from '../../features/auth/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const schema = yup.object().shape({
   identifier: yup
@@ -34,6 +35,7 @@ const schema = yup.object().shape({
 
 const LoginForm: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -55,6 +57,7 @@ const LoginForm: React.FC = () => {
       }).unwrap();
       
       toast.success('تم تسجيل الدخول بنجاح');
+      navigate('/dashboard')
     } catch (error) {
       toast.error('بيانات الدخول غير صحيحة');
       dispatch(setError('تأكد من صحة البريد الإلكتروني/رقم الهاتف وكلمة المرور'));
