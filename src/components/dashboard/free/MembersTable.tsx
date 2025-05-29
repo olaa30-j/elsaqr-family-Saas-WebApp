@@ -1,32 +1,23 @@
-// components/family/MembersTable.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import familyData from '../../../../public/data/familyData.json';
 import Modal from "../../ui/Modal";
-import RegistrationForm from "../../auth/RegisterationForm";
-import type { User } from "../../../types/user";
-
-export type PermissionAction = 'عرض' | 'إنشاء' | 'تعديل' | 'حذف' | 'إدارة';
-export type PermissionSection = 'لوحة التحكم' | 'العائلة' | 'المالية' | 'الأعضاء' | 'الإعلانات' | 'الفعاليات' | 'المستندات' | 'المشرف';
-
-export type Permission = {
-    [key in PermissionAction]: boolean;
-};
-
-export type UserPermissions = {
-    [section in PermissionSection]?: Permission;
-};
+import { type User } from "../../../types/user";
+import { toast } from "react-toastify";
+import { useDeleteUserMutation } from "../../../store/api/usersApi";
+// import PermissionsSection from "./admin/UserPermissionsForm";
 
 interface MembersTableProps {
     currentPage?: number;
     itemsPerPage?: number;
     usersData: User[] | undefined;
+    refetchUsers?: () => void;
 }
 
 const MembersTable: React.FC<MembersTableProps> = ({
     currentPage: initialPage = 1,
     itemsPerPage = 10,
-    usersData
+    usersData,
+    refetchUsers
 }) => {
     const navigate = useNavigate();
     const [users, setUsers] = useState<User[] | undefined>(usersData);
@@ -35,21 +26,22 @@ const MembersTable: React.FC<MembersTableProps> = ({
     const [totalPages, setTotalPages] = useState(1);
     const [sortConfig, setSortConfig] = useState<{ key: keyof User; direction: 'asc' | 'desc' } | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState<User | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
-
-
+    const [deleteUser] = useDeleteUserMutation();
 
     useEffect(() => {
         setLoading(true);
         try {
             setUsers(usersData);
-            setTotalPages(Math.ceil(familyData.users.length / itemsPerPage));
+            setTotalPages(Math.ceil((usersData?.length || 0) / itemsPerPage));
         } catch (error) {
             console.error('Error loading family data:', error);
         } finally {
             setLoading(false);
         }
-    }, [usersData]);
+    }, [usersData, itemsPerPage]);
 
     const handleSort = (key: keyof User) => {
         let direction: 'asc' | 'desc' = 'asc';
@@ -59,11 +51,15 @@ const MembersTable: React.FC<MembersTableProps> = ({
         setSortConfig({ key, direction });
     };
 
-    let sortedUsers: any = [];
-    if (users) {
-        sortedUsers = [...users].sort((a, b) => {
-            if (!sortConfig) return 0;
+    const filteredUsers = users?.filter(user => 
+        searchTerm === "" ||
+        `${user.fname} ${user.lname}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
 
+    let sortedUsers = [...filteredUsers];
+    if (sortConfig) {
+        sortedUsers.sort((a, b) => {
             const aValue: any = a[sortConfig.key];
             const bValue: any = b[sortConfig.key];
 
@@ -75,19 +71,36 @@ const MembersTable: React.FC<MembersTableProps> = ({
             }
             return 0;
         });
-
-        [...users].filter(user => {
-            searchTerm === "" ||
-                `${user.fname} ${user.lname}`.toLowerCase().includes(searchTerm.toLowerCase())
-        });
     }
+
     const paginatedUsers = sortedUsers.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
 
     const handleEdit = (userId: string) => {
-        navigate(`/family/edit/${userId}`);
+        navigate(`/admin/users/${userId}`);
+    };
+
+    const handleDeleteClick = (user: User) => {
+        setUserToDelete(user);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!userToDelete) return;
+        
+        try {
+            await deleteUser(userToDelete._id).unwrap();
+            toast.success("تم حذف المستخدم بنجاح");
+            refetchUsers?.();
+        } catch (error) {
+            toast.error("فشل في حذف المستخدم");
+            console.error("Delete error:", error);
+        } finally {
+            setIsDeleteModalOpen(false);
+            setUserToDelete(null);
+        }
     };
 
     const handlePageChange = (page: number) => {
@@ -161,7 +174,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                         <button
                             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary transition-colors"
                             type="button"
-                            onClick={() => setIsAddModalOpen(true)}>
+                            onClick={() => setIsAddModalOpen(!isAddModalOpen)}>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
@@ -208,8 +221,6 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                 <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     رقم الجوال
                                 </th>
-
-
                                 <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     صلة القرابة
                                 </th>
@@ -221,12 +232,12 @@ const MembersTable: React.FC<MembersTableProps> = ({
                         <tbody className="bg-white divide-y divide-slate-200">
                             {paginatedUsers.length > 0 ? (
                                 paginatedUsers.map((user: User) => (
-                                    <tr key={user?._id} className="hover:bg-slate-50 transition-colors">
+                                    <tr key={user._id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex justify-center">
                                                 {user.image ? (
                                                     <img
-                                                        src={user.image}
+                                                        src={`${user?.image}`}
                                                         alt={`${user.fname} ${user.lname}`}
                                                         className="h-10 w-10 rounded-full object-cover"
                                                     />
@@ -263,21 +274,20 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                                     'bg-green-100 text-green-800' :
                                                     'bg-slate-100 text-primary'
                                                     }`}>
-                                                    {user.status == 'accept' ? 'مفعل' : 'معلق'}
+                                                    {user.status === 'accept' ? 'مفعل' : 'معلق'}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 text-center">
                                             {user.phone}
                                         </td>
-
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 text-center">
                                             {user.familyRelationship}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                                             <div className="flex justify-center space-x-2 gap-2">
                                                 <button
-                                                    onClick={() => handleEdit(user?._id || '')}
+                                                    onClick={() => handleEdit(user._id)}
                                                     className="text-slate-600 hover:text-primary transition-colors"
                                                     title="تعديل"
                                                 >
@@ -286,6 +296,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                                     </svg>
                                                 </button>
                                                 <button
+                                                    onClick={() => handleDeleteClick(user)}
                                                     className="text-red-700 hover:text-red-800 transition-colors"
                                                     title="حذف"
                                                 >
@@ -299,7 +310,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-4 text-center text-slate-500">
+                                    <td colSpan={7} className="px-6 py-4 text-center text-slate-500">
                                         لا توجد بيانات متاحة
                                     </td>
                                 </tr>
@@ -313,9 +324,9 @@ const MembersTable: React.FC<MembersTableProps> = ({
                     <div className="text-sm text-slate-500">
                         عرض <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> إلى{' '}
                         <span className="font-medium">
-                            {Math.min(currentPage * itemsPerPage, users?.length || 0)}
+                            {Math.min(currentPage * itemsPerPage, filteredUsers.length)}
                         </span>{' '}
-                        من <span className="font-medium">{users?.length}</span> نتائج
+                        من <span className="font-medium">{filteredUsers.length}</span> نتائج
                     </div>
                     <div className="flex space-x-2 gap-2">
                         <button
@@ -355,11 +366,27 @@ const MembersTable: React.FC<MembersTableProps> = ({
             </div>
 
             <Modal
-                isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
-                title="إضافة عضو جديد للعائلة"
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                title="حذف مستخدم"
             >
-                <RegistrationForm />
+                <div className="space-y-4">
+                    <p className="text-lg">هل أنت متأكد من حذف المستخدم {userToDelete?.fname} {userToDelete?.lname}؟</p>
+                    <div className="flex justify-end gap-3">
+                        <button
+                            onClick={() => setIsDeleteModalOpen(false)}
+                            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                        >
+                            إلغاء
+                        </button>
+                        <button
+                            onClick={confirmDelete}
+                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                        >
+                            تأكيد الحذف
+                        </button>
+                    </div>
+                </div>
             </Modal>
         </div>
     );

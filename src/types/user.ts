@@ -15,8 +15,21 @@ export const familyRelationships = [
   { value: "other", label: 'أخرى' },
 ];
 
+export const statusOptions = [
+  { value: 'accept', label: 'مفعل' },
+  { value: 'pending', label: "معلق" }
+];
+
+export const roleOptions = [
+  { value: 'user', label: 'عضو' },
+  { value: 'admin', label: 'مدير' },
+  { value: 'super_admin', label: 'مدير عام' },
+];
+
+export const imageUrl = 'https://res.cloudinary.com/dnuxudh3t/image/upload/v1681234567/'
+
 export interface User {
-  _id?:string;
+  _id: string;
   fname: string;
   lname: string;
   email: string;
@@ -33,37 +46,28 @@ export interface User {
   permissions: any;
   createdAt?: string;
   updatedAt?: string;
-  data?:any
-}
-
-export interface UserData {
-  user : {
-    data : User
-  }
+  data?: any
 }
 
 
-export interface UserData{
-    data: User;
+export interface IUpdateUserDTO {
+  status: string;
+  role: string;
+  birthday: Date | null;
+  fname: string;
+  lname: string;
+  email: string;
+  phone: string;
+  familyBranch: string;
+  familyRelationship: string;
+  address: string;
+  permissions?: any;
+  image?: File | null;
 }
+
 export interface Pagination {
   total: number;
   page: number;
   limit: number;
   totalPages: number;
-}
-
-
-export interface CreateMemberDto {
-  fname: string;
-  lname: string;
-  email: string;
-  phone?: string;
-  password?: string;
-  familyBranch?: string;
-  familyRelationship?: string;
-  role: string;
-  status: string;
-  permissions?: string[];
-  image?: File;
 }

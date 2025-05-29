@@ -1,7 +1,9 @@
+import PhotoGallery from "../../components/dashboard/free/gallery/PhotoGallery"
+
 const Dashboard = () => {
   return (
     <section className="w-full overflox-x-hidden">
-      hello ola
+      <PhotoGallery/>
     </section>
   )
 }

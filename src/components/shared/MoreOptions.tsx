@@ -2,7 +2,7 @@ import type React from "react";
 import type { TabBarProps } from "../../types/home";
 import OptionLink, { options } from "../ui/OptionLink";
 
-const MoreOptions: React.FC<TabBarProps> = () => {
+const MoreOptions: React.FC<TabBarProps> = ({setShowMoreOptions}) => {
     return (
         <section className="overflow-y-auto pb-16 justify-between">
             <div className="container mx-auto px-4 py-4 flex flex-col justify-between h-full">
@@ -10,7 +10,7 @@ const MoreOptions: React.FC<TabBarProps> = () => {
                     <h1 className="text-2xl font-bold mb-4">المزيد من الخيارات</h1>
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                         {options.map((option, index) => (
-                            <OptionLink key={index} {...option}/>
+                            <OptionLink key={index} {...option} setShowMoreOptions={setShowMoreOptions}/>
                         ))}
                     </div>
                 </div>

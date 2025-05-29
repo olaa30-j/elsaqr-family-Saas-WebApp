@@ -16,6 +16,8 @@ const DashboardPage = lazy(() => import('../views/dashboard/Dashboard'));
 const ProfilePage = lazy(() => import('../views/dashboard/profile/ProfilePage'));
 const AdminPage = lazy(() => import('../views/dashboard/admin/Admin'));
 const UsersPage = lazy(() => import('../components/dashboard/free/admin/Users'));
+const UserDetailsPage = lazy(() => import('../components/dashboard/free/admin/UserDetails'));
+const FinancailPage = lazy(() => import('../views/dashboard/financail/FinancailPage'));
 
 const NotFoundPage = lazy(() => import('../views/errors/NotFoundPage'));
 
@@ -41,9 +43,7 @@ const routes: RouteObject[] = [
       },
       {
         element: (
-          <ProtectedRoute>
-            <AuthLayout />
-          </ProtectedRoute>
+          <AuthLayout />
         ),
         errorElement: <ErrorPage />,
         children: [
@@ -90,6 +90,14 @@ const routes: RouteObject[] = [
             ),
           },
           {
+            path: 'financail',
+            element: (
+              <SuspenseLoader>
+                <FinancailPage />
+              </SuspenseLoader>
+            )
+          },
+          {
             path: 'admin',
             element: (
               <SuspenseLoader>
@@ -98,10 +106,18 @@ const routes: RouteObject[] = [
             ),
             children: [
               {
-                path: 'users', 
+                path: 'users',
                 element: (
                   <SuspenseLoader>
                     <UsersPage />
+                  </SuspenseLoader>
+                ),
+              },
+              {
+                path: 'users/:userId',
+                element: (
+                  <SuspenseLoader>
+                    <UserDetailsPage />
                   </SuspenseLoader>
                 ),
               }

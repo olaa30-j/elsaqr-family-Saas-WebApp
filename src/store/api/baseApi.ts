@@ -1,27 +1,23 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery, type BaseQueryApi, type FetchArgs } from '@reduxjs/toolkit/query/react';
 import { clearCredentials, setCredentials } from '../../features/auth/authSlice';
 import type { User } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
-baseUrl: import.meta.env.PROD
+  baseUrl: import.meta.env.PROD
     ? 'https://saas3-mocha.vercel.app/api/v1'
-    : '/api/v1',
+    : '/api',
   credentials: 'include',
   prepareHeaders: (headers) => {
-    headers.set('x-vercel-project-id', 'prj_cFdrW8o9HEbJ8ARkZMxH0wlEjlzy');
+    headers.set('x-vercel-project-id', 'prj_cFdrW8o9HEb8ARkZMxH0wlEjlzy');
     return headers;
   },
 });
 
-const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, extraOptions: {}) => {
   let result = await baseQuery(args, api, extraOptions);
 
-  if (typeof args.url === 'string' &&
-    !args.url.includes('login') &&
-    !args.url.includes('register')) {
-    if (result.error?.status === 401) {
-      api.dispatch(clearCredentials());
-    }
+  if (result?.error?.status === 401) {
+    console.log("unautheraized");  
   }
 
   return result;
@@ -29,19 +25,19 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 
 export const baseApi = createApi({
   reducerPath: 'api',
-  tagTypes: ['Members', 'Users'],
+  tagTypes: ['Members', 'Users', 'Transaction'],
   baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     getAuthUser: builder.query<User, void>({
       query: () => ({
         url: 'user/authUser',
-        method: 'POST',
+        method: 'POST', 
         credentials: 'include'
       }),
       providesTags: ['Users'],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;
+          const { data } = await queryFulfilled;          
           dispatch(setCredentials({ user: data.data }));
         } catch (error) {
           dispatch(clearCredentials());
@@ -51,4 +47,4 @@ export const baseApi = createApi({
   }),
 });
 
-export const useGetAuthUserQuery: typeof baseApi.useGetAuthUserQuery = baseApi.useGetAuthUserQuery;
+export const { useGetAuthUserQuery } = baseApi;

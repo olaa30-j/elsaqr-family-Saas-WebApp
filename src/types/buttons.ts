@@ -5,7 +5,7 @@ export type ButtonLinkProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'amber' | 'outline';
   extraStyle?: string;
   buttonLink: string;
-
+  disabled?:boolean
 };
 
 export type DetailsButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {

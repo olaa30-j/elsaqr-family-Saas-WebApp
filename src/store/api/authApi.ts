@@ -1,6 +1,6 @@
 import { baseApi } from './baseApi';
 import { clearCredentials, setError } from '../../features/auth/authSlice';
-import type { User } from '../../types/user';
+import type { User} from '../../types/user';
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

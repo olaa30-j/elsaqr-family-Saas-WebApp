@@ -9,14 +9,20 @@ const OptionLink: React.FC<OptionLinkProps> = ({
     bgColor = "bg-card",
     borderColor = "border-border",
     hoverColor = "hover:bg-color-2/20",
+    setShowMoreOptions
 }) => {
     const navigate = useNavigate();
 
     const handleNavigation = (path: string) => {
         navigate(path);
+        if(setShowMoreOptions){
+         setShowMoreOptions()   
+        }
     };
     return (
-        <button  onClick={() => handleNavigation(href)}>
+        <button onClick={() => {
+            handleNavigation(href)
+        }}>
             <div className={`rounded-lg text-card-foreground shadow-sm transition-colors cursor-pointer border ${bgColor} ${borderColor} ${hoverColor}`}>
                 <div className="flex flex-col items-center justify-center p-4 text-center">
                     <div className="mb-2">{icon}</div>
@@ -112,7 +118,7 @@ export const options: OptionLinkProps[] =
             hoverColor: "hover:bg-purple-100"
         },
         {
-            href: "/financial-committee",
+            href: "/financail",
             title: "اللجنة المالية",
             icon: <MoneyBillIcon />,
             bgColor: "bg-green-50",

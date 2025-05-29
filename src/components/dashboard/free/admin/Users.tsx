@@ -1,8 +1,8 @@
-import { useGetMembersQuery } from "../../../../store/api/memberApi";
+import { useGetUsersQuery } from "../../../../store/api/usersApi";
 import MembersTable from "../MembersTable"
 
 const Users = () => {
-    const { data: membersData, error } = useGetMembersQuery({
+    const { data: membersData, error } = useGetUsersQuery({
         page: 1,
         limit: 10
     });

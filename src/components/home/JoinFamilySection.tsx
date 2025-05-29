@@ -14,8 +14,8 @@ const JoinFamilySection = () => {
 
                 <Button
                     buttonLink="/login"
-                    variant="primary"
-                >
+                    variant="primary" 
+                  >
                     سجل دخولك الآن
                 </Button>
             </div>

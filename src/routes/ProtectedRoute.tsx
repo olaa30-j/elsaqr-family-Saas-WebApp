@@ -14,9 +14,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
     return <Navigate to="/dashboard" />;
   }
 
-  if (!isLoginOrRegister && !authStatus) {
-    return <Navigate to="/login" state={{ from: location }} />;
-  }
+  // if (!isLoginOrRegister && !authStatus) {
+  //   return <Navigate to="/login" state={{ from: location }} />;
+  // }
 
   return children;
 };

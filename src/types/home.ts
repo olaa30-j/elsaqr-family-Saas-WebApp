@@ -45,4 +45,5 @@ export interface OptionLinkProps{
     bgColor?: string;
     borderColor?: string;
     hoverColor?: string;
+    setShowMoreOptions?: () => void
 }

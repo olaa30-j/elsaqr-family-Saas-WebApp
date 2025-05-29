@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import type { ButtonLinkProps } from "../../types/buttons";
 
-const Button = ({ children, variant = 'primary', extraStyle = '', buttonLink, ...props }: ButtonLinkProps) => {
+const Button = ({ children, variant = 'primary', extraStyle = '', buttonLink, disabled, ...props }: ButtonLinkProps) => {
   const navigate = useNavigate();
 
   const handleNavigation = (path: string) => {

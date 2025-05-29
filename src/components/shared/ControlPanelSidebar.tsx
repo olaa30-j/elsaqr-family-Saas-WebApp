@@ -69,7 +69,7 @@ const ControlPanelSidebar = () => {
     const { pathname } = useLocation();
 
     return (
-        <aside className="h-full bg-white rounded-lg shadow-sm border p-4 flex flex-col">
+        <aside className="h-full bg-white rounded-lg shadow-sm border px-4 flex flex-col">
             {/* العنوان */}
             <div className="text-xl font-bold font-heading my-3 text-primary pr-2 text-center font-cairo">
                 عائلة الصقر الدهمش
@@ -84,7 +84,7 @@ const ControlPanelSidebar = () => {
                             <Link to={item.path}>
                                 <div
                                     className={`flex items-center p-3 rounded-md transition-colors hover:bg-muted cursor-pointer 
-                                        ${pathname === item.path
+                                        ${pathname.includes(item.path)
                                             ? "bg-primary/10 text-primary font-medium"
                                             : ""
                                         }`}

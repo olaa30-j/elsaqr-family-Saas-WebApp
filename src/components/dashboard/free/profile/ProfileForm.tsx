@@ -9,6 +9,7 @@ import PhoneInput from '../../../ui/PhoneInput';
 import { familyBranches, familyRelationships } from '../../../../types/user';
 import { useAppSelector } from '../../../../store/store';
 import { toast } from 'react-toastify';
+import { useUpdateUserMutation } from '../../../../store/api/usersApi';
 
 export interface ProfileFormData {
     fname: string;
@@ -44,6 +45,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     onCancel
 }) => {
     const user = useAppSelector((state) => state.auth.user);
+    const [updateUser] = useUpdateUserMutation();
 
     const {
         control,
@@ -64,10 +66,30 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         },
     });
 
-    const handleFormSubmit: SubmitHandler<ProfileFormData> = (data) => {
-        toast.success("تم تعديل البيانات بنجاح");
-        onCancel()
-        console.log(data);
+    const handleFormSubmit: SubmitHandler<ProfileFormData> = async (data) => {
+        const formData = new FormData();
+
+        Object.entries(data).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                if (value instanceof Date) {
+                    formData.append(key, value.toISOString());
+                } else {
+                    formData.append(key, value.toString());
+                }
+            }
+        });
+
+        if (user) {
+            try {
+                await updateUser({ id: user._id, formData }).unwrap();
+                toast.success("تم تعديل البيانات بنجاح");
+                onCancel()
+
+            } catch (error) {
+                toast.error("تأكد من صحة البيانات و راجع المحاولة");
+                console.log(error);
+            }
+        }
     };
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)}>
