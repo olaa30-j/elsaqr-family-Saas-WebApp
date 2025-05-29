@@ -36,12 +36,8 @@ export const baseApi = createApi({
       }),
       providesTags: ['Users'],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        try {
           const { data } = await queryFulfilled;          
           dispatch(setCredentials({ user: data.data }));
-        } catch (error) {
-          dispatch(clearCredentials());
-        }
       }
     }),
   }),
