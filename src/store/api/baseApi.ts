@@ -4,7 +4,7 @@ import type { User } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.PROD
-    ? 'https://saas3-mocha.vercel.app/api/v1'
+    ? 'https://saas2-one.vercel.app/api/v1'
     : '/api',
   credentials: 'include',
   prepareHeaders: (headers) => {
