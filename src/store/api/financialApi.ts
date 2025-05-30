@@ -1,18 +1,16 @@
+import type { Transaction } from '../../types/financial';
 import { baseApi } from './baseApi';
 
 export const financialApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    createTransaction: builder.mutation({
-      query: (formData:FormData) => {
-        return {
-          url: '/financial/',
-          method: 'POST',
-          body: formData,
-        };
-      },
+    createTransaction: builder.mutation<Transaction, FormData>({
+      query: (formData) => ({
+        url: '/financial/',
+        method: 'POST',
+        body: formData,
+      }),
       invalidatesTags: ['Transaction'],
     }),
-
     getTransactions: builder.query({
       query: (params = {}) => ({
         url: '/financial/',
@@ -46,17 +44,8 @@ export const financialApi = baseApi.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: 'Transaction', id }],
     }),
 
-    updateTransaction: builder.mutation({
-      query: ({ id, ...data }) => {
-        const formData = new FormData();
-        Object.keys(data).forEach((key) => {
-          if (key === 'image' && data[key]) {
-            formData.append(key, data[key]);
-          } else if (data[key] !== undefined && data[key] !== null) {
-            formData.append(key, data[key]);
-          }
-        });
-
+    updateTransaction: builder.mutation<Transaction, { id: string; formData: FormData }>({
+      query: ({ id, formData }) => {
         return {
           url: `/financial/${id}`,
           method: 'PATCH',

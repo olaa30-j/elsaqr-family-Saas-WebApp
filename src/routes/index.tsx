@@ -17,7 +17,9 @@ const ProfilePage = lazy(() => import('../views/dashboard/profile/ProfilePage'))
 const AdminPage = lazy(() => import('../views/dashboard/admin/Admin'));
 const UsersPage = lazy(() => import('../components/dashboard/free/admin/Users'));
 const UserDetailsPage = lazy(() => import('../components/dashboard/free/admin/UserDetails'));
-const FinancailPage = lazy(() => import('../views/dashboard/financail/FinancailPage'));
+
+const FinancialPage = lazy(() => import('../views/dashboard/financial/FinancialPage'));
+const TransactionDetailsPage = lazy(() => import('../components/dashboard/free/financail/TransactionDetails'));
 
 const NotFoundPage = lazy(() => import('../views/errors/NotFoundPage'));
 
@@ -90,10 +92,18 @@ const routes: RouteObject[] = [
             ),
           },
           {
-            path: 'financail',
+            path: 'financial',
             element: (
               <SuspenseLoader>
-                <FinancailPage />
+                <FinancialPage />
+              </SuspenseLoader>
+            )
+          },
+          {
+            path: 'financial/:id',
+            element: (
+              <SuspenseLoader>
+                <TransactionDetailsPage />
               </SuspenseLoader>
             )
           },

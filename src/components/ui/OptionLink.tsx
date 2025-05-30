@@ -118,7 +118,7 @@ export const options: OptionLinkProps[] =
             hoverColor: "hover:bg-purple-100"
         },
         {
-            href: "/financail",
+            href: "/financial",
             title: "اللجنة المالية",
             icon: <MoneyBillIcon />,
             bgColor: "bg-green-50",

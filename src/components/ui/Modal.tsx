@@ -5,9 +5,10 @@ interface ModalProps {
   onClose: () => void;
   children: React.ReactNode;
   title?: string;
+  extraStyle?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, extraStyle }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -37,7 +38,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
         {/* Modal container */}
         <div className="inline-block align-bottom bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full">
           {title && (
-            <div className="bg-primary py-3 sm:px-6 py-8">
+            <div className={`${extraStyle} py-3 sm:px-6 py-8`}>
               <h3 className="text-lg leading-6 font-medium text-white text-center">{title}</h3>
             </div>
           )}

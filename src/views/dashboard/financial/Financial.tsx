@@ -1,9 +1,9 @@
 import TransactionsList from "../../../components/dashboard/free/financail/TransactionsList"
 
-const FinancailPage = () => {
+const FinancialPage = () => {
   return (
     <div><TransactionsList/></div>
   )
 }
 
-export default FinancailPage
+export default FinancialPage

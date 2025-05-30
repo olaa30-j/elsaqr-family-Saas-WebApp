@@ -7,7 +7,6 @@ import SecuritySettings from "../../../components/dashboard/free/profile/Securit
 import NotificationsSettings from "../../../components/dashboard/free/profile/NotificationsSettings";
 import ActivitiesSettings from "../../../components/dashboard/free/profile/ActivitiesSettings";
 import { Tabs } from "../../../components/ui/Tabs";
-import { imageUrl } from "../../../types/user";
 
 const ProfilePage = () => {
   const user = useAppSelector((state) => state.auth.user);
@@ -53,7 +52,7 @@ const ProfilePage = () => {
                   <img
                     className="aspect-square h-full w-full object-cover"
                     alt={`${user?.fname || "المستخدم"} ${user?.lname || ""}`}
-                    src={`${imageUrl}${user?.image}` || DEFAULT_IMAGE}
+                    src={`${user?.image}` || DEFAULT_IMAGE}
                   />
                   {isEditing && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full">

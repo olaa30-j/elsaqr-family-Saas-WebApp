@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useAppSelector } from '../../store/store';
 import SettingDropDown from './SettingDropDown';
 import { useLogoutMutation } from '../../store/api/authApi';
-import { imageUrl } from '../../types/user';
 
 const Navbar = () => {
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -100,7 +99,7 @@ const Navbar = () => {
                                 className="aspect-square h-full w-full"
                                 alt={user?.role || 'صورة المستخدم'}
                                 loading="lazy"
-                                src={`${imageUrl}${user?.image}` || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSsuWiNNpEjZxIi0uQPyEq6qecEqY0XaI27Q&s'}
+                                src={`${user?.image}` || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSsuWiNNpEjZxIi0uQPyEq6qecEqY0XaI27Q&s'}
                             />
                         </span>
                     </button>
