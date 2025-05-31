@@ -7,9 +7,10 @@ import SelectField from '../../../ui/SelectField';
 import DatePickerField from '../../../ui/DatePickerField';
 import PhoneInput from '../../../ui/PhoneInput';
 import { familyBranches, familyRelationships } from '../../../../types/user';
-import { useAppSelector } from '../../../../store/store';
+import { useAppDispatch, useAppSelector } from '../../../../store/store';
 import { toast } from 'react-toastify';
 import { useUpdateUserMutation } from '../../../../store/api/usersApi';
+import { setCredentials } from '../../../../features/auth/authSlice';
 
 export interface ProfileFormData {
     fname: string;
@@ -45,6 +46,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     onCancel
 }) => {
     const user = useAppSelector((state) => state.auth.user);
+    const dispatch = useAppDispatch();
+
     const [updateUser] = useUpdateUserMutation();
 
     const {
@@ -81,8 +84,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
         if (user) {
             try {
-                await updateUser({ id: user._id, formData }).unwrap();
+                const response = await updateUser({ id: user._id, formData }).unwrap();
                 toast.success("تم تعديل البيانات بنجاح");
+                dispatch(setCredentials({ user: response.data }));
                 onCancel()
 
             } catch (error) {

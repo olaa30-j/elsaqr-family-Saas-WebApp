@@ -31,7 +31,7 @@ const DeleteConfirmationModal = ({ transaction, onClose, onConfirm }: DeleteConf
                         transition={{ duration: 0.2 }}
                         className="p-6"
                     >
-                        <div className="flex items-start gap-2">
+                        <div className="flex items-center gap-2">
                             <div className="flex-shrink-0 mt-0.5">
                                 <motion.div
                                     initial={{ scale: 0.8 }}

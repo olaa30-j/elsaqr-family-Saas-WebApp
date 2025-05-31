@@ -1,9 +1,9 @@
-import { useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
-import { useGetUserQuery, useUpdateUserMutation } from '../../../../store/api/usersApi';
+import { useGetUserQuery, useUpdateUserMutation, useCreateMemberMutation } from '../../../../store/api/usersApi';
 import InputField from '../../../ui/InputField';
 import SelectField from '../../../ui/SelectField';
 import PhoneInput from '../../../ui/PhoneInput';
@@ -11,35 +11,53 @@ import DatePickerField from '../../../ui/DatePickerField';
 import { familyBranches, familyRelationships, roleOptions, statusOptions, type IUpdateUserDTO } from '../../../../types/user';
 import { useEffect, useState, type ChangeEvent } from 'react';
 import PermissionsSection from './UserPermissionsForm';
+import { ArrowLeft } from 'lucide-react';
 
 const debug = console.log;
 
-const userSchema = yup.object({
-    fname: yup.string().required('الاسم الأول مطلوب'),
-    lname: yup.string().required('الاسم الأخير مطلوب'),
-    email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
-    phone: yup.string()
-        .required('رقم الهاتف مطلوب')
-        .matches(/^5\d{8}$/, 'يجب أن يتكون رقم الهاتف من 9 أرقام ويبدأ بـ 5'),
-    familyBranch: yup.string().required('فرع العائلة مطلوب'),
-    familyRelationship: yup.string().required('صلة القرابة مطلوبة'),
-    address: yup.string().required('العنوان مطلوب'),
-    birthday: yup.date().required('تاريخ الميلاد مطلوب').nullable(),
-    status: yup.string().required('حالة العضو مطلوبة'),
-    role: yup.string().required('دور العضو مطلوب'),
-    image: yup.mixed()
-        .nullable()
-        .notRequired()
-        .test('is-file-or-string', 'الصورة يجب أن تكون ملفًا أو رابطًا', (value) => {
-            if (value === undefined || value === null) return true;
-            return value instanceof File || typeof value === 'string';
-        }),
-});
 
-const UserDetailsPage = () => {
+interface UserDetailsPageProps {
+    isModal?: boolean;
+    onSuccess?: () => void;
+}
+
+const UserDetailsPage = ({ isModal = false, onSuccess }: UserDetailsPageProps) => {
     const { userId } = useParams<{ userId: string }>();
-    const { data: user, isLoading, error: fetchError } = useGetUserQuery(userId!);
+    const isCreateMode = !userId;
+    const navigate = useNavigate();
+    const userSchema = yup.object({
+        fname: yup.string().required('الاسم الأول مطلوب'),
+        lname: yup.string().required('الاسم الأخير مطلوب'),
+        email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
+        phone: yup.string()
+            .required('رقم الهاتف مطلوب')
+            .matches(/^5\d{8}$/, 'يجب أن يتكون رقم الهاتف من 9 أرقام ويبدأ بـ 5'),
+        familyBranch: yup.string().required('فرع العائلة مطلوب'),
+        familyRelationship: yup.string().required('صلة القرابة مطلوبة'),
+        address: yup.string().required('العنوان مطلوب'),
+        birthday: yup.date().required('تاريخ الميلاد مطلوب').nullable(),
+        status: yup.string().required('حالة العضو مطلوبة'),
+        role: yup.string().required('دور العضو مطلوب'),
+        image: yup.mixed()
+            .nullable()
+            .notRequired()
+            .test('is-file-or-string', 'الصورة يجب أن تكون ملفًا أو رابطًا', (value) => {
+                if (value === undefined || value === null) return true;
+                return value instanceof File || typeof value === 'string';
+            }),
+        ...(isCreateMode && {
+            password: yup.string()
+                .required('كلمة المرور مطلوبة')
+                .min(8, 'كلمة المرور يجب أن تكون على الأقل 8 أحرف')
+        })
+    });
+
+    const { data: user, isLoading, error: fetchError } = isCreateMode
+        ? { data: null, isLoading: false, error: null }
+        : useGetUserQuery(userId!);
+
     const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+    const [createMember, { isLoading: isCreating }] = useCreateMemberMutation();
     const [previewImage, setPreviewImage] = useState<string>('');
 
     const {
@@ -64,13 +82,17 @@ const UserDetailsPage = () => {
             status: 'active',
             role: 'user',
             image: null,
+            ...(isCreateMode && {
+                password: ''
+            })
         },
     });
 
     const currentImage = watch('image');
+    const isProcessing = isUpdating || isCreating;
 
     useEffect(() => {
-        if (user) {
+        if (!isCreateMode && user) {
             debug('[DEBUG] User data loaded:', user.data);
             reset({
                 fname: user.data.fname,
@@ -87,7 +109,7 @@ const UserDetailsPage = () => {
             });
             setPreviewImage(user.data.image || '');
         }
-    }, [user, reset]);
+    }, [user, reset, isCreateMode]);
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -108,7 +130,7 @@ const UserDetailsPage = () => {
         const formData = new FormData();
 
         Object.entries(data).forEach(([key, value]) => {
-            if (value !== undefined && value !== null && key !== 'image') {
+            if (value !== undefined && value !== null && key !== 'image' && key !== 'confirmPassword') {
                 if (value instanceof Date) {
                     formData.append(key, value.toISOString());
                 } else {
@@ -122,25 +144,47 @@ const UserDetailsPage = () => {
         }
 
         try {
-            const result = await updateUser({ id: userId!, formData }).unwrap();
-            toast.success("تم تحديث بيانات المستخدم بنجاح");
+            if (isCreateMode) {
+                const result = await createMember(formData).unwrap();
+                toast.success("تم إنشاء المستخدم بنجاح");
 
-            if (result.data?.image) {
-                setPreviewImage(result.data.image);
+                if (isModal && onSuccess) {
+                    onSuccess();
+                    toast.success("تم إنشاء المستخدم بنجاح");
+
+                } else {
+                    navigate(`/admin/users/${result.data._id}`);
+                }
+            } else {
+                const result = await updateUser({ id: userId!, formData }).unwrap();
+                toast.success("تم تحديث بيانات المستخدم بنجاح");
+
+                if (result.data?.image) {
+                    setPreviewImage(result.data.image);
+                }
             }
         } catch (error) {
-            toast.error("فشل في تحديث البيانات");
+            toast.error(isCreateMode ? "فشل في إنشاء المستخدم" : "فشل في تحديث البيانات");
         }
     };
 
-    if (isLoading) return <div className="text-center py-8">جاري التحميل...</div>;
-    if (fetchError) return <div className="text-center py-8">حدث خطأ أثناء جلب بيانات المستخدم</div>;
-    if (!user) return <div className="text-center py-8">المستخدم غير موجود</div>;
+    if (!isCreateMode && isLoading) return <div className="text-center py-8">جاري التحميل...</div>;
+    if (!isCreateMode && fetchError) return <div className="text-center py-8">حدث خطأ أثناء جلب بيانات المستخدم</div>;
+    if (!isCreateMode && !user) return <div className="text-center py-8">المستخدم غير موجود</div>;
 
     return (
-        <div className="container mx-auto p-4 max-w-4xl">
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <h1 className="text-2xl font-bold text-primary text-center mb-6">تعديل بيانات العضو</h1>
+        <div className={isModal ? "" : "container mx-auto p-4 max-w-4xl"}>
+            <div className={`bg-white rounded-lg ${isModal ? "p-4" : "p-6"}`}>
+                {!isModal && (
+                    <Link to="/admin/users" className='flex gap-2 items-center justify-end text-primary w-full'>
+                        رجوع
+                        <ArrowLeft className='w-5 h-5' />
+                    </Link>
+                )}
+
+                <h1 className={`text-xl font-bold text-primary text-center mb-4 ${isModal ? "" : "underline"}`}>
+                    {isCreateMode ? 'إضافة مستخدم جديد' : 'تعديل بيانات المستخدم'}
+                </h1>
 
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
                     <div className="flex items-center gap-4 mb-6">
@@ -171,7 +215,7 @@ const UserDetailsPage = () => {
                                           file:text-sm file:font-semibold
                                           file:bg-primary file:text-white
                                           hover:file:bg-primary/90"
-                                disabled={isUpdating}
+                                disabled={isProcessing}
                             />
                             {errors.image && (
                                 <p className="mt-2 text-sm text-red-600">{errors.image.message}</p>
@@ -212,6 +256,20 @@ const UserDetailsPage = () => {
                             name="email"
                             required
                         />
+
+                        {isCreateMode && (
+                            <>
+                                <InputField
+                                    label="كلمة المرور"
+                                    id="password"
+                                    type="password"
+                                    register={register}
+                                    error={errors.password}
+                                    name="password"
+                                    required
+                                />
+                            </>
+                        )}
 
                         <PhoneInput
                             label="رقم الهاتف"
@@ -287,24 +345,24 @@ const UserDetailsPage = () => {
                     <div className="flex justify-end gap-4 pt-6">
                         <button
                             type="submit"
-                            disabled={!isDirty || isUpdating}
+                            disabled={(!isDirty && !isCreateMode) || isProcessing}
                             className="inline-flex items-center justify-center text-white gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary hover:bg-primary/90 h-11 rounded-md px-8 w-full py-3 text-lg disabled:bg-gray-400"
                         >
-                            {isUpdating ? (
+                            {isProcessing ? (
                                 <>
                                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    جاري الحفظ...
+                                    {isCreating ? 'جاري الإنشاء...' : 'جاري الحفظ...'}
                                 </>
-                            ) : 'حفظ التغييرات'}
+                            ) : isCreateMode ? 'إنشاء مستخدم' : 'حفظ التغييرات'}
                         </button>
                     </div>
                 </form>
             </div>
 
-            {user && (
+            {!isCreateMode && user && (
                 <div>
                     <PermissionsSection user={user.data} />
                 </div>

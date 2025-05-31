@@ -191,7 +191,7 @@ const TransactionsList = () => {
                     transition={{ delay: 0.2 }}
                 >
                     <TransactionsTable
-                        transactions={filteredTransactions}
+                        transactions={paginatedTransactions}
                         sortConfig={sortConfig}
                         onSort={handleSort}
                         onEdit={(transaction) => navigate(`/financial/${transaction._id}`)}

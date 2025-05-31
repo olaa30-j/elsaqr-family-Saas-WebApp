@@ -37,6 +37,16 @@ export const memberApi = baseApi.injectEndpoints({
             invalidatesTags: [{ type: 'Users' as const, id: 'LIST' }],
         }),
 
+        createMember: build.mutation<IUpdateUserDTO, FormData>({
+            query: (formData) => ({
+                url: 'user',
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            }),
+            invalidatesTags: [{ type: 'Users' as const, id: 'LIST' }],
+        }),
+
         updateUser: build.mutation<User, { id: string; formData: FormData }>({
             query: ({ id, formData }) => ({
                 url: `/user/${id}`,
@@ -61,6 +71,24 @@ export const memberApi = baseApi.injectEndpoints({
                 { type: 'Users' as const, id: 'LIST' },
             ],
         }),
+
+        updatePermissions: build.mutation<User, {
+            id: string;
+            entity: string;
+            action: string;
+            value: boolean
+        }>({
+            query: ({ id, ...body }) => ({
+                url: `/user/${id}/permissions`,
+                method: 'PATCH',
+                body,
+                credentials: 'include'
+            }),
+            invalidatesTags: (_result, _error, { id }) => [
+                { type: 'Users' as const, id },
+                { type: 'Users' as const, id: 'LIST' },
+            ],
+        }),
     }),
 });
 
@@ -68,6 +96,8 @@ export const {
     useGetUsersQuery,
     useGetUserQuery,
     useCreateUserMutation,
+    useCreateMemberMutation,
     useUpdateUserMutation,
     useDeleteUserMutation,
+    useUpdatePermissionsMutation,
 } = memberApi;

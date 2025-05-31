@@ -1,5 +1,5 @@
 import { useForm, Controller } from 'react-hook-form';
-import { useUpdateUserMutation } from '../../../../store/api/usersApi';
+import { useUpdatePermissionsMutation } from '../../../../store/api/usersApi';
 import { toast } from 'react-toastify';
 import type { User } from '../../../../types/user';
 import { useEffect, useState } from 'react';
@@ -21,7 +21,7 @@ const permissionEntities: PermissionEntity[] = ['event', 'member', 'user', 'albu
 const permissionActions: PermissionAction[] = ['view', 'create', 'update', 'delete'];
 
 const PermissionsSection = ({ user }: { user: User }) => {
-    const [updateUser] = useUpdateUserMutation();
+    const [updatePermissions] = useUpdatePermissionsMutation();
     const [initialPermissions, setInitialPermissions] = useState<UserPermissions>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,19 +40,47 @@ const PermissionsSection = ({ user }: { user: User }) => {
         }
     }, [user, reset]);
 
-    const onSubmit = async (data: { permissions: UserPermissions }) => {
+    const onSubmitOptimized = async (data: { permissions: UserPermissions }) => {
         if (isSubmitting) return;
 
         setIsSubmitting(true);
         try {
-            const formData = new FormData();
-            formData.append('permissions', JSON.stringify(data.permissions));
+            // Find changed permissions
+            const changes: Array<{
+                entity: PermissionEntity;
+                action: PermissionAction;
+                value: boolean;
+            }> = [];
 
-            const response = await updateUser({
-                id: user._id,
-                formData
-            }).unwrap();
-            console.log(response);
+            data.permissions.forEach(newPerm => {
+                const oldPerm = initialPermissions.find(p => p.entity === newPerm.entity) || {
+                    entity: newPerm.entity,
+                    view: false,
+                    create: false,
+                    update: false,
+                    delete: false
+                };
+
+                permissionActions.forEach(action => {
+                    if (newPerm[action] !== oldPerm[action]) {
+                        changes.push({
+                            entity: newPerm.entity,
+                            action,
+                            value: newPerm[action]
+                        });
+                    }
+                });
+            });
+
+            // Update only changed permissions
+            const updatePromises = changes.map(change => 
+                updatePermissions({
+                    id: user._id,
+                    ...change
+                }).unwrap()
+            );
+
+            await Promise.all(updatePromises);
             
             toast.success("تم تحديث الصلاحيات بنجاح");
             setInitialPermissions(data.permissions);
@@ -71,7 +99,7 @@ const PermissionsSection = ({ user }: { user: User }) => {
         <div className="bg-white rounded-lg shadow-md p-6 mt-6">
             <h3 className="text-lg font-semibold mb-4 text-primary text-center mb-6">إدارة الصلاحيات</h3>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmitOptimized)}>
                 <div className="overflow-x-auto">
                     <table className="min-w-full">
                         <thead>

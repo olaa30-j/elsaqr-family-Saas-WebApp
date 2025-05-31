@@ -51,6 +51,7 @@ export interface User {
 
 
 export interface IUpdateUserDTO {
+  data?: any;
   status: string;
   role: string;
   birthday: Date | null;
@@ -63,6 +64,7 @@ export interface IUpdateUserDTO {
   address: string;
   permissions?: any;
   image?: File | null;
+  password?: string;
 }
 
 export interface Pagination {

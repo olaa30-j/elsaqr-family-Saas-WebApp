@@ -4,7 +4,7 @@ import Modal from "../../ui/Modal";
 import { type User } from "../../../types/user";
 import { toast } from "react-toastify";
 import { useDeleteUserMutation } from "../../../store/api/usersApi";
-// import PermissionsSection from "./admin/UserPermissionsForm";
+import UserDetailsPage from "./admin/UserDetails";
 
 interface MembersTableProps {
     currentPage?: number;
@@ -12,6 +12,12 @@ interface MembersTableProps {
     usersData: User[] | undefined;
     refetchUsers?: () => void;
 }
+
+type FilterOptions = {
+    status?: string;
+    familyRelationship?: string;
+    role?: string;
+};
 
 const MembersTable: React.FC<MembersTableProps> = ({
     currentPage: initialPage = 1,
@@ -29,6 +35,8 @@ const MembersTable: React.FC<MembersTableProps> = ({
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<User | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [filters, setFilters] = useState<FilterOptions>({});
     const [deleteUser] = useDeleteUserMutation();
 
     useEffect(() => {
@@ -51,11 +59,25 @@ const MembersTable: React.FC<MembersTableProps> = ({
         setSortConfig({ key, direction });
     };
 
-    const filteredUsers = users?.filter(user => 
-        searchTerm === "" ||
-        `${user.fname} ${user.lname}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || [];
+    // Get unique values for filter dropdowns
+    const statusOptions = Array.from(new Set(usersData?.map(user => user.status))) || [];
+    const relationshipOptions = Array.from(new Set(usersData?.map(user => user.familyRelationship))) || [];
+    const roleOptions = Array.from(new Set(usersData?.map(user => user.role))) || [];
+
+    const filteredUsers = users?.filter(user => {
+        // Search term filter
+        const matchesSearch =
+            searchTerm === "" ||
+            `${user.fname} ${user.lname}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+        // Additional filters
+        const matchesStatus = !filters.status || user.status === filters.status;
+        const matchesRelationship = !filters.familyRelationship || user.familyRelationship === filters.familyRelationship;
+        const matchesRole = !filters.role || user.role === filters.role;
+
+        return matchesSearch && matchesStatus && matchesRelationship && matchesRole;
+    }) || [];
 
     let sortedUsers = [...filteredUsers];
     if (sortConfig) {
@@ -89,7 +111,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
 
     const confirmDelete = async () => {
         if (!userToDelete) return;
-        
+
         try {
             await deleteUser(userToDelete._id).unwrap();
             toast.success("تم حذف المستخدم بنجاح");
@@ -106,6 +128,18 @@ const MembersTable: React.FC<MembersTableProps> = ({
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleFilterChange = (key: keyof FilterOptions, value: string) => {
+        setFilters(prev => ({
+            ...prev,
+            [key]: value === 'all' ? undefined : value
+        }));
+        setCurrentPage(1);
+    };
+
+    const clearFilters = () => {
+        setFilters({});
     };
 
     const getSortIcon = (key: keyof User) => {
@@ -144,7 +178,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                     <h3 className="text-2xl font-bold text-primary">أعضاء العائلة</h3>
                     <p className="text-slate-500 mt-1">قائمة بأفراد العائلة والأسرة الممتدة</p>
                 </div>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 my-6 ">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 my-6">
                     <div className="mt-4">
                         <div className="relative w-[35vw]">
                             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -165,16 +199,19 @@ const MembersTable: React.FC<MembersTableProps> = ({
                     <div className="flex flex-col sm:flex-row gap-3">
                         <button
                             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
-                            type="button">
+                            type="button"
+                            onClick={() => setIsFilterOpen(!isFilterOpen)}
+                        >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                             </svg>
-                            تصفية النتائج
+                            {isFilterOpen ? 'إغلاق الفلاتر' : 'تصفية النتائج'}
                         </button>
                         <button
                             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary transition-colors"
                             type="button"
-                            onClick={() => setIsAddModalOpen(!isAddModalOpen)}>
+                            onClick={() => setIsAddModalOpen(!isAddModalOpen)}
+                        >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
@@ -182,6 +219,85 @@ const MembersTable: React.FC<MembersTableProps> = ({
                         </button>
                     </div>
                 </div>
+
+                {/* Filter Panel */}
+                {isFilterOpen && (
+                    <div className="bg-white p-4 shadow-sm rounded-lg border border-slate-200 mb-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Status Filter */}
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                    الحالة
+                                </label>
+                                <select
+                                    value={filters.status || 'all'}
+                                    onChange={(e) => handleFilterChange('status', e.target.value)}
+                                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
+                                >
+                                    <option value="all">الكل</option>
+                                    {statusOptions.map(status => (
+                                        <option key={status} value={status}>
+                                            {status === 'accept' ? 'مفعل' : 'معلق'}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Relationship Filter */}
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                    صلة القرابة
+                                </label>
+                                <select
+                                    value={filters.familyRelationship || 'all'}
+                                    onChange={(e) => handleFilterChange('familyRelationship', e.target.value)}
+                                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
+                                >
+                                    <option value="all">الكل</option>
+                                    {relationshipOptions.map(rel => (
+                                        <option key={rel} value={rel}>
+                                            {rel}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Role Filter */}
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                    الدور
+                                </label>
+                                <select
+                                    value={filters.role || 'all'}
+                                    onChange={(e) => handleFilterChange('role', e.target.value)}
+                                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
+                                >
+                                    <option value="all">الكل</option>
+                                    {roleOptions.map(role => (
+                                        <option key={role} value={role}>
+                                            {role}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end mt-4 gap-2">
+                            <button
+                                onClick={clearFilters}
+                                className="px-3 py-1 text-sm text-primary border border-primary rounded-md hover:bg-slate-50"
+                            >
+                                مسح الفلاتر
+                            </button>
+                            <button
+                                onClick={() => setIsFilterOpen(false)}
+                                className="px-3 py-1 text-sm bg-primary text-white rounded-md hover:bg-primary-dark"
+                            >
+                                تطبيق الفلاتر
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 <div className="overflow-x-auto rounded-lg border border-slate-200">
                     <table className="min-w-full divide-y divide-slate-200">
@@ -388,6 +504,22 @@ const MembersTable: React.FC<MembersTableProps> = ({
                     </div>
                 </div>
             </Modal>
+
+            {isAddModalOpen &&
+                (
+                    <Modal
+                        isOpen={isAddModalOpen}
+                        onClose={() => setIsAddModalOpen(false)}
+                        title="إضافة مستخدم"
+                        extraStyle="bg-primary"
+                    >
+                        <UserDetailsPage
+                            isModal
+                            onSuccess={() => setIsAddModalOpen(false)}
+                        />
+                    </Modal>
+                )
+            }
         </div>
     );
 };

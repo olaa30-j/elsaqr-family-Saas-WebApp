@@ -85,22 +85,20 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
 
         {/* Events */}
         <button
-          onClick={() => handleNavigation('/events')}
+          onClick={() => handleNavigation('/albums')}
           className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/events') ? 'text-primary' : 'text-color-2 hover:text-foreground'}`}
         >
           <div className="flex h-8 w-8 items-center justify-center">
             <svg
-              aria-hidden="true"
-              className={`h-5 w-5 ${isActive('/events') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
-              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+              className={`h-5 w-5 ${isActive('/albums') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
+              viewBox="0 0 24 24"
+              fill="currentColor"
             >
-              <path
-                fill="currentColor"
-                d="M128 0c17.7 0 32 14.3 32 32l0 32 128 0 0-32c0-17.7 14.3-32 32-32s32 14.3 32 32l0 32 48 0c26.5 0 48 21.5 48 48l0 48H0 160l0-48C0 85.5 21.5 64 48 64l48 0 0-32c0-17.7 14.3-32 32-32zM0 192l448 0 0 272c0 26.5-21.5 48-48 48L48 512c-26.5 0-48-21.5-48-48L0 192zm64 80l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm128 0l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM64 400l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zm112 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16z"
-              />
+              <path d="M21 19V5a2 2 0 0 0-2-2H5c-1.1 0-2 .9-2 2v14h18zm-2-2H5V5h14v12zm-5.5-4.5l-2.5 3.01L10 13l-3 4h10l-3.5-4.5z" />
             </svg>
           </div>
-          <span className="mt-1">الأحداث</span>
+          <span className="mt-1">المعرض</span>
         </button>
 
         {/* More */}

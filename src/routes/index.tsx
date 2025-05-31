@@ -21,6 +21,9 @@ const UserDetailsPage = lazy(() => import('../components/dashboard/free/admin/Us
 const FinancialPage = lazy(() => import('../views/dashboard/financial/FinancialPage'));
 const TransactionDetailsPage = lazy(() => import('../components/dashboard/free/financail/TransactionDetails'));
 
+const AlbumsPage = lazy(() => import('../views/album/AlbumsPage'));
+const AlbumsDetailsPage = lazy(() => import('../views/album/AlbumDetailPage'));
+
 const NotFoundPage = lazy(() => import('../views/errors/NotFoundPage'));
 
 const SuspenseLoader = ({ children }: { children: React.ReactNode }) => (
@@ -104,6 +107,22 @@ const routes: RouteObject[] = [
             element: (
               <SuspenseLoader>
                 <TransactionDetailsPage />
+              </SuspenseLoader>
+            )
+          },
+          {
+            path: 'albums',
+            element: (
+              <SuspenseLoader>
+                <AlbumsPage />
+              </SuspenseLoader>
+            )
+          },
+          {
+            path: 'albums/:id',
+            element: (
+              <SuspenseLoader>
+                <AlbumsDetailsPage />
               </SuspenseLoader>
             )
           },
