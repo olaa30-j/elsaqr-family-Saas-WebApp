@@ -85,6 +85,7 @@ export const albumApi = baseApi.injectEndpoints({
                 { type: 'Albums' as const, id: albumId },
             ],
         }),
+
         // Remove image from album
         removeImageFromAlbum: build.mutation<Album, { albumId: string; imageId: string }>({
             query: ({ albumId, imageId }) => ({

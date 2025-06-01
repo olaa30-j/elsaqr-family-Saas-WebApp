@@ -4,11 +4,11 @@ import type { User } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.PROD
-    ? 'https://saas1-roan-nine.vercel.app/api/v1'
+    ? 'https://saas5-tawny.vercel.app'
     : '/api',
   credentials: 'include',
   prepareHeaders: (headers) => {
-    headers.set('x-vercel-project-id', 'prj_E4MsUoBBR1fsYoBh3D10grfcZYZ0');
+    headers.set('x-vercel-project-id', 'prj_W00Dmn2SIPKYwgA3QtNAsSlQ9QwO');
     return headers;
   },
 });
@@ -25,7 +25,7 @@ const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, 
 
 export const baseApi = createApi({
   reducerPath: 'api',
-  tagTypes: ['Members', 'Users', 'Transaction', 'Albums'],
+  tagTypes: ['Members', 'Users', 'Transaction', 'Albums', 'Events', 'Advertisements'],
   baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     getAuthUser: builder.query<User, void>({
