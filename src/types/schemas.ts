@@ -20,6 +20,7 @@ export const userSchema = yup.object().shape({
 
 export const memberSchema = yup.object().shape({
     _id: yup.string().optional(),
+
     fname: yup
         .string()
         .min(2, 'الاسم الأول يجب أن يكون على الأقل حرفين')
@@ -46,65 +47,52 @@ export const memberSchema = yup.object().shape({
         .oneOf(['ذكر', 'أنثى'], 'الجنس يجب أن يكون "ذكر" أو "أنثى"')
         .required('يجب اختيار الجنس'),
 
-    father: yup
-        .string()
-        .nullable()
-        .optional(),
+    // husband: yup
+    //     .string()
+    //     .nullable()
+    //     .optional() 
+    //     .when(['gender', 'familyRelationship'], {
+    //         is: (gender: string, relationship: string) =>
+    //             gender === 'أنثى' && relationship === 'زوجة',
+    //         then: (schema) => schema.required('يجب تحديد الزوج للزوجة'),
+    //         otherwise: (schema) => schema.nullable().optional()
+    //     }),
 
-    husband: yup
-        .string()
-        .nullable()
-        .when(['gender', 'familyRelationship'], {
-            is: (gender: string, relationship: string) =>
-                gender === 'أنثى' && relationship === 'زوجة',
-            then: (schema) => schema.required('يجب تحديد الزوج للزوجة'),
-            otherwise: (schema) => schema.optional().nullable()
-        }),
+    // wives: yup
+    //     .array()
+    //     .default([])  
+    //     .of(yup.string())
+    //     .max(4, 'لا يمكن للذكر أن يكون له أكثر من 4 زوجات'),
 
-    wives: yup
-        .array()
-        .of(yup.string().required('يجب تحديد ID الزوجة'))
-        .when(['gender', 'familyRelationship'], {
-            is: (gender: string, relationship: string) =>
-                gender === 'ذكر' && relationship === 'زوج',
-            then: (schema) => schema.max(4, 'لا يمكن للذكر أن يكون له أكثر من 4 زوجات'),
-            otherwise: (schema) => schema.optional().nullable()
-        }),
+    birthday: yup
+        .date()
+        .nullable()
+        .max(new Date(), 'تاريخ الميلاد لا يمكن أن يكون في المستقبل')
+        .typeError('يجب أن يكون تاريخًا صالحًا'),
+
+    deathDate: yup
+        .mixed()
+        .nullable()
+        .test(
+            'is-valid-date',
+            'يجب أن يكون تاريخًا صالحًا',
+            (value) => !value || (value instanceof Date && !isNaN(value.getTime()))
+        )
+        .test(
+            'death-after-birth',
+            'تاريخ الوفاة لا يمكن أن يكون قبل تاريخ الميلاد',
+            function (value) {
+                const { birthday } = this.parent;
+                if (!value) return true;
+                return !birthday || value >= birthday;
+            }
+        ),
+
+    summary: yup.string().max(500, 'الملخص لا يمكن أن يتجاوز 500 حرف').optional(),
 
     image: yup
         .mixed()
-        .test(
-            'is-valid-image',
-            'يجب أن تكون الصورة ملفًا صالحًا أو رابط URL',
-            (value) => {
-                if (!value) return true;
-                if (typeof value === 'string') return true;
-                if (value instanceof File) return true;
-                return false;
-            }
-        )
         .optional()
-        .nullable(),
-    birthDate: yup
-        .date()
-        .nullable()
-        .optional()
-        .max(new Date(), 'تاريخ الميلاد لا يمكن أن يكون في المستقبل'),
-
-    deathDate: yup
-        .date()
-        .nullable()
-        .optional()
-        .min(
-            yup.ref('birthDate'),
-            'تاريخ الوفاة لا يمكن أن يكون قبل تاريخ الميلاد'
-        ),
-
-    notes: yup
-        .string()
-        .nullable()
-        .optional()
-        .max(500, 'الملاحظات لا يمكن أن تتجاوز 500 حرف')
 });
 
 export type UserFormValues = yup.InferType<typeof userSchema>;

@@ -6,10 +6,12 @@ const EventsList = () => {
   const events = apiResponse.data;
 
   return (
-    <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 px-6 py-8">
-      {events.map(event => (
-        <EventCard key={event._id} event={event} />
-      ))}
+    <div className="overflow-x-auto pb-4 scrollbar-hide">
+      <div className="flex gap-6 w-max mt-2 px-4">
+        {events.map(event => (
+          <EventCard key={event._id} event={event} />
+        ))}
+      </div>
     </div>
   );
 };

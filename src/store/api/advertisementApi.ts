@@ -78,7 +78,7 @@ export const advertisementApi = baseApi.injectEndpoints({
       query: ({ id, updates }) => {
         const formData = new FormData();
 
-        if (updates.title) formData.append('address', updates.title);
+        if (updates.title) formData.append('title', updates.title);
         if (updates.type) formData.append('type', updates.type);
         if (updates.content) formData.append('content', updates.content);
         if (updates.image) formData.append('image', updates.image);

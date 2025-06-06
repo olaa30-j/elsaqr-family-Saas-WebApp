@@ -5,7 +5,7 @@ import type { Member } from "../../../../types/member";
 import { toast } from "react-toastify";
 import { useDeleteMemberMutation } from "../../../../store/api/memberApi";
 import { genderOptions, familyBranches } from "../../../../types/member";
-// import MemberForm from "./MemberForm";
+import MemberForm from "./MemberForm";
 
 interface MembersTableProps {
     currentPage?: number;
@@ -86,6 +86,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
         if (aValue === undefined) return 1;
         if (bValue === undefined) return -1;
 
+        // معالجة خاصة لفرز الأسماء العربية
         if (typeof aValue === 'string' && typeof bValue === 'string') {
             return sortConfig.direction === 'asc'
                 ? aValue.localeCompare(bValue, 'ar')
@@ -148,7 +149,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
         setSearchTerm("");
     };
 
-    
+
 
     const getSortIcon = (key: keyof Member) => {
         if (!sortConfig || sortConfig.key !== key) {
@@ -365,7 +366,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                 </th>
                             </tr>
                         </thead>
-                        
+
                         <tbody className="bg-white divide-y divide-slate-200">
                             {paginatedMembers.length > 0 ? (
                                 paginatedMembers.map((member) => {
@@ -540,22 +541,21 @@ const MembersTable: React.FC<MembersTableProps> = ({
 
                 {/* Add Member Modal */}
                 {isAddModalOpen && (
-                    <></>
-                    // <Modal
-                    //     isOpen={isAddModalOpen}
-                    //     onClose={() => setIsAddModalOpen(false)}
-                    //     title="إضافة عضو جديد"
-                    //     extraStyle="bg-primary"
-                    //     showFooter={false}
-                    // >
-                    //     <MemberForm
-                    //         onSuccess={() => {
-                    //             setIsAddModalOpen(false);
-                    //             refetchMembers?.();
-                    //         }}
-                    //         familyMembers={members}
-                    //     />
-                    // </Modal>
+
+                    <Modal
+                        isOpen={isAddModalOpen}
+                        onClose={() => setIsAddModalOpen(false)}
+                        title="إضافة عضو جديد"
+                        extraStyle="bg-primary"
+                        showFooter={false}
+                    >
+                        <MemberForm
+                            onSuccess={() => {
+                                setIsAddModalOpen(false);
+                                refetchMembers?.();
+                            }}
+                        />
+                    </Modal>
                 )}
             </div>
         </div>

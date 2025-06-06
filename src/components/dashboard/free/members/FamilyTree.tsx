@@ -244,7 +244,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         return (
             <div className="relative pt-6">
                 {grandChildren.length > 0 && (
-                    <div className="absolute top-5- left-0 right-0 h-10 flex justify-center pointer-events-none">
+                    <div className="absolute -top-5 left-0 right-0 h-10 flex justify-center pointer-events-none">
                         {/* الخط العمودي الرئيسي */}
                         <div
                             className={`absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2
@@ -392,7 +392,6 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                         {/* إذا كان هناك زوجات */}
                                         {familyTree.wives.length > 0 ? (
                                             <div className="relative">
-                                                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[80%] h-0 border-t-2 border-gray-300" />
 
                                                 <ul className="flex justify-center">
                                                     {familyTree.wives.map((wife: Member) => (
@@ -403,7 +402,6 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                             transition={{ duration: 0.5 }}
                                                             className="text-center list-none relative px-4"
                                                         >
-                                                            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0 h-6 border-l-2 border-gray-300" />
 
                                                             <div className="pt-6">
                                                                 <motion.div
@@ -428,7 +426,6 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                 transition={{ duration: 0.5 }}
                                                 className="text-center list-none relative mx-auto"
                                             >
-                                                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0 h-20 z-[-1] border-l-2 border-gray-300" />
 
                                                 <div className="pt-6">
                                                     {renderAddButton('إضافة زوجة')}

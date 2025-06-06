@@ -29,8 +29,6 @@ const albumSchema = yup.object({
 });
 
 export const AlbumCard = ({ album, onSelect, onEdit, onDelete }: AlbumCardProps) => {
-  console.log(album);
-  
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

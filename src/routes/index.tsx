@@ -27,7 +27,7 @@ const AlbumsDetailsPage = lazy(() => import('../views/album/AlbumDetailPage'));
 const EventsPage = lazy(() => import('../components/dashboard/free/events/EventCalendar'));
 
 const MembersPage = lazy(() => import('../components/dashboard/free/admin/Member'));
-// const MembersDeatilsPage = lazy(() => import('../components/dashboard/free/members/EditMember'));
+const MembersDeatilsPage = lazy(() => import('../components/dashboard/free/members/EditMember'));
 
 const AdvertisementPage = lazy(() => import('../components/dashboard/free/advertisement/AdvertisementTable'));
 
@@ -194,14 +194,14 @@ const routes: RouteObject[] = [
                   </SuspenseLoader>
                 ),
               },
-              // {
-              //   path: 'members/:memberId',
-              //   element: (
-              //     <SuspenseLoader>
-              //       <MembersDeatilsPage />
-              //     </SuspenseLoader>
-              //   ),
-              // },
+              {
+                path: 'members/:memberId',
+                element: (
+                  <SuspenseLoader>
+                    <MembersDeatilsPage />
+                  </SuspenseLoader>
+                ),
+              },
               {
                 path: 'roles-permissions',
                 element: (

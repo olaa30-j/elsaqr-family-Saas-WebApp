@@ -44,7 +44,7 @@ const FamilyMemberNode: React.FC<FamilyMemberNodeProps> = ({
                             </h3>
 
                             <div className="member-dates">
-                                <p>الميلاد: {formatArabicDate(member.birthDate)}</p>
+                                <p>الميلاد: {formatArabicDate(member.birthday)}</p>
                                 {member.deathDate && (
                                     <p>الوفاة: {formatArabicDate(member.deathDate)}</p>
                                 )}

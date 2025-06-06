@@ -42,13 +42,13 @@ const AdCarousel = ({ ads }:IAdCarousel) => {
         <div className="absolute inset-0 flex items-center justify-between px-4">
           <button 
             onClick={goToPrev}
-            className="z-20 w-10 h-10 p-2 text-white bg-black bg-opacity-50 rounded-full cursor-pointer hover:bg-opacity-70"
+            className="z-6 w-10 h-10 p-2 text-white bg-black bg-opacity-50 rounded-full cursor-pointer hover:bg-opacity-70"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
           <button 
             onClick={goToNext}
-            className="z-20 w-10 h-10 p-2 text-white bg-black bg-opacity-50 rounded-full cursor-pointer hover:bg-opacity-70"
+            className="z-6 w-10 h-10 p-2 text-white bg-black bg-opacity-50 rounded-full cursor-pointer hover:bg-opacity-70"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>

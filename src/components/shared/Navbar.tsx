@@ -7,7 +7,6 @@ const Navbar = () => {
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const user = useAppSelector((state) => state.auth.user);
     const [logout] = useLogoutMutation();
-    console.log(user);
     
     const toggleProfileMenu = () => {
         setIsProfileMenuOpen(!isProfileMenuOpen);

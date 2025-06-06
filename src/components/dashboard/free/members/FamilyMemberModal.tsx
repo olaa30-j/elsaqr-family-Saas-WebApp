@@ -43,7 +43,7 @@ const FamilyMemberModal: React.FC<FamilyMemberModalProps> = ({
           <div className="member-details">
             <div className="detail-row">
               <span className="detail-label">تاريخ الميلاد:</span>
-              <span>{formatArabicDate(member.birthDate)}</span>
+              <span>{formatArabicDate(member.birthday)}</span>
             </div>
             
             {member.deathDate && (

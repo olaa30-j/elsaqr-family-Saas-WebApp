@@ -7,7 +7,6 @@ export type Member = {
     familyBranch: string;
     gender: 'ذكر' | 'أنثى';
     father?: string;
-    birthDate: Date | string;
     birthday: Date | string;
     deathDate: Date | string;
     husband?: string;

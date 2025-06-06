@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
     useGetAdvertisementsQuery,
     useDeleteAdvertisementMutation,
@@ -18,21 +16,26 @@ import {
 } from 'lucide-react';
 import type { IAdvertisement, IAdvertisementForm } from '../../../../types/advertisement';
 import Modal from '../../../ui/Modal';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { toast } from 'react-toastify';
 
 type SortField = 'title' | 'type' | 'createdAt';
 type SortDirection = 'asc' | 'desc';
+type AdvertisementType = 'general' | 'important' | 'social';
+type AdvertisementStatus = 'pending' | 'active' | 'inactive' | 'معلق';
 
 const AdvertisementTable = () => {
-    // Pagination and sorting state
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
     const [sortField, setSortField] = useState<SortField>('createdAt');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [filters, setFilters] = useState({
-        type: 'all',
-        status: 'all'
+        type: 'all' as 'all' | AdvertisementType,
+        status: 'all' as 'all' | AdvertisementStatus
     });
 
     // Form state
@@ -40,35 +43,60 @@ const AdvertisementTable = () => {
     const [currentAd, setCurrentAd] = useState<Partial<IAdvertisement> | null>(null);
     const [formData, setFormData] = useState<IAdvertisementForm>({
         title: '',
-        type: '',
+        type: 'general',
         content: '',
         image: null
     });
 
-    // API calls
-    const { data, isLoading, isError } = useGetAdvertisementsQuery({
+    // Debounce search term
+    useEffect(() => {
+        const timerId = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+            setPage(1);
+        }, 500);
+
+        return () => {
+            clearTimeout(timerId);
+        };
+    }, [searchTerm]);
+
+    const {
+        data,
+        isLoading,
+        isError,
+        error,
+        refetch
+    } = useGetAdvertisementsQuery({
         page,
         limit,
         sort: `${sortDirection === 'desc' ? '-' : ''}${sortField}`,
-        search: searchTerm,
+        search: debouncedSearchTerm,
         ...(filters.type !== 'all' && { type: filters.type }),
-        ...(filters.status !== 'all' && { status: filters.status })
+        ...(filters.status !== 'all' && {
+            status: filters.status === 'pending' ? 'معلق' : filters.status
+        })
+    }, {
+        refetchOnMountOrArgChange: true
     });
 
     const [deleteAd] = useDeleteAdvertisementMutation();
-    const [createAd] = useCreateAdvertisementMutation();
-    const [updateAd] = useUpdateAdvertisementMutation();
+    const [createAd, { isLoading: isCreating }] = useCreateAdvertisementMutation();
+    const [updateAd, { isLoading: isUpdating }] = useUpdateAdvertisementMutation();
 
-    // Handle sort function
+    // Handle API errors
+    useEffect(() => {
+        if (isError) {
+            toast.error('فشل في تحميل الإعلانات. يرجى المحاولة مرة أخرى.');
+            console.error('Error fetching advertisements:', error);
+        }
+    }, [isError, error]);
+
+    // Handle sort function with proper type checking
     const handleSort = (field: SortField) => {
-        // Reset to page 1 when changing sort
         setPage(1);
-
         if (sortField === field) {
-            // If same field, toggle direction
             setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
         } else {
-            // If new field, set to ascending by default
             setSortField(field);
             setSortDirection('asc');
         }
@@ -86,25 +114,31 @@ const AdvertisementTable = () => {
         );
     };
 
-    // Handle form changes
+    // Handle form changes with type safety
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setFormData(prev => ({ ...prev, image: e.target.files![0] }));
+            setFormData(prev => ({
+                ...prev,
+                image: e.target.files![0]
+            }));
         }
     };
 
-    // Handle filter changes
-    const handleFilterChange = (filterName: string, value: string) => {
+    // Handle filter changes with proper type conversion
+    const handleFilterChange = (filterName: keyof typeof filters, value: string) => {
         setFilters(prev => ({
             ...prev,
-            [filterName]: value
+            [filterName]: value as any
         }));
-        setPage(1); // Reset to first page when filters change
+        setPage(1);
     };
 
     const clearFilters = () => {
@@ -124,13 +158,17 @@ const AdvertisementTable = () => {
                     id: currentAd._id,
                     updates: formData
                 }).unwrap();
+                toast.success('تم تحديث الإعلان بنجاح');
             } else {
                 await createAd(formData).unwrap();
+                toast.success('تم إنشاء الإعلان بنجاح');
             }
             resetForm();
             setIsFormOpen(false);
+            refetch();
         } catch (error) {
             console.error('Failed to save advertisement:', error);
+            toast.error('فشل في حفظ الإعلان. يرجى المحاولة مرة أخرى.');
         }
     };
 
@@ -162,8 +200,11 @@ const AdvertisementTable = () => {
         if (window.confirm('هل أنت متأكد من حذف هذا الإعلان؟')) {
             try {
                 await deleteAd(id).unwrap();
+                toast.success('تم حذف الإعلان بنجاح');
+                refetch();
             } catch (error) {
                 console.error('Failed to delete advertisement:', error);
+                toast.error('فشل في حذف الإعلان. يرجى المحاولة مرة أخرى.');
             }
         }
     };
@@ -381,6 +422,7 @@ const AdvertisementTable = () => {
                         </tbody>
                     </table>
                 </div>
+
                 {/* Pagination */}
                 {data?.pagination && (
                     <div className="flex items-center justify-between mt-4 px-2">
@@ -527,8 +569,9 @@ const AdvertisementTable = () => {
                                         <button
                                             type="submit"
                                             className="flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+                                            disabled={isCreating || isUpdating}
                                         >
-                                            {isLoading ? (
+                                            {(isCreating || isUpdating) ? (
                                                 <>
                                                     <Loader2 className="animate-spin mx-2" size={18} />
                                                     جاري الحفظ...
@@ -543,7 +586,6 @@ const AdvertisementTable = () => {
                                     </div>
                                 </form>
                             </motion.div>
-
                         </Modal>
                     )}
                 </AnimatePresence>
@@ -551,4 +593,5 @@ const AdvertisementTable = () => {
         </div>
     );
 }
+
 export default AdvertisementTable;
