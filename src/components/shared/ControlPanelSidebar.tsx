@@ -1,4 +1,4 @@
-import { Bell, BookOpen, LayoutDashboard, Shield, Users, BarChart4, Settings, Eye, UserCheck2 } from 'lucide-react';
+import { Bell, BookOpen, LayoutDashboard, Shield, Users, BarChart4, Eye, UserCheck2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 const menuItems = [
     {
@@ -47,16 +47,16 @@ const menuItems = [
         icon: <BarChart4 className="h-5 w-5" />,
         title: "الإحصائيات",
         description: "تحليلات واحصائيات استخدام التطبيق",
-        path: "/admin/stats",
+        path: "/admin/statistics",
         active: false
     },
-    {
-        icon: <Settings className="h-5 w-5" />,
-        title: "إعدادات النظام",
-        description: "تعديل الإعدادات العامة للتطبيق",
-        path: "/admin/settings",
-        active: false
-    }
+    // {
+    //     icon: <Settings className="h-5 w-5" />,
+    //     title: "إعدادات النظام",
+    //     description: "تعديل الإعدادات العامة للتطبيق",
+    //     path: "/admin/settings",
+    //     active: false
+    // }
 ];
 const ControlPanelSidebar = () => {
     const { pathname } = useLocation();
@@ -96,12 +96,12 @@ const ControlPanelSidebar = () => {
                 </ul>
             </nav>
             <div className="mt-auto border-t pt-4">
-                <a href="/">
+                <Link to={"/dashboard"}>
                     <div className="flex items-center p-3 rounded-md text-muted-foreground hover:bg-muted transition-colors cursor-pointer">
                         <Eye className="h-5 w-5 ml-3" />
                         <span>العودة للتطبيق</span>
                     </div>
-                </a>
+                </Link>
             </div>
         </aside >
     )

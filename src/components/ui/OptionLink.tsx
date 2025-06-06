@@ -77,14 +77,14 @@ export const CalendarDaysIcon = () => (
 
 export const options: OptionLinkProps[] =
     [
-        {
-            href: "/documents",
-            title: "المستندات",
-            icon: <FileLinesIcon />,
-            bgColor: "bg-card",
-            borderColor: "border-border",
-            hoverColor: "hover:bg-color-2/20"
-        },
+        // {
+        //     href: "/documents",
+        //     title: "المستندات",
+        //     icon: <FileLinesIcon />,
+        //     bgColor: "bg-card",
+        //     borderColor: "border-border",
+        //     hoverColor: "hover:bg-color-2/20"
+        // },
         {
             href: "/profile",
             title: "الملف الشخصي",
@@ -94,7 +94,7 @@ export const options: OptionLinkProps[] =
             hoverColor: "hover:bg-color-2/20"
         },
         {
-            href: "/admin",
+            href: "/admin/dashboard",
             title: "لوحة الإدارة",
             icon: <GearIcon />,
             bgColor: "bg-purple-50",
@@ -109,14 +109,14 @@ export const options: OptionLinkProps[] =
             borderColor: "border-purple-200",
             hoverColor: "hover:bg-purple-100"
         },
-        {
-            href: "/admin/notifications",
-            title: "إدارة الإشعارات",
-            icon: <BellIcon />,
-            bgColor: "bg-purple-50",
-            borderColor: "border-purple-200",
-            hoverColor: "hover:bg-purple-100"
-        },
+        // {
+        //     href: "/admin/notifications",
+        //     title: "إدارة الإشعارات",
+        //     icon: <BellIcon />,
+        //     bgColor: "bg-purple-50",
+        //     borderColor: "border-purple-200",
+        //     hoverColor: "hover:bg-purple-100"
+        // },
         {
             href: "/financial",
             title: "اللجنة المالية",

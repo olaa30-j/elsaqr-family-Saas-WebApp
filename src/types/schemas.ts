@@ -3,8 +3,7 @@ import * as yup from 'yup';
 export const userSchema = yup.object().shape({
     email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
     phone: yup.string()
-        .required('رقم الهاتف مطلوب')
-        .matches(/^5\d{8}$/, 'يجب أن يتكون رقم الهاتف من 9 أرقام ويبدأ بـ 5').required(),
+        .required('رقم الهاتف مطلوب'),
     familyBranch: yup.string().required('فرع العائلة مطلوب'),
     familyRelationship: yup.string().required('صلة القرابة مطلوبة'),
     address: yup.string().optional(),
@@ -16,6 +15,13 @@ export const userSchema = yup.object().shape({
         .min(6, 'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل'),
 });
 
+export const profileSchema = yup.object().shape({
+    email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
+    phone: yup.string()
+        .required('رقم الهاتف مطلوب')
+        .matches(/^5\d{8}$/, 'يجب أن يتكون رقم الهاتف من 9 أرقام ويبدأ بـ 5').required(),
+    address: yup.string().optional(),
+});
 
 
 export const memberSchema = yup.object().shape({
@@ -96,4 +102,5 @@ export const memberSchema = yup.object().shape({
 });
 
 export type UserFormValues = yup.InferType<typeof userSchema>;
+export type ProfileFormValues = yup.InferType<typeof profileSchema>;
 export type MemberFormValues = yup.InferType<typeof memberSchema>;

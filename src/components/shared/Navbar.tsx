@@ -99,7 +99,7 @@ const Navbar = () => {
                                 className="aspect-square h-full w-full"
                                 alt={'صورة المستخدم'}
                                 loading="lazy"
-                                src={`${user?.image}` || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSsuWiNNpEjZxIi0uQPyEq6qecEqY0XaI27Q&s'}
+                                src={`${user?.memberId?.image}` || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSsuWiNNpEjZxIi0uQPyEq6qecEqY0XaI27Q&s'}
                             />
                         </span>
                     </button>

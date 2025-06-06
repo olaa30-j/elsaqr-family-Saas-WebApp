@@ -1,13 +1,8 @@
 import { useNavigate } from "react-router-dom";
+import type { User } from "../../types/user";
 
 interface SettingDropDownProps {
-  user: {
-    fname?: string;
-    lname?: string;
-    email?: string;
-    role?: string[];
-    image?: string;
-  } | null;
+  user: User| null;
   onLogout: () => void;
   toggleProfileMenu: () => void;
 }
@@ -23,9 +18,9 @@ const SettingDropDown = ({ user, onLogout, toggleProfileMenu }: SettingDropDownP
     <div className="absolute left-0 mt-6 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
       <div className="px-4 py-3 bg-gray-100">
         <p className="text-md font-medium text-primary">
-          {user?.fname} {user?.lname}
+          {user?.memberId?.fname} {user?.memberId?.lname}
         </p>
-        <p className="text-sm text-gray-700 truncate">{user?.role}</p>
+        <p className="text-sm text-gray-700 truncate">{user?.role[1]}</p>
       </div>
 
       <div className="py-1">

@@ -36,7 +36,7 @@ const Admin = () => {
                 <ControlPanelSidebar />
             </div>
 
-            <div className="flex-1 w-full md:w-[75vw] relative">
+            <div className="flex-1 w-full md:w-[75vw] relative px-6">
                 <Outlet />
             </div>
         </section>

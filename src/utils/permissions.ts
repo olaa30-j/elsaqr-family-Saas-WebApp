@@ -9,7 +9,7 @@ export const hasPermission = (
   if (!user) return false;
   
   // Super admin لديه جميع الصلاحيات
-  if (user.role === 'مدير النظام') return true;
+  if (user.role[1] === 'مدير النظام') return true;
   
   // التحقق من أن section صالحة
   if (!isPermissionSection(section)) return false;

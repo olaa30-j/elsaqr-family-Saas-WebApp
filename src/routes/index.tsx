@@ -24,6 +24,9 @@ const TransactionDetailsPage = lazy(() => import('../components/dashboard/free/f
 const AlbumsPage = lazy(() => import('../views/album/AlbumsPage'));
 const AlbumsDetailsPage = lazy(() => import('../views/album/AlbumDetailPage'));
 
+const AdminDashboardPage = lazy(() => import('../views/dashboard/admin/dashboard/AdminDashoard'));
+const StatisticsPage = lazy(() => import('../views/dashboard/admin/StatisticsPage'));
+
 const EventsPage = lazy(() => import('../components/dashboard/free/events/EventCalendar'));
 
 const MembersPage = lazy(() => import('../components/dashboard/free/admin/Member'));
@@ -134,7 +137,7 @@ const routes: RouteObject[] = [
             path: 'family-tree/:branch',
             element: (
               <SuspenseLoader>
-                <FamilyTreePage/>
+                <FamilyTreePage />
               </SuspenseLoader>
             ),
           },
@@ -207,6 +210,22 @@ const routes: RouteObject[] = [
                 element: (
                   <SuspenseLoader>
                     <RolesPage />
+                  </SuspenseLoader>
+                ),
+              },
+              {
+                path: 'dashboard',
+                element: (
+                  <SuspenseLoader>
+                    <AdminDashboardPage />
+                  </SuspenseLoader>
+                ),
+              },
+              {
+                path: 'statistics',
+                element: (
+                  <SuspenseLoader>
+                    <StatisticsPage />
                   </SuspenseLoader>
                 ),
               },

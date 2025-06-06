@@ -45,10 +45,8 @@ export const memberApi = baseApi.injectEndpoints({
             providesTags: (_result, _error, id) => [{ type: 'Members' as const, id }],
         }),
 
-        createMember: build.mutation<Member, {formData: FormData}>({
+        createMember: build.mutation<Member, FormData>({
             query: (formData) => {
-                console.log(formData);
-                
                 return {
                     url: '/member',
                     method: 'POST',

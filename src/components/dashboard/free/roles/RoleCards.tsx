@@ -140,9 +140,9 @@ const RoleCards = () => {
                         className={`bg-white rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow border-2 ${selectedRole === role ? 'border-primary' : 'border-gray-200'
                             }`}
                     >
-                        <div className="flex justify-between bg-primary p-6">
+                        <div className="flex justify-between bg-primary p-4">
                             <h3 
-                                className="text-xl font-bold text-white cursor-pointer"
+                                className="text-lg font-bold text-white cursor-pointer"
                                 onClick={() => setSelectedRole(role)}
                             >
                                 {role}

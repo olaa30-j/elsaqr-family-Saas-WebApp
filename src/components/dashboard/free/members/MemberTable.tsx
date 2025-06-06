@@ -86,7 +86,6 @@ const MembersTable: React.FC<MembersTableProps> = ({
         if (aValue === undefined) return 1;
         if (bValue === undefined) return -1;
 
-        // معالجة خاصة لفرز الأسماء العربية
         if (typeof aValue === 'string' && typeof bValue === 'string') {
             return sortConfig.direction === 'asc'
                 ? aValue.localeCompare(bValue, 'ar')
@@ -382,7 +381,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                     return (
                                         <tr key={member._id} className="hover:bg-slate-50 transition-colors">
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex justify-center">
+                                                <div className="h-10 w-10 flex justify-center">
                                                     {member.image ? (
                                                         <img
                                                             src={member.image}

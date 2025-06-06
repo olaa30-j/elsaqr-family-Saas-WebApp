@@ -48,6 +48,22 @@ export interface User {
   permissions?: any[];
   createdAt?: string;
   updatedAt?: string;
+  memberId?: {
+    _id: string;
+    fname: string;
+    lname: string;
+    familyBranch: string;
+    gender: 'ذكر' | 'أنثى';
+    father?: string;
+    birthday: Date | string;
+    deathDate: Date | string;
+    husband?: string;
+    wives?: string[];
+    image?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    familyRelationship: string;
+  };
   data?: any
 }
 

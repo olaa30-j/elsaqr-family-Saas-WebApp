@@ -45,7 +45,6 @@ const MemberForm: React.FC<MemberFormProps> = ({
 
             Object.entries(data).forEach(([key, value]) => {
                 if (key === 'image' && value instanceof File) {
-                    // هنا نتعامل مع File مباشرة وليس FileList
                     formData.append(key, value);
                 } else if (key === 'wives' && Array.isArray(value)) {
                     value.forEach((wife, index) => {
@@ -60,7 +59,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                 await updateMember({ id: memberId, data: formData }).unwrap();
                 toast.success("تم تحديث بيانات العضو بنجاح");
             } else {
-                await createMember({ formData }).unwrap();
+                await createMember( {...formData} ).unwrap();
                 toast.success("تم إضافة العضو بنجاح");
             }
 
