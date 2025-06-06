@@ -10,6 +10,7 @@ export type Member = {
     birthday: Date | string;
     deathDate: Date | string;
     husband?: string;
+    summary?: string;
     wives?: string[];
     image?: string;
     createdAt?: string;
@@ -18,10 +19,10 @@ export type Member = {
 };
 
 export interface FamilyTreeData {
-  husband: Member | null;
-  wives: Member[];
-  children: Member[];
-  grandChildren: Member[];
+    husband: Member | null;
+    wives: Member[];
+    children: Member[];
+    grandChildren: Member[];
 }
 
 export interface MemberProps {
@@ -34,7 +35,7 @@ export interface MemberProps {
     createdAt?: string;
     updatedAt?: string;
     status: string;
-    userId:Member;
+    userId: Member;
     data?: any
 }
 

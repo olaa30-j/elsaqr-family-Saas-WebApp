@@ -27,17 +27,25 @@ interface MemberFormProps {
     onSuccess?: () => void;
     onCancel?: () => void;
     isEditing?: boolean;
+    memberFormId?: string;
 }
 
 const MemberForm: React.FC<MemberFormProps> = ({
     defaultValues,
     onSuccess,
     onCancel,
+    memberFormId,
     isEditing = false,
 }) => {
     const [createMember, { isLoading: isCreating }] = useCreateMemberMutation();
-    const [updateMember, { isLoading: isUpdating }] = useUpdateMemberMutation();
-    const { memberId } = useParams<{ memberId: string }>();
+    const [updateMember, { isLoading: isUpdating }] = useUpdateMemberMutation(); 
+       
+    let memberID = memberFormId;
+    if (!memberID) { 
+        const { memberId } = useParams<{ memberId: string }>();
+        memberID  = memberId
+    }
+
 
     const handleSubmit = async (data: MemberFormValues) => {
         try {
@@ -55,8 +63,8 @@ const MemberForm: React.FC<MemberFormProps> = ({
                 }
             });
 
-            if (isEditing && memberId) {
-                await updateMember({ id: memberId, data: formData }).unwrap();
+            if (isEditing && memberID) {
+                await updateMember({ id: memberID, data: formData }).unwrap();
                 toast.success("تم تحديث بيانات العضو بنجاح");
             } else {
                 await createMember( formData ).unwrap();

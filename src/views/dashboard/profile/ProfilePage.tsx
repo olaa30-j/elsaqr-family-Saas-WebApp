@@ -57,7 +57,7 @@ const ProfilePage = () => {
         id: 'profile',
         label: 'الملف الشخصي',
         content: (
-          <>
+          <div className="flex flex-col gap-8">
             <ProfileForm
               defaultValues={{
                 email: user?.email || '',
@@ -74,12 +74,14 @@ const ProfilePage = () => {
             />
 
             <MemberForm
+              memberFormId={member._id}
               defaultValues={{
                 fname: member.fname || '',
                 lname: member.lname || '',
-                familyBranch: member.familyBranch || 'الفرع الثالث',
+                familyBranch: member.familyBranch || 'الفرع الاول',
                 familyRelationship: member.familyRelationship || 'ابن',
                 gender: member.gender || 'أنثى',
+                summary: member.summary || '' , 
                 ...(member?.father && { father: member.father }),
                 ...(member?.husband && { husband: member.husband }),
                 ...(member?.wives && { wives: member.wives }),
@@ -87,7 +89,7 @@ const ProfilePage = () => {
               }}
               isEditing={true}
             />
-          </>
+          </div>
         ),
       },
       {
@@ -191,7 +193,7 @@ const ProfilePage = () => {
                       <span className="font-medium">العنوان:</span> {user?.address || "غير محدد"}
                     </p>
                     <p className="text-muted-foreground">
-                      <span className="font-medium">الفرع:</span> {user?.familyBranch || "غير محدد"}
+                      <span className="font-medium">الفرع:</span> {member.familyBranch || "غير محدد"}
                     </p>
                   </div>
                 )}
