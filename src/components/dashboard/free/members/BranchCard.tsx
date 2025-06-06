@@ -32,7 +32,7 @@ const BranchCard = ({ familyBranch, mainHusband }: BranchCardProps) => {
 
                 <div className="p-4">
                     <h3 className="text-xl font-bold text-primary mb-3 text-center">
-                        {mainHusband ? `${mainHusband.fname} ${mainHusband.lname}` : 'اسم مستخد'}
+                        {mainHusband ? `${mainHusband.fname} ${mainHusband.lname}` : 'اسم مستخدم'}
                     </h3>
 
                     <div className="space-y-2">
