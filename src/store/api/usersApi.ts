@@ -1,8 +1,7 @@
-import type { IUpdateUserDTO, Pagination, User } from '../../types/user';
+import type { Pagination, User } from '../../types/user';
 import { baseApi } from './baseApi';
 
-
-export const memberApi = baseApi.injectEndpoints({
+export const userApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getUsers: build.query<{ data: User[]; pagination: Pagination }, { page?: number; limit?: number }>({
             query: ({ page = 1, limit = 10 }) => ({
@@ -18,6 +17,7 @@ export const memberApi = baseApi.injectEndpoints({
                     ]
                     : [{ type: 'Users' as const, id: 'LIST' }],
         }),
+
         getUser: build.query<User, string>({
             query: (id) => ({
                 url: `/user/${id}`,
@@ -27,37 +27,33 @@ export const memberApi = baseApi.injectEndpoints({
             providesTags: (_result, _error, id) => [{ type: 'Users' as const, id }],
         }),
 
-        createUser: build.mutation<IUpdateUserDTO, FormData>({
-            query: (formData) => ({
-                url: 'auth/register',
-                method: 'POST',
-                body: formData,
-                credentials: 'include'
-            }),
+        createUser: build.mutation<User, { data: any }>({
+            query: (data) => {
+                return {
+                    url: '/user',
+                    method: 'POST',
+                    body: data.data,
+                    credentials: 'include'
+                }
+            },
             invalidatesTags: [{ type: 'Users' as const, id: 'LIST' }],
         }),
 
-        createMember: build.mutation<IUpdateUserDTO, FormData>({
-            query: (formData) => ({
-                url: 'user',
-                method: 'POST',
-                body: formData,
-                credentials: 'include'
-            }),
-            invalidatesTags: [{ type: 'Users' as const, id: 'LIST' }],
-        }),
-
-        updateUser: build.mutation<User, { id: string; formData: FormData }>({
-            query: ({ id, formData }) => ({
-                url: `/user/${id}`,
-                method: 'PATCH',
-                body: formData,
-                credentials: 'include'
-            }),
-            invalidatesTags: (_result, _error, { id }) => [
-                { type: 'Users' as const, id },
-                { type: 'Users' as const, id: 'LIST' },
-            ],
+        updateUser: build.mutation<User, { id: string; data: any }>({
+            query: ({ id, data }) => {
+                return {
+                    url: `/user/${id}`,
+                    method: 'PATCH',
+                    body: data,
+                    credentials: 'include'
+                };
+            },
+            invalidatesTags: (_result, _error, { id }) => {
+                return [
+                    { type: 'Users' as const, id },
+                    { type: 'Users' as const, id: 'LIST' },
+                ];
+            },
         }),
 
         deleteUser: build.mutation<{ message: string }, string>({
@@ -73,10 +69,10 @@ export const memberApi = baseApi.injectEndpoints({
         }),
 
         updatePermissions: build.mutation<User, {
-            id: string;
+            id?: string;
             entity: string;
             action: string;
-            value: boolean
+            value: boolean;
         }>({
             query: ({ id, ...body }) => ({
                 url: `/user/${id}/permissions`,
@@ -96,8 +92,7 @@ export const {
     useGetUsersQuery,
     useGetUserQuery,
     useCreateUserMutation,
-    useCreateMemberMutation,
     useUpdateUserMutation,
     useDeleteUserMutation,
     useUpdatePermissionsMutation,
-} = memberApi;
+} = userApi;

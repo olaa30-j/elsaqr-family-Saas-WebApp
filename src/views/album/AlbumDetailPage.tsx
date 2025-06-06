@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { Trash2, Image as ImageIcon, Upload as UploadIcon } from 'lucide-react';
+import { Trash2, Image as ImageIcon, Upload as UploadIcon, GalleryThumbnails } from 'lucide-react';
 import { AlbumView } from '../../components/dashboard/free/album/AlbumView';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import { useAlbumImages } from '../../hooks/useAlbumImages';
@@ -39,11 +39,11 @@ const AlbumDetailPage = () => {
     }
   };
 
-  const handleDelete = async (imageId: string) => {
+  const handleDelete = async (albumId: string, imageId: string) => {
     try {
-      await deleteImage(imageId);
+      await deleteImage(albumId, imageId);
       toast.success('تم حذف الصورة بنجاح');
-      setSelectedImage(null); 
+      setSelectedImage(null);
     } catch (error) {
       toast.error('فشل حذف الصورة');
     }
@@ -54,8 +54,11 @@ const AlbumDetailPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">{albumData.name}</h1>
+      <div className="flex md:flex-row flex-col justify-between items-center mb-8 gap-8">
+        <div>
+          <h1 className="text-2xl text-primary font-bold flex items-center gap-3"><GalleryThumbnails size={25} /> {albumData.name}</h1>
+        </div>
+
         <div className='flex gap-4'>
           <button
             onClick={() => setIsUploadModalOpen(true)}
@@ -86,12 +89,9 @@ const AlbumDetailPage = () => {
         </div>
       )}
 
-      {albumData.description && (
-        <p className="text-gray-600 mb-6 text-lg">{albumData.description}</p>
-      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-20">
-        {albumData.images?.length ? (
+        {album && albumData.images?.length ? (
           albumData.images.map((image: any) => (
             <div key={image._id} className="relative group">
               <img
@@ -104,7 +104,7 @@ const AlbumDetailPage = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDelete(image._id);
+                    handleDelete(album.data._id,image._id);
                   }}
                   className="bg-red-500 text-white p-2 rounded-full mr-2 hover:bg-red-600"
                   title="حذف الصورة"
@@ -143,7 +143,7 @@ const AlbumDetailPage = () => {
             />
             <div className="flex justify-end mt-4 space-x-2">
               <button
-                onClick={() => handleDelete(selectedImage.id)}
+                onClick={() => handleDelete(album!.data._id, selectedImage.id)}
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
               >
                 حذف الصورة

@@ -1,21 +1,23 @@
 import { useGetUsersQuery } from "../../../../store/api/usersApi";
-import MembersTable from "../MembersTable"
+import UsersTable from "../users/UsersTable";
 
 const Users = () => {
-    const { data: membersData, error } = useGetUsersQuery({
+    const { data: usersData, error } = useGetUsersQuery({
         page: 1,
         limit: 10
     });
 
-    const members = membersData?.data
+    const users = usersData?.data
+    console.log(users)
+    
 
     if (error) {
-        return <div>Error loading members</div>;
+        return <div>خطأ فى استدعاء المستخدمين</div>;
     }
 
     return (
         <div>
-            <MembersTable currentPage={1} itemsPerPage={10} usersData={members}/>
+            <UsersTable currentPage={1} itemsPerPage={10} usersData={users}/>
         </div>
     )
 }

@@ -1,5 +1,5 @@
 export type PermissionAction = 'view' | 'create' | 'edit' | 'delete' | 'manage';
-export type PermissionSection = 'dashboard' | 'family' | 'financial' | 'members' | 'announcements' | 'events' | 'documents' | 'admin';
+export type PermissionSection = 'مناسبه' | 'عضو' | 'مستخدم' | 'معرض الصور' | 'ماليه' | 'اعلان';
 
 export type Permission = {
   [key in PermissionAction]: boolean;
@@ -10,7 +10,7 @@ export type UserPermissions = {
 };
 
 export interface IPermission {
-  entity: 'event' | 'member' | 'user' | 'album' | 'financial';
+  entity: 'مناسبه' | 'عضو' | 'مستخدم' | 'معرض الصور' | 'ماليه' | 'اعلان';
   view: boolean;
   create: boolean;
   update: boolean;
@@ -21,26 +21,15 @@ export interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'super_admin' | 'admin' | 'user';
+  role: 'مدير النظام' | 'مدير اللجنه الاجتماعية' | 'مدير اللجنه الماليه';
   permissions: UserPermissions;
 }
 
 export const isPermissionSection = (value: string): value is PermissionSection => {
-  return ['dashboard', 'family', 'financial', 'members', 'announcements', 'events', 'documents', 'admin'].includes(value);
+  return ['مناسبه', 'عضو', 'مستخدم', 'معرض الصور', 'ماليه', 'اعلان'].includes(value);
 };
 
 export const isPermissionAction = (value: string): value is PermissionAction => {
   return ['view', 'create', 'edit', 'delete', 'manage'].includes(value);
 };
  
-
-// export type PermissionAction = 'عرض' | 'إنشاء' | 'تعديل' | 'حذف' | 'إدارة';
-// export type PermissionSection = 'لوحة التحكم' | 'العائلة' | 'المالية' | 'الأعضاء' | 'الإعلانات' | 'الفعاليات' | 'المستندات' | 'المشرف';
-
-// export type Permission = {
-//     [key in PermissionAction]: boolean;
-// };
-
-// export type UserPermissions = {
-//     [section in PermissionSection]?: Permission;
-// };

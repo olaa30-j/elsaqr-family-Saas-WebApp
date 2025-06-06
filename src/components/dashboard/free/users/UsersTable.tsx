@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Modal from "../../ui/Modal";
-import { type User } from "../../../types/user";
+import Modal from "../../../ui/Modal";
+import type { User } from "../../../../types/user";
 import { toast } from "react-toastify";
-import { useDeleteUserMutation } from "../../../store/api/usersApi";
-import UserDetailsPage from "./admin/UserDetails";
+import { useDeleteUserMutation } from "../../../../store/api/usersApi";
+import { statusOptions, familyRelationships, roleOptions } from "../../../../types/user";
+import UserForm from "./UserForm";
 
-interface MembersTableProps {
+interface UsersTableProps {
     currentPage?: number;
     itemsPerPage?: number;
     usersData: User[] | undefined;
@@ -14,19 +15,19 @@ interface MembersTableProps {
 }
 
 type FilterOptions = {
-    status?: string;
-    familyRelationship?: string;
+    status?: User['status'];
+    familyRelationship?: User['familyRelationship'];
     role?: string;
 };
 
-const MembersTable: React.FC<MembersTableProps> = ({
+const UsersTable: React.FC<UsersTableProps> = ({
     currentPage: initialPage = 1,
     itemsPerPage = 10,
     usersData,
     refetchUsers
 }) => {
     const navigate = useNavigate();
-    const [users, setUsers] = useState<User[] | undefined>(usersData);
+    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(initialPage);
     const [totalPages, setTotalPages] = useState(1);
@@ -37,15 +38,17 @@ const MembersTable: React.FC<MembersTableProps> = ({
     const [searchTerm, setSearchTerm] = useState("");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [filters, setFilters] = useState<FilterOptions>({});
-    const [deleteUser] = useDeleteUserMutation();
+    const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
     useEffect(() => {
         setLoading(true);
         try {
-            setUsers(usersData);
-            setTotalPages(Math.ceil((usersData?.length || 0) / itemsPerPage));
+            const data = usersData || [];
+            setUsers(data);
+            setTotalPages(Math.ceil(data.length / itemsPerPage));
         } catch (error) {
-            console.error('Error loading family data:', error);
+            console.error('Error loading users data:', error);
+            toast.error('حدث خطأ في تحميل بيانات المستخدمين');
         } finally {
             setLoading(false);
         }
@@ -53,47 +56,46 @@ const MembersTable: React.FC<MembersTableProps> = ({
 
     const handleSort = (key: keyof User) => {
         let direction: 'asc' | 'desc' = 'asc';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+        if (sortConfig?.key === key && sortConfig.direction === 'asc') {
             direction = 'desc';
         }
         setSortConfig({ key, direction });
     };
 
-    // Get unique values for filter dropdowns
-    const statusOptions = Array.from(new Set(usersData?.map(user => user.status))) || [];
-    const relationshipOptions = Array.from(new Set(usersData?.map(user => user.familyRelationship))) || [];
-    const roleOptions = Array.from(new Set(usersData?.map(user => user.role))) || [];
+    const filteredUsers = users.filter(user => {
+        const email = user.email?.toLowerCase() || '';
+        const phone = user.phone?.toString() || '';
 
-    const filteredUsers = users?.filter(user => {
-        // Search term filter
-        const matchesSearch =
-            searchTerm === "" ||
-            `${user.fname} ${user.lname}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = searchTerm === "" ||
+            email.includes(searchTerm.toLowerCase()) ||
+            phone.includes(searchTerm);
 
-        // Additional filters
         const matchesStatus = !filters.status || user.status === filters.status;
-        const matchesRelationship = !filters.familyRelationship || user.familyRelationship === filters.familyRelationship;
-        const matchesRole = !filters.role || user.role === filters.role;
+        const matchesRelationship = !filters.familyRelationship ||
+            user.familyRelationship === filters.familyRelationship;
+        const matchesRole = !filters.role ||
+            (user.role && user.role.includes(filters.role));
 
         return matchesSearch && matchesStatus && matchesRelationship && matchesRole;
-    }) || [];
+    });
 
-    let sortedUsers = [...filteredUsers];
-    if (sortConfig) {
-        sortedUsers.sort((a, b) => {
-            const aValue: any = a[sortConfig.key];
-            const bValue: any = b[sortConfig.key];
+    const sortedUsers = [...filteredUsers].sort((a, b) => {
+        if (!sortConfig) return 0;
 
-            if (aValue < bValue) {
-                return sortConfig.direction === 'asc' ? -1 : 1;
-            }
-            if (aValue > bValue) {
-                return sortConfig.direction === 'asc' ? 1 : -1;
-            }
-            return 0;
-        });
-    }
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+
+        if (aValue === undefined) return 1;
+        if (bValue === undefined) return -1;
+
+        if (aValue < bValue) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+    });
 
     const paginatedUsers = sortedUsers.slice(
         (currentPage - 1) * itemsPerPage,
@@ -110,18 +112,17 @@ const MembersTable: React.FC<MembersTableProps> = ({
     };
 
     const confirmDelete = async () => {
-        if (!userToDelete) return;
+        if (!userToDelete?._id) return;
 
         try {
             await deleteUser(userToDelete._id).unwrap();
             toast.success("تم حذف المستخدم بنجاح");
             refetchUsers?.();
+            setIsDeleteModalOpen(false);
+            setUserToDelete(null);
         } catch (error) {
             toast.error("فشل في حذف المستخدم");
             console.error("Delete error:", error);
-        } finally {
-            setIsDeleteModalOpen(false);
-            setUserToDelete(null);
         }
     };
 
@@ -140,13 +141,14 @@ const MembersTable: React.FC<MembersTableProps> = ({
 
     const clearFilters = () => {
         setFilters({});
+        setSearchTerm("");
     };
 
     const getSortIcon = (key: keyof User) => {
         if (!sortConfig || sortConfig.key !== key) {
             return (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2"
-                    stroke="currentColor" aria-hidden="true" className="w-4 h-4 opacity-50">
+                    stroke="currentColor" className="w-4 h-4 opacity-50">
                     <path strokeLinecap="round" strokeLinejoin="round"
                         d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"></path>
                 </svg>
@@ -154,7 +156,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
         }
         return (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2"
-                stroke="currentColor" aria-hidden="true" className="w-4 h-4">
+                stroke="currentColor" className="w-4 h-4">
                 <path strokeLinecap="round" strokeLinejoin="round"
                     d={sortConfig.direction === 'asc' ?
                         "M19.5 8.25l-7.5 7.5-7.5-7.5" :
@@ -175,12 +177,14 @@ const MembersTable: React.FC<MembersTableProps> = ({
         <div className="relative flex flex-col w-full h-full text-primary bg-white rounded-xl shadow-sm">
             <div className="p-6">
                 <div>
-                    <h3 className="text-2xl font-bold text-primary">أعضاء العائلة</h3>
-                    <p className="text-slate-500 mt-1">قائمة بأفراد العائلة والأسرة الممتدة</p>
+                    <h3 className="text-2xl font-bold text-primary">إدارة المستخدمين</h3>
+                    <p className="text-slate-500 mt-1">قائمة بجميع المستخدمين المسجلين في النظام</p>
                 </div>
+
+                {/* Search and Filter Controls */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 my-6">
                     <div className="mt-4">
-                        <div className="relative w-[35vw]">
+                        <div className="relative w-full md:w-[35vw]">
                             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                 <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -189,7 +193,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                             <input
                                 type="text"
                                 className="w-full pr-10 pl-4 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary"
-                                placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+                                placeholder="ابحث بالبريد الإلكتروني أو رقم الجوال..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -199,7 +203,6 @@ const MembersTable: React.FC<MembersTableProps> = ({
                     <div className="flex flex-col sm:flex-row gap-3">
                         <button
                             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
-                            type="button"
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -208,14 +211,13 @@ const MembersTable: React.FC<MembersTableProps> = ({
                             {isFilterOpen ? 'إغلاق الفلاتر' : 'تصفية النتائج'}
                         </button>
                         <button
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary transition-colors"
-                            type="button"
-                            onClick={() => setIsAddModalOpen(!isAddModalOpen)}
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors"
+                            onClick={() => setIsAddModalOpen(true)}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
-                            إضافة عضو جديد
+                            إضافة مستخدم جديد
                         </button>
                     </div>
                 </div>
@@ -235,9 +237,9 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
                                 >
                                     <option value="all">الكل</option>
-                                    {statusOptions.map(status => (
-                                        <option key={status} value={status}>
-                                            {status === 'accept' ? 'مفعل' : 'معلق'}
+                                    {statusOptions.map(({ value, label }) => (
+                                        <option key={value} value={value}>
+                                            {label}
                                         </option>
                                     ))}
                                 </select>
@@ -254,9 +256,9 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
                                 >
                                     <option value="all">الكل</option>
-                                    {relationshipOptions.map(rel => (
-                                        <option key={rel} value={rel}>
-                                            {rel}
+                                    {familyRelationships.map(({ value, label }) => (
+                                        <option key={value} value={value}>
+                                            {label}
                                         </option>
                                     ))}
                                 </select>
@@ -273,9 +275,9 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
                                 >
                                     <option value="all">الكل</option>
-                                    {roleOptions.map(role => (
-                                        <option key={role} value={role}>
-                                            {role}
+                                    {roleOptions.map(({ value, label }) => (
+                                        <option key={value} value={value}>
+                                            {label}
                                         </option>
                                     ))}
                                 </select>
@@ -289,16 +291,11 @@ const MembersTable: React.FC<MembersTableProps> = ({
                             >
                                 مسح الفلاتر
                             </button>
-                            <button
-                                onClick={() => setIsFilterOpen(false)}
-                                className="px-3 py-1 text-sm bg-primary text-white rounded-md hover:bg-primary-dark"
-                            >
-                                تطبيق الفلاتر
-                            </button>
                         </div>
                     </div>
                 )}
 
+                {/* Users Table */}
                 <div className="overflow-x-auto rounded-lg border border-slate-200">
                     <table className="min-w-full divide-y divide-slate-200">
                         <thead className="bg-slate-50">
@@ -307,11 +304,11 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                 <th
                                     scope="col"
                                     className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
-                                    onClick={() => handleSort('fname')}
+                                    onClick={() => handleSort('email')}
                                 >
                                     <div className="flex items-center justify-center gap-1">
-                                        العضو
-                                        {getSortIcon('fname')}
+                                        البريد الإلكتروني
+                                        {getSortIcon('email')}
                                     </div>
                                 </th>
                                 <th
@@ -334,11 +331,35 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                         {getSortIcon('status')}
                                     </div>
                                 </th>
-                                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                    رقم الجوال
+                                <th
+                                    scope="col"
+                                    className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
+                                    onClick={() => handleSort('phone')}
+                                >
+                                    <div className="flex items-center justify-center gap-1">
+                                        رقم الجوال
+                                        {getSortIcon('phone')}
+                                    </div>
                                 </th>
-                                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                    صلة القرابة
+                                <th
+                                    scope="col"
+                                    className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
+                                    onClick={() => handleSort('familyRelationship')}
+                                >
+                                    <div className="flex items-center justify-center gap-1">
+                                        صلة القرابة
+                                        {getSortIcon('familyRelationship')}
+                                    </div>
+                                </th>
+                                <th
+                                    scope="col"
+                                    className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
+                                    onClick={() => handleSort('role')}
+                                >
+                                    <div className="flex items-center justify-center gap-1">
+                                        الدور
+                                        {getSortIcon('role')}
+                                    </div>
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     الإجراءات
@@ -347,29 +368,18 @@ const MembersTable: React.FC<MembersTableProps> = ({
                         </thead>
                         <tbody className="bg-white divide-y divide-slate-200">
                             {paginatedUsers.length > 0 ? (
-                                paginatedUsers.map((user: User) => (
+                                paginatedUsers.map((user) => (
                                     <tr key={user._id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex justify-center">
-                                                {user.image ? (
-                                                    <img
-                                                        src={`${user?.image}`}
-                                                        alt={`${user.fname} ${user.lname}`}
-                                                        className="h-10 w-10 rounded-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-medium">
-                                                        {user.fname.charAt(0)}{user.lname.charAt(0)}
-                                                    </div>
-                                                )}
+                                                <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-medium">
+                                                    {user.email.charAt(0).toUpperCase()}
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-center">
                                                 <div className="font-medium text-slate-900">
-                                                    {user.fname} {user.lname}
-                                                </div>
-                                                <div className="text-sm text-slate-500 mt-1">
                                                     {user.email}
                                                 </div>
                                             </div>
@@ -379,18 +389,16 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                                 <div className="font-medium text-slate-900">
                                                     {user.familyBranch}
                                                 </div>
-                                                <div className="text-sm text-slate-500 mt-1">
-                                                    {user.role}
-                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex justify-center">
-                                                <span className={`px-2 py-1 text-responsive-sm font-semibold rounded-md ${user.status === 'accept' ?
-                                                    'bg-green-100 text-green-800' :
-                                                    'bg-slate-100 text-primary'
+                                                <span className={`px-2 py-1 text-responsive-sm font-semibold rounded-md ${user.status === 'مقبول' ? 'bg-green-100 text-green-800' :
+                                                    user.status === 'مرفوض' ? 'bg-red-100 text-red-800' :
+                                                        'bg-slate-100 text-primary'
                                                     }`}>
-                                                    {user.status === 'accept' ? 'مفعل' : 'معلق'}
+                                                    {user.status === 'مقبول' ? 'مقبول' :
+                                                        user.status === 'مرفوض' ? 'مرفوض' : 'قيد الانتظار'}
                                                 </span>
                                             </div>
                                         </td>
@@ -398,12 +406,17 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                             {user.phone}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 text-center">
-                                            {user.familyRelationship}
+                                            {familyRelationships.find(r => r.value === user.familyRelationship)?.label || user.familyRelationship}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 text-center">
+                                            {user.role?.map(r =>
+                                                roleOptions.find(ro => ro.value === r)?.label || r
+                                            ).join(', ')}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                                             <div className="flex justify-center space-x-2 gap-2">
                                                 <button
-                                                    onClick={() => handleEdit(user._id)}
+                                                    onClick={() => user._id && handleEdit(user._id)}
                                                     className="text-slate-600 hover:text-primary transition-colors"
                                                     title="تعديل"
                                                 >
@@ -415,6 +428,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                                     onClick={() => handleDeleteClick(user)}
                                                     className="text-red-700 hover:text-red-800 transition-colors"
                                                     title="حذف"
+                                                    disabled={isDeleting}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -426,7 +440,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="px-6 py-4 text-center text-slate-500">
+                                    <td colSpan={8} className="px-6 py-4 text-center text-slate-500">
                                         لا توجد بيانات متاحة
                                     </td>
                                 </tr>
@@ -479,49 +493,49 @@ const MembersTable: React.FC<MembersTableProps> = ({
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <Modal
-                isOpen={isDeleteModalOpen}
-                onClose={() => setIsDeleteModalOpen(false)}
-                title="حذف مستخدم"
-            >
-                <div className="space-y-4">
-                    <p className="text-lg">هل أنت متأكد من حذف المستخدم {userToDelete?.fname} {userToDelete?.lname}؟</p>
-                    <div className="flex justify-end gap-3">
-                        <button
-                            onClick={() => setIsDeleteModalOpen(false)}
-                            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                        >
-                            إلغاء
-                        </button>
-                        <button
-                            onClick={confirmDelete}
-                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                        >
-                            تأكيد الحذف
-                        </button>
+                {/* Delete Confirmation Modal */}
+                <Modal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => !isDeleting && setIsDeleteModalOpen(false)}
+                    type="delete"
+                    title="حذف مستخدم"
+                    onConfirm={confirmDelete}
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="flex-shrink-0 p-2 bg-red-100 rounded-full text-red-600">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </div>
+                        <p className="text-gray-700">
+                            هل أنت متأكد من حذف المستخدم {userToDelete?.email}؟ لا يمكن التراجع عن هذا الإجراء.
+                        </p>
                     </div>
-                </div>
-            </Modal>
+                </Modal>
 
-            {isAddModalOpen &&
-                (
+                {/* Add User Modal */}
+                {isAddModalOpen && (
                     <Modal
                         isOpen={isAddModalOpen}
                         onClose={() => setIsAddModalOpen(false)}
-                        title="إضافة مستخدم"
+                        title="إضافة مستخدم جديد"
                         extraStyle="bg-primary"
+                        showFooter={false}
                     >
-                        <UserDetailsPage
-                            isModal
-                            onSuccess={() => setIsAddModalOpen(false)}
-                        />
+                        <>
+                            <UserForm
+                                onSuccess={() => {
+                                    setIsAddModalOpen(false)
+                                    refetchUsers?.()
+                                }}
+                            />
+                        </>
                     </Modal>
-                )
-            }
+                )}
+            </div>
         </div>
     );
 };
 
-export default MembersTable;
+export default UsersTable;

@@ -36,7 +36,6 @@ const schema = yup.object().shape({
 });
 
 const RegistrationForm: React.FC = () => {
-  // const [previewImage, setPreviewImage] = useState<string | null>(DEFAULT_IMAGE);
   const [registeration] = useRegistrationMutation();
 
   const {
@@ -50,22 +49,6 @@ const RegistrationForm: React.FC = () => {
       familyBranch: 'الفرع الأول'
     }
   });
-
-  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     setValue('image', file);
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setPreviewImage(reader.result as string);
-  //     };
-  //     reader.readAsDataURL(file);
-  //   } else {
-  //     setPreviewImage(DEFAULT_IMAGE);
-  //     setValue('image', undefined);
-  //   }
-  // };
-
 
 
   const onSubmit = async (data: RegistrationFormData) => {
@@ -107,31 +90,6 @@ const RegistrationForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* <div className="md:col-span-2">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <img
-                src={previewImage || DEFAULT_IMAGE}
-                alt="Preview"
-                className="w-20 h-20 rounded-full object-cover border-2 border-gray-300"
-              />
-            </div>
-            <div className="flex-1">
-              <input
-                type="file"
-                id="imageFile"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-md file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-primary file:text-white
-                  hover:file:bg-primary/90"
-              />
-            </div>
-          </div>
-        </div> */}
 
         <InputField
           label="البريد الإلكتروني"

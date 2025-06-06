@@ -16,13 +16,24 @@ const DashboardPage = lazy(() => import('../views/dashboard/Dashboard'));
 const ProfilePage = lazy(() => import('../views/dashboard/profile/ProfilePage'));
 const AdminPage = lazy(() => import('../views/dashboard/admin/Admin'));
 const UsersPage = lazy(() => import('../components/dashboard/free/admin/Users'));
-const UserDetailsPage = lazy(() => import('../components/dashboard/free/admin/UserDetails'));
+const EditUserPage = lazy(() => import('../components/dashboard/free/users/EditUsers'));
 
 const FinancialPage = lazy(() => import('../views/dashboard/financial/FinancialPage'));
 const TransactionDetailsPage = lazy(() => import('../components/dashboard/free/financail/TransactionDetails'));
 
 const AlbumsPage = lazy(() => import('../views/album/AlbumsPage'));
 const AlbumsDetailsPage = lazy(() => import('../views/album/AlbumDetailPage'));
+
+const EventsPage = lazy(() => import('../components/dashboard/free/events/EventCalendar'));
+
+const MembersPage = lazy(() => import('../components/dashboard/free/admin/Member'));
+// const MembersDeatilsPage = lazy(() => import('../components/dashboard/free/members/EditMember'));
+
+const AdvertisementPage = lazy(() => import('../components/dashboard/free/advertisement/AdvertisementTable'));
+
+const RolesPage = lazy(() => import('../components/dashboard/free/roles/Roles'));
+
+const FamilyTreePage = lazy(() => import('../views/dashboard/familyTree/FamilyTreePage'));
 
 const NotFoundPage = lazy(() => import('../views/errors/NotFoundPage'));
 
@@ -31,6 +42,7 @@ const SuspenseLoader = ({ children }: { children: React.ReactNode }) => (
     {children}
   </Suspense>
 );
+
 
 const routes: RouteObject[] = [
   {
@@ -95,6 +107,14 @@ const routes: RouteObject[] = [
             ),
           },
           {
+            path: 'advertisement',
+            element: (
+              <SuspenseLoader>
+                <AdvertisementPage />
+              </SuspenseLoader>
+            ),
+          },
+          {
             path: 'financial',
             element: (
               <SuspenseLoader>
@@ -111,10 +131,26 @@ const routes: RouteObject[] = [
             )
           },
           {
+            path: 'family-tree/:branch',
+            element: (
+              <SuspenseLoader>
+                <FamilyTreePage/>
+              </SuspenseLoader>
+            ),
+          },
+          {
             path: 'albums',
             element: (
               <SuspenseLoader>
                 <AlbumsPage />
+              </SuspenseLoader>
+            )
+          },
+          {
+            path: 'events',
+            element: (
+              <SuspenseLoader>
+                <EventsPage />
               </SuspenseLoader>
             )
           },
@@ -146,10 +182,34 @@ const routes: RouteObject[] = [
                 path: 'users/:userId',
                 element: (
                   <SuspenseLoader>
-                    <UserDetailsPage />
+                    <EditUserPage />
                   </SuspenseLoader>
                 ),
-              }
+              },
+              {
+                path: 'members',
+                element: (
+                  <SuspenseLoader>
+                    <MembersPage />
+                  </SuspenseLoader>
+                ),
+              },
+              // {
+              //   path: 'members/:memberId',
+              //   element: (
+              //     <SuspenseLoader>
+              //       <MembersDeatilsPage />
+              //     </SuspenseLoader>
+              //   ),
+              // },
+              {
+                path: 'roles-permissions',
+                element: (
+                  <SuspenseLoader>
+                    <RolesPage />
+                  </SuspenseLoader>
+                ),
+              },
             ],
           },
         ],

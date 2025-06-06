@@ -1,4 +1,4 @@
-import { Bell, BookOpen, FileText, LayoutDashboard, Shield, Users, TriangleAlert, BarChart4, Settings, Eye } from 'lucide-react';
+import { Bell, BookOpen, LayoutDashboard, Shield, Users, BarChart4, Settings, Eye, UserCheck2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 const menuItems = [
     {
@@ -30,24 +30,17 @@ const menuItems = [
         active: false
     },
     {
+        icon: <UserCheck2 className="h-5 w-5" />,
+        title: "سجلات الأعضاء",
+        description: "مراقبة وإدارة الأعضاء في التطبيق",
+        path: "/admin/members",
+        active: false
+    },
+    {
         icon: <Bell className="h-5 w-5" />,
         title: "إدارة الإشعارات",
         description: "إرسال وإدارة إشعارات النظام",
         path: "/admin/notifications",
-        active: false
-    },
-    {
-        icon: <FileText className="h-5 w-5" />,
-        title: "سجلات النظام",
-        description: "مراجعة سجلات نشاطات النظام",
-        path: "/admin/logs",
-        active: false
-    },
-    {
-        icon: <TriangleAlert className="h-5 w-5" />,
-        title: "سجلات الأخطاء",
-        description: "مراقبة وإدارة الأخطاء في التطبيق",
-        path: "/admin/error-logs",
         active: false
     },
     {
@@ -69,7 +62,7 @@ const ControlPanelSidebar = () => {
     const { pathname } = useLocation();
 
     return (
-        <aside className="h-full bg-white rounded-lg shadow-sm border px-4 flex flex-col">
+        <aside className="min-h-sceen overflow-y-auto bg-white rounded-lg shadow-sm border px-4 flex flex-col">
             {/* العنوان */}
             <div className="text-xl font-bold font-heading my-3 text-primary pr-2 text-center font-cairo">
                 عائلة الصقر الدهمش

@@ -5,7 +5,7 @@ interface SettingDropDownProps {
     fname?: string;
     lname?: string;
     email?: string;
-    role?: string;
+    role?: string[];
     image?: string;
   } | null;
   onLogout: () => void;

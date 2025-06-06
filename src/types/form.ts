@@ -4,7 +4,7 @@ interface BaseFieldProps {
   label?: string;
   name: string;
   id: string;
-  register: UseFormRegister<any>;
+  register?: UseFormRegister<any>;
   error?: FieldError;
   description?: string;
   required?: boolean;

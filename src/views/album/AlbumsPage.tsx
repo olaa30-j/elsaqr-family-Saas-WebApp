@@ -12,6 +12,7 @@ const AlbumsPage = () => {
         pagination,
         createAlbum,
         deleteAlbum,
+        updateAlbum,
         setPage
     } = useAlbums();
 
@@ -45,9 +46,7 @@ const AlbumsPage = () => {
             <AlbumGrid
                 albums={albums}
                 onDelete={deleteAlbum}
-                onEdit={(album) => {
-                    console.log(album);
-                }}
+                onEdit={updateAlbum}
                 onCreate={() => setIsCreating(true)}
                 onSelect={function (id: string): void {
                     console.log(id);

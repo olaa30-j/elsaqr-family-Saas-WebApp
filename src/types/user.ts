@@ -1,71 +1,56 @@
 export const familyBranches = [
-  { value: "branch_1", label: 'الفرع الأول' },
-  { value: "branch_2", label: 'الفرع الثاني' },
-  { value: "branch_3", label: 'الفرع الثالث' },
-  { value: "branch_4", label: 'الفرع الرابع' },
-  { value: "branch_5", label: 'الفرع الخامس' },
+  { value: "الفرع الاول", label: 'الفرع الأول' },
+  { value: "الفرع الثاني", label: 'الفرع الثاني' },
+  { value: "الفرع الثالث", label: 'الفرع الثالث' },
+  { value: "الفرع الرابع", label: 'الفرع الرابع' },
+  { value: "الفرع الخامس", label: 'الفرع الخامس' },
 ];
 
 export const familyRelationships = [
-  { value: "son", label: 'ابن مباشر' },
-  { value: "daughter", label: 'ابنة مباشرة' },
-  { value: "wife", label: 'زوجة' },
-  { value: "husband", label: 'زوج' },
-  { value: "grandchild", label: 'حفيد/حفيدة' },
-  { value: "other", label: 'أخرى' },
+  { value: "ابن", label: 'ابن' },
+  { value: "ابنة", label: 'ابنة' },
+  { value: "زوجة", label: 'زوجة' },
+  { value: "زوج", label: 'زوج' },
+  { value: "حفيد", label: 'حفيد' },
+  { value: "أخرى", label: 'أخرى' },
 ];
 
 export const statusOptions = [
-  { value: 'accept', label: 'مفعل' },
-  { value: 'pending', label: "معلق" }
+  { value: 'مقبول', label: 'مقبول' },
+  { value: 'قيد الانتظار', label: 'قيد الانتظار' },
+  { value: 'مرفوض', label: 'مرفوض' }
 ];
 
 export const roleOptions = [
-  { value: 'user', label: 'عضو' },
-  { value: 'admin', label: 'مدير' },
-  { value: 'super_admin', label: 'مدير عام' },
+  { value: 'مستخدم', label: 'مستخدم' },
+  { value: 'مدير', label: 'مدير' },
+  { value: 'مدير عام', label: 'مدير عام' },
+  { value: 'مدير النظام', label: 'مدير النظام' },
+  { value: 'مدير اللجنه الاجتماعية', label: 'مدير اللجنه الاجتماعية' },
+  { value: 'مدير اللجنه الماليه', label: 'مدير اللجنه الماليه' },
+  { value: 'كبار الاسرة', label: 'كبار الاسرة' },
 ];
 
 export const imageUrl = 'https://res.cloudinary.com/dnuxudh3t/image/upload/v1681234567/'
 
 export interface User {
-  _id: string;
-  fname: string;
-  lname: string;
+  _id?: string;
+  tenantId: string;
   email: string;
-  password: string;
+  password?: string;  
   phone: string;
   image?: string;
-  role?: string;
-  familyBranch: string;
-  familyRelationship: string;
-  status?: string;
-  address: string;
-  birthday: Date;
-  personalProfile?: string;
-  permissions: any;
+  role: string[];
+  familyBranch: 'الفرع الخامس' | 'الفرع الرابع' | 'الفرع الثالث' | 'الفرع الثاني' | 'الفرع الاول';
+  familyRelationship: 'ابن' | 'ابنة' | 'زوجة' | 'زوج' | 'حفيد' | 'أخرى';
+  status?: 'قيد الانتظار' | 'مرفوض' | 'مقبول';
+  address?: string;
+  permissions?: any[];
   createdAt?: string;
   updatedAt?: string;
   data?: any
 }
 
-
-export interface IUpdateUserDTO {
-  data?: any;
-  status: string;
-  role: string;
-  birthday: Date | null;
-  fname: string;
-  lname: string;
-  email: string;
-  phone: string;
-  familyBranch: string;
-  familyRelationship: string;
-  address: string;
-  permissions?: any;
-  image?: File | null;
-  password?: string;
-}
 
 export interface Pagination {
   total: number;

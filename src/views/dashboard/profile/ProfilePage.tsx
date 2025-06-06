@@ -1,31 +1,40 @@
-import { DEFAULT_IMAGE } from "../../../components/auth/RegisterationForm";
-import ProfileForm from "../../../components/dashboard/free/profile/ProfileForm";
 import { useAppSelector } from "../../../store/store";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Mail, Phone, Pencil, X } from "lucide-react";
 import SecuritySettings from "../../../components/dashboard/free/profile/SecuritySettings";
 import NotificationsSettings from "../../../components/dashboard/free/profile/NotificationsSettings";
 import ActivitiesSettings from "../../../components/dashboard/free/profile/ActivitiesSettings";
 import { Tabs } from "../../../components/ui/Tabs";
+import UserForm from "../../../components/dashboard/free/users/UserForm";
+import { DEFAULT_IMAGE } from "../../../components/auth/RegisterationForm";
 
 const ProfilePage = () => {
   const user = useAppSelector((state) => state.auth.user);
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleSave = () => {
-    setIsEditing(false);
-  };
+  const canEdit = isEditing;
 
-  const tabs = [
+  const tabs = useMemo(() => [
     {
       id: 'profile',
       label: 'الملف الشخصي',
-      content: <ProfileForm isEditing={isEditing} onCancel={handleSave} />,
+      content: <UserForm
+        defaultValues={{
+          email: user?.email || '',
+          phone: user?.phone || '',
+          familyBranch: user?.familyBranch || '',
+          familyRelationship: user?.familyRelationship || '',
+          address: user?.address || '',
+          status: user?.status || 'active',
+          // role: user?.role || ['مدير الماليه'],
+        }}
+        isEditing={true}
+      />,
     },
     {
       id: 'security',
       label: 'الأمان',
-      content: <SecuritySettings/>,
+      content: <SecuritySettings />,
     },
     {
       id: 'notifications',
@@ -35,9 +44,9 @@ const ProfilePage = () => {
     {
       id: 'activities',
       label: 'النشاطات',
-      content: <ActivitiesSettings/>,
+      content: <ActivitiesSettings />,
     },
-  ];
+  ], [user, canEdit]);
 
   return (
     <main className="flex-1 overflow-y-auto pb-16">
@@ -51,14 +60,14 @@ const ProfilePage = () => {
                 <span className="relative flex shrink-0 overflow-hidden rounded-full h-28 w-28 border-4 border-primary/80 shadow-lg transition-all duration-300 group-hover:border-primary group-hover:scale-105">
                   <img
                     className="aspect-square h-full w-full object-cover"
-                    alt={`${user?.fname || "المستخدم"} ${user?.lname || ""}`}
-                    src={`${user?.image}` || DEFAULT_IMAGE}
+                    alt={`مستخدم`}
+                    src={DEFAULT_IMAGE}
                   />
-                  {isEditing && (
+                  {/* {isEditing && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full">
                       <Pencil className="h-6 w-6 text-white" />
                     </div>
-                  )}
+                  )} */}
                 </span>
               </div>
 
@@ -66,15 +75,15 @@ const ProfilePage = () => {
               <div className="text-center md:text-right flex-1 space-y-2">
                 <div>
                   <h3 className="text-2xl font-bold tracking-tight text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-primary">
-                    {user?.fname} {user?.lname}
+                    {/* {user?.fname} {user?.lname} */}
                   </h3>
                   <div className="flex items-center justify-center md:justify-start gap-2 mt-1">
-                    {user?.role === "admin" && (
+                    {user?.role[0] && (
                       <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
-                        {user.role}
+                        {user.role[0]}
                       </span>
                     )}
                   </div>
@@ -86,7 +95,7 @@ const ProfilePage = () => {
                     <span>{user?.email}</span>
                   </div>
                   <div className="flex items-center justify-center gap-1.5 text-muted-foreground">
-                    <Phone className="h-4 w-4"/>
+                    <Phone className="h-4 w-4" />
                     <span>{user?.phone ? `${user.phone} 966+` : "لا يوجد رقم هاتف"}</span>
                   </div>
                 </div>
@@ -97,12 +106,6 @@ const ProfilePage = () => {
                     <p className="text-muted-foreground">
                       <span className="font-medium">العنوان:</span> {user?.address || "غير محدد"}
                     </p>
-                    {user?.birthday && (
-                      <p className="text-muted-foreground">
-                        <span className="font-medium">تاريخ الميلاد:</span>{" "}
-                        {new Date(user.birthday).toLocaleDateString("ar-SA")}
-                      </p>
-                    )}
                   </div>
                 )}
               </div>
@@ -129,10 +132,10 @@ const ProfilePage = () => {
             </div>
           </div>
         </div>
-        
+
         {/* تبويبات الصفحة */}
         <Tabs tabs={tabs} queryParam="tab" />
-        
+
         {/* تذييل الصفحة */}
         <footer className="py-4 border-t border-muted mt-8">
           <div className="text-center text-xs text-muted-foreground">

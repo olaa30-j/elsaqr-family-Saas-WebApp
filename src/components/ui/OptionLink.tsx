@@ -126,7 +126,7 @@ export const options: OptionLinkProps[] =
             hoverColor: "hover:bg-green-100"
         },
         {
-            href: "/social-committee",
+            href: "/events",
             title: "اللجنة الاجتماعية",
             icon: <CalendarDaysIcon />,
             bgColor: "bg-blue-50",

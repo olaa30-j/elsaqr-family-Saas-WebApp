@@ -357,9 +357,7 @@ export const TransactionForm = ({
                                         } rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white font-cairo appearance-none`}
                                 >
                                     <option value="">اختر الفئة</option>
-                                    <option value="subscriptions">اشتراكات</option>
                                     <option value="donations">تبرعات</option>
-                                    <option value="investments">استثمارات</option>
                                     <option value="other">أخرى</option>
                                 </select>
                                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2">

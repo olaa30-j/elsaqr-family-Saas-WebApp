@@ -9,7 +9,7 @@ export const hasPermission = (
   if (!user) return false;
   
   // Super admin لديه جميع الصلاحيات
-  if (user.role === 'super_admin') return true;
+  if (user.role === 'مدير النظام') return true;
   
   // التحقق من أن section صالحة
   if (!isPermissionSection(section)) return false;
@@ -24,18 +24,18 @@ export const hasPermission = (
   return user.permissions[section][action] === true;
 };
 
-export const checkRoutePermissions = (user: User | null, pathname: string): boolean => {
-  const routePermissions: Record<string, { section: PermissionSection; action: PermissionAction }> = {
-    '/dashboard': { section: 'dashboard', action: 'view' },
-    '/family': { section: 'family', action: 'view' },
-    '/family/create': { section: 'family', action: 'create' },
-  };
+// export const checkRoutePermissions = (user: User | null, pathname: string): boolean => {
+//   const routePermissions: Record<string, { section: PermissionSection; action: PermissionAction }> = {
+//     '/dashboard': { section: 'dashboard', action: 'view' },
+//     '/family': { section: 'family', action: 'view' },
+//     '/family/create': { section: 'family', action: 'create' },
+//   };
 
-  const permission = routePermissions[pathname];
-  if (!permission) return true;  
+//   const permission = routePermissions[pathname];
+//   if (!permission) return true;  
   
-  return hasPermission(user, permission.section, permission.action);
-};
+//   return hasPermission(user, permission.section, permission.action);
+// };
 
 export const verifyActionPermission = async (
   section: PermissionSection,

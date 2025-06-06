@@ -4,11 +4,11 @@ import type { User } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.PROD
-    ? 'https://saas5-tawny.vercel.app'
+    ? 'https://saas9u.vercel.app'
     : '/api',
   credentials: 'include',
   prepareHeaders: (headers) => {
-    headers.set('x-vercel-project-id', 'prj_W00Dmn2SIPKYwgA3QtNAsSlQ9QwO');
+    headers.set('x-vercel-project-id', 'prj_4BsT4GnZLxvNRyZ3cqieEMDzbJa1');
     return headers;
   },
 });
@@ -36,7 +36,9 @@ export const baseApi = createApi({
       }),
       providesTags: ['Users'],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
-          const { data } = await queryFulfilled;          
+          const { data } = await queryFulfilled; 
+          console.log(data);
+                   
           dispatch(setCredentials({ user: data.data }));
       }
     }),

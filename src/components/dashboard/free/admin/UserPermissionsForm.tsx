@@ -4,8 +4,9 @@ import { toast } from 'react-toastify';
 import type { User } from '../../../../types/user';
 import { useEffect, useState } from 'react';
 
-export type PermissionEntity = 'event' | 'member' | 'user' | 'album' | 'financial';
+export type PermissionEntity = 'مناسبه' | 'عضو' | 'مستخدم' | 'معرض الصور' | 'ماليه' | 'اعلان';
 export type PermissionAction = 'view' | 'create' | 'update' | 'delete';
+
 
 export interface EntityPermission {
     entity: PermissionEntity;
@@ -17,7 +18,7 @@ export interface EntityPermission {
 
 export type UserPermissions = EntityPermission[];
 
-const permissionEntities: PermissionEntity[] = ['event', 'member', 'user', 'album', 'financial'];
+const permissionEntities: PermissionEntity[] = ['مناسبه', 'عضو', 'مستخدم', 'معرض الصور', 'ماليه', 'اعلان'];
 const permissionActions: PermissionAction[] = ['view', 'create', 'update', 'delete'];
 
 const PermissionsSection = ({ user }: { user: User }) => {
@@ -38,14 +39,15 @@ const PermissionsSection = ({ user }: { user: User }) => {
                 permissions: [...user.permissions]
             });
         }
+
+        console.log(user.permissions);
+        
     }, [user, reset]);
 
-    const onSubmitOptimized = async (data: { permissions: UserPermissions }) => {
-        if (isSubmitting) return;
-
+    const onSubmitOptimized = async (data: { permissions: UserPermissions }) => {        
+        if (isSubmitting || !user?._id) return;
         setIsSubmitting(true);
         try {
-            // Find changed permissions
             const changes: Array<{
                 entity: PermissionEntity;
                 action: PermissionAction;
@@ -72,18 +74,17 @@ const PermissionsSection = ({ user }: { user: User }) => {
                 });
             });
 
-            // Update only changed permissions
-            const updatePromises = changes.map(change => 
+            const updatePromises = changes.map(change =>
                 updatePermissions({
                     id: user._id,
                     ...change
                 }).unwrap()
             );
-
             await Promise.all(updatePromises);
-            
             toast.success("تم تحديث الصلاحيات بنجاح");
             setInitialPermissions(data.permissions);
+
+
         } catch (error: any) {
             console.error('Update error:', error);
             toast.error(error.data?.message || "فشل في تحديث الصلاحيات. يرجى التحقق من البيانات والمحاولة مرة أخرى");
@@ -116,12 +117,13 @@ const PermissionsSection = ({ user }: { user: User }) => {
                         </thead>
                         <tbody>
                             {permissionEntities.map(entity => (
-                                <tr key={entity} className="border-t text-amber-600/80">
+                                <tr key={entity} className="border-t text-primary/80">
                                     <td className="p-3 font-medium">
-                                        {entity === 'event' ? 'الفعاليات' :
-                                            entity === 'member' ? 'الأعضاء' :
-                                                entity === 'user' ? 'المستخدمين' :
-                                                    entity === 'album' ? 'الألبومات' : 'المالية'}
+                                        {entity === 'اعلان' ? 'اعلان' :
+                                            entity === 'ماليه' ? 'ماليه' :
+                                                entity === 'معرض الصور' ? 'معرض الصور' :
+                                                    entity === 'مستخدم' ? 'مستخدم' :
+                                                        entity === 'عضو' ? 'عضو' : 'مناسبه'}
                                     </td>
 
                                     {permissionActions.map(action => (

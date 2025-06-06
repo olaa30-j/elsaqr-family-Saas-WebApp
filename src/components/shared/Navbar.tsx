@@ -7,7 +7,8 @@ const Navbar = () => {
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const user = useAppSelector((state) => state.auth.user);
     const [logout] = useLogoutMutation();
-
+    console.log(user);
+    
     const toggleProfileMenu = () => {
         setIsProfileMenuOpen(!isProfileMenuOpen);
     };
@@ -97,14 +98,14 @@ const Navbar = () => {
                         <span className="relative flex shrink-0 overflow-hidden rounded-full h-9 w-9 border-2 border-primary">
                             <img
                                 className="aspect-square h-full w-full"
-                                alt={user?.role || 'صورة المستخدم'}
+                                alt={'صورة المستخدم'}
                                 loading="lazy"
                                 src={`${user?.image}` || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSsuWiNNpEjZxIi0uQPyEq6qecEqY0XaI27Q&s'}
                             />
                         </span>
                     </button>
 
-                    {isProfileMenuOpen && (
+                    {user && isProfileMenuOpen && (
                         <SettingDropDown user={user} onLogout={handleLogout} toggleProfileMenu={toggleProfileMenu}/>
                     )}
                 </div>

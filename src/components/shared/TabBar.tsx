@@ -6,7 +6,7 @@ import { isActive } from "../../App";
 import { toast } from "react-toastify";
 
 const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
-  const { isAuthenticated } = useAppSelector(state => state.auth);
+  const { isAuthenticated, user } = useAppSelector(state => state.auth);
   let homeButton = isAuthenticated ? '/dashboard' : '/'
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,13 +45,13 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
 
         {/* Family Tree */}
         <button
-          onClick={() => handleNavigation('/profile')}
+          onClick={() => handleNavigation(`/family-tree/${user?.familyBranch}`)}
           className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/family-tree') ? 'text-primary' : 'text-color-2 hover:text-foreground'}`}
         >
           <div className="flex h-8 w-8 items-center justify-center">
             <svg
               aria-hidden="true"
-              className={`h-5 w-5 ${isActive('/family-tree') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
+              className={`h-5 w-5 ${isActive(`/family-tree/${user?.familyBranch}`) ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
               viewBox="0 0 640 512"
             >
               <path
@@ -63,15 +63,15 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
           <span className="mt-1">العائلة</span>
         </button>
 
-        {/* Announcements */}
+        {/* advertisement */}
         <button
-          onClick={() => handleNavigation('/announcements')}
-          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/announcements') ? 'text-primary' : 'text-color-2 hover:text-foreground'}`}
+          onClick={() => handleNavigation('/advertisement')}
+          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/advertisements') ? 'text-primary' : 'text-color-2 hover:text-foreground'}`}
         >
           <div className="flex h-8 w-8 items-center justify-center">
             <svg
               aria-hidden="true"
-              className={`h-5 w-5 ${isActive('/announcements') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
+              className={`h-5 w-5 ${isActive('/advertisement') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
               viewBox="0 0 448 512"
             >
               <path

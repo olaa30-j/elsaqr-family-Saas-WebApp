@@ -10,7 +10,6 @@ export const useAlbumImages = (albumId: string) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   
-  // استخدم queries و mutations من albumApi
   const { 
     data: album, 
     isLoading, 
@@ -43,7 +42,7 @@ export const useAlbumImages = (albumId: string) => {
     }
   };
 
-  const deleteImage = async (imageId: string): Promise<void> => {
+  const deleteImage = async (albumId:string, imageId: string): Promise<void> => {
     try {
       await removeImageFromAlbum({ albumId, imageId }).unwrap();
       await refetch();

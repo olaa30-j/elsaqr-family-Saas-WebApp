@@ -1,22 +1,32 @@
-import type { IAdvertisement } from '../../types/advertisement';
-import type { Pagination } from '../../types/album';
+import type { IAdvertisement, IAdvertisementForm, Pagination } from '../../types/advertisement';
 import { baseApi } from './baseApi';
 
 export const advertisementApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     // Get all advertisements with pagination
-    getAdvertisements: build.query<{ data: IAdvertisement[]; pagination: Pagination }, { page?: number; limit?: number }>({
-      query: ({ page = 1, limit = 10 }) => ({
-        url: `/advertisement?page=${page}&limit=${limit}`,
+    getAdvertisements: build.query<{ data: IAdvertisement[]; pagination: Pagination }, {
+      page?: number;
+      limit?: number;
+      sort?: string;
+      search?: string;
+    }>({
+      query: ({ page = 1, limit = 10, sort, search }) => ({
+        url: `/advertisement`,
         method: 'GET',
+        params: {
+          page,
+          limit,
+          ...(sort && { sort }),
+          ...(search && { search })
+        },
         credentials: 'include'
       }),
       providesTags: (result) =>
         result
           ? [
-              ...result.data.map(({ _id }) => ({ type: 'Advertisements' as const, id: _id })),
-              { type: 'Advertisements' as const, id: 'LIST' },
-            ]
+            ...result.data.map(({ _id }) => ({ type: 'Advertisements' as const, id: _id })),
+            { type: 'Advertisements' as const, id: 'LIST' },
+          ]
           : [{ type: 'Advertisements' as const, id: 'LIST' }],
     }),
 
@@ -32,14 +42,14 @@ export const advertisementApi = baseApi.injectEndpoints({
 
     // Create new advertisement
     createAdvertisement: build.mutation<IAdvertisement, {
-      address: string;
+      title: string;
       type: string;
       content: string;
-      image?: File;
+      image?: File | null;
     }>({
       query: (adData) => {
         const formData = new FormData();
-        formData.append('address', adData.address);
+        formData.append('title', adData.title);
         formData.append('type', adData.type);
         formData.append('content', adData.content);
         if (adData.image) {
@@ -61,10 +71,14 @@ export const advertisementApi = baseApi.injectEndpoints({
     }),
 
     // Update advertisement
-    updateAdvertisement: build.mutation<IAdvertisement, { id: string; updates: Partial<IAdvertisement> & { image?: File } }>({
+    updateAdvertisement: build.mutation<IAdvertisement, {
+      id: string;
+      updates: Partial<IAdvertisementForm> & { image?: File | null }
+    }>({
       query: ({ id, updates }) => {
         const formData = new FormData();
-        if (updates.address) formData.append('address', updates.address);
+
+        if (updates.title) formData.append('address', updates.title);
         if (updates.type) formData.append('type', updates.type);
         if (updates.content) formData.append('content', updates.content);
         if (updates.image) formData.append('image', updates.image);
@@ -84,7 +98,6 @@ export const advertisementApi = baseApi.injectEndpoints({
         { type: 'Advertisements' as const, id: 'LIST' },
       ],
     }),
-
     // Delete advertisement
     deleteAdvertisement: build.mutation<{ message: string }, string>({
       query: (id) => ({

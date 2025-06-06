@@ -1,22 +1,24 @@
 export interface Image {
+  image: any;
   _id: string;
-  url: string;
   description?: string;
   createdAt: string | Date;
   updatedAt: string | Date;
 }
 
 export interface Album {
-  data?: Album;
+  image?: string;
+  data?: any;
   _id: string;
   name: string;
   description?: string;
-  images: Image[] | string[];  
+  images: Image[];  
   createdBy: {  
     _id: string;
-    name: string;
+    fname: string;
+    lname: string;
     email?: string;
-    avatar?: string;
+    image?: string;
   };
   createdAt: string | Date;
   updatedAt: string | Date;

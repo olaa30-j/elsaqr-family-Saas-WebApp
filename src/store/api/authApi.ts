@@ -14,7 +14,9 @@ export const authApi = baseApi.injectEndpoints({
       transformResponse: (response: { user: User }) => response,
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled;
+          let data = await queryFulfilled;
+          console.log(data);
+          
           window.location.href = '/dashboard'
         } catch (error) {
           dispatch(setError('فشل تسجيل الدخول'));

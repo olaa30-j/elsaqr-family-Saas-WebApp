@@ -3,15 +3,29 @@ export interface IAdvertisement {
   _id: string;
   userId: {
     _id: string;
-    username: string;
     email: string;
   };
-  address: string;
+  title: string;
   type: string;
   content: string;
-  image?: string;
+  image?: string;  
   createdAt: string;
   updatedAt: string;
+}
+
+// types/advertisement.ts
+export interface AdvertisementQueryParams {
+  page?: number;
+  limit?: number;
+  sort?: string;
+  search?: string;
+}
+
+export interface IAdvertisementForm {
+  title: string;
+  type: string;
+  content: string;
+  image?: File | null;  
 }
 
 // types/common.ts

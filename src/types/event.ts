@@ -1,38 +1,34 @@
-// types/event.ts
 export interface IEvent {
-  _id: string; // Converted to string for frontend
-  userId: string; // Converted to string
+  _id: string;
+  userId: string;
   address: string;
   description: string;
   location: string;
-  startDate: string; // Date as ISO string
-  endDate: string; // Date as ISO string
+  startDate: any;
+  endDate?: any;
   status?: 'active' | 'cancelled' | 'completed' | 'postponed';
-  createdAt?: string; // Optional for display purposes
-  updatedAt?: string; // Optional for display purposes
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
-// For creating new events
 export interface IEventInput {
   address: string;
   description: string;
+  startDate: any;
   location: string;
-  startDate: string; // ISO string format
-  endDate: string; // ISO string format
-  status?: string; // Optional status
+  endDate?: any;
+  status?: string;
 }
 
-// For updating events
 export interface IEventUpdate {
   address?: string;
   description?: string;
   location?: string;
-  startDate?: string;
-  endDate?: string;
+  startDate?: any;
+  endDate?: any;
   status?: string;
 }
 
-// For API responses
 export interface IEventApiResponse {
   success: boolean;
   data: IEvent | IEvent[];
@@ -45,7 +41,6 @@ export interface IEventApiResponse {
   };
 }
 
-// For event list props
 export interface IEventListProps {
   events: IEvent[];
   loading: boolean;
@@ -53,7 +48,6 @@ export interface IEventListProps {
   onDelete?: (eventId: string) => void;
 }
 
-// For event form props
 export interface IEventFormProps {
   initialData?: IEvent;
   onSubmit: (data: IEventInput | IEventUpdate) => void;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useGetAlbumsQuery, useCreateAlbumMutation, useDeleteAlbumMutation } from '../store/api/albumApi';
-import type { CreateAlbumDTO } from '../types/album';
+import { useGetAlbumsQuery, useCreateAlbumMutation, useDeleteAlbumMutation, useUpdateAlbumMutation } from '../store/api/albumApi';
+import type { Album, CreateAlbumDTO } from '../types/album';
 
 export const useAlbums = () => {
   const [page, setPage] = useState(1);
@@ -9,6 +9,7 @@ export const useAlbums = () => {
   const { data, isLoading } = useGetAlbumsQuery({ page, limit });
   const [createAlbumMutation] = useCreateAlbumMutation();
   const [deleteAlbumMutation] = useDeleteAlbumMutation();
+  const [updateAlbumMutation] = useUpdateAlbumMutation();
 
   const createAlbum = async (albumData: CreateAlbumDTO) => {
     await createAlbumMutation(albumData).unwrap();
@@ -16,6 +17,10 @@ export const useAlbums = () => {
 
   const deleteAlbum = async (id: string) => {
     await deleteAlbumMutation(id).unwrap();
+  };
+
+  const updateAlbum = async (id: string, updates: Pick<Album, 'name' | 'description'>) => {
+    await updateAlbumMutation({ id, updates }).unwrap();
   };
 
   return {
@@ -29,6 +34,7 @@ export const useAlbums = () => {
     isLoading,
     createAlbum,
     deleteAlbum,
+    updateAlbum,
     setPage
   };
 };
