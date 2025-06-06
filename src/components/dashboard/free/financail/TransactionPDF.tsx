@@ -229,7 +229,7 @@ const TransactionPDF = ({
             {transaction.createdBy && (
               <View style={{ marginBottom: 10 }}>
                 <Text style={styles.detailsLabel}>العميل</Text>
-                <Text style={styles.detailsValue}>{transaction.createdBy.fname} {transaction.createdBy.lname}</Text>
+                <Text style={styles.detailsValue}>{transaction.createdBy.email}</Text>
               </View>
             )}
           </View>

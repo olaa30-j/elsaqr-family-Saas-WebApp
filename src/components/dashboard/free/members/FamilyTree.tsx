@@ -22,6 +22,8 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         const tree: any = {};
 
         const husband = members.find((m: any) => m.familyRelationship === 'زوج');
+        console.log(husband);
+        
         if (!husband) return null;
 
         tree.husband = husband;

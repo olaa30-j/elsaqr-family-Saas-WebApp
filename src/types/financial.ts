@@ -1,4 +1,5 @@
 interface User {
+    email: string | undefined;
     _id: string;
     fname: string;
     lname: string;

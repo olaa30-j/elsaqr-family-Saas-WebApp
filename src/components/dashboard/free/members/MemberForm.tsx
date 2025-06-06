@@ -59,7 +59,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                 await updateMember({ id: memberId, data: formData }).unwrap();
                 toast.success("تم تحديث بيانات العضو بنجاح");
             } else {
-                await createMember( {...formData} ).unwrap();
+                await createMember( formData ).unwrap();
                 toast.success("تم إضافة العضو بنجاح");
             }
 
@@ -149,9 +149,11 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                     disabled={isUpdating || isCreating}
                                 >
                                     <option value="">اختر فرع العائلة</option>
-                                    <option value="الفرع الأول">الفرع الأول</option>
+                                    <option value="الفرع الاول">الفرع الاول</option>
                                     <option value="الفرع الثاني">الفرع الثاني</option>
                                     <option value="الفرع الثالث">الفرع الثالث</option>
+                                    <option value="الفرع الرابع">الفرع الرابع</option>
+                                    <option value="الفرع الخامس">الفرع الخامس</option>
                                 </select>
                                 {errors.familyBranch && (
                                     <p className="mt-1 text-sm text-red-600">{errors.familyBranch.message}</p>

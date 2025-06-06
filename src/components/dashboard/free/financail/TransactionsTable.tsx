@@ -159,10 +159,9 @@ const TransactionsTable = ({
                                                 <img
                                                     className="w-8 h-8 rounded-full mx-2"
                                                     src={transaction.createdBy.image || DEFAULT_IMAGE}
-                                                    alt={transaction.createdBy.fname}
+                                                    alt={transaction.createdBy.email}
                                                 />
-                                                <span>{transaction.createdBy.fname}</span>
-                                                <span>{transaction.createdBy.lname}</span>
+                                                <span>{transaction.createdBy.email}</span>
                                             </>
                                         ) : (
                                             <span className="text-slate-400">غير محدد</span>

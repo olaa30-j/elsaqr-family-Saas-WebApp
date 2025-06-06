@@ -19,7 +19,7 @@ const AlbumsList = () => {
                     <Album className="w-5 h-5 mx-2 text-primary" />
                     ألبومات الصور
                     {user?.role[0] === "مستخدم" && (
-                        <span className="text-sm text-gray-500 mr-2">(فرع {user.familyBranch})</span>
+                        <span className="text-sm text-gray-500 mr-2">({user.familyBranch})</span>
                     )}
                 </h2>
             </div>
@@ -40,7 +40,7 @@ const AlbumsList = () => {
                                             <p className="text-gray-600 text-sm mt-1">
                                                 منشئ بواسطة:
                                                 <span className="ml-1">
-                                                    {album.createdBy.fname} {album.createdBy.lname}
+                                                    {album.createdBy.email}
                                                 </span>
                                             </p>
                                             {album.createdBy.familyBranch && (

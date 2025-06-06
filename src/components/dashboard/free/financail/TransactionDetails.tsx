@@ -236,7 +236,7 @@ const TransactionDetails = () => {
                                                             مسجل بواسطة
                                                         </h3>
                                                         <p className="text-sm text-gray-600 dark:text-gray-300 font-arabic">
-                                                            {transaction.data.createdBy.name}
+                                                            {transaction.data.createdBy.email}
                                                         </p>
                                                     </div>
                                                 </div>
