@@ -32,6 +32,7 @@
     "react-router-dom": "^7.6.0",
     "react-select": "^5.10.1",
     "react-toastify": "^11.0.5",
+    "react-zoom-pan-pinch": "^3.7.0",
     "redux-persist": "^6.0.0",
     "swiper": "^11.2.8",
     "swiper-react": "^1.0.0",
