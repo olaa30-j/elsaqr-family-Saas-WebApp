@@ -13,7 +13,7 @@ const AlbumsList = () => {
         : albumsData?.data;
 
     return (
-        <div className="bg-white mx-4 rounded-lg border border-gray-300 shadow-sm h-full flex flex-col">
+        <div className="bg-white mx-4 rounded-lg border border-gray-300 shadow-sm h-full flex flex-col mb-16">
             <div className="px-4 py-3 border-b border-gray-300">
                 <h2 className="font-semibold text-primary flex items-center text-xl">
                     <Album className="w-5 h-5 mx-2 text-primary" />
