@@ -36,6 +36,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     isEditing = false,
 }) => {
     const user = useAppSelector(state => state.auth.user);
+    
     const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 
     const handleSubmit = async (data: UserFormValues) => {
@@ -49,8 +50,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                 status: data.status,
                 role: data.role
             };
-
-            console.log('Data being sent to server:', requestData);
 
             if (user && user._id) {
                 await updateUser({

@@ -10,6 +10,8 @@ import ProtectedRoute from './ProtectedRoute';
 const Home = lazy(() => import('../views/home/Home'));
 const LoginPage = lazy(() => import('../views/auth/LoginPage'));
 const RegisterPage = lazy(() => import('../views/auth/RegisterationPage'));
+const ForgetPasswordPage = lazy(() => import('../components/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('../components/auth/ResetPasswordPage'));
 
 // protected routes
 const DashboardPage = lazy(() => import('../views/dashboard/Dashboard'));
@@ -80,6 +82,22 @@ const routes: RouteObject[] = [
             element: (
               <SuspenseLoader>
                 <RegisterPage />
+              </SuspenseLoader>
+            ),
+          },
+          {
+            path: 'forget',
+            element: (
+              <SuspenseLoader>
+                <ForgetPasswordPage />
+              </SuspenseLoader>
+            ),
+          },
+          {
+            path: 'reset-password/:token',
+            element: (
+              <SuspenseLoader>
+                <ResetPasswordPage />
               </SuspenseLoader>
             ),
           },

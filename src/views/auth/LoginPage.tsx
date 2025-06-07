@@ -25,11 +25,11 @@ const LoginPage = () => {
 
               <LoginForm />
               <div className="mt-5 flex flex-col space-y-3">
-                <a href="/forgot-password">
+                <Link to="/forget">
                   <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary underline-offset-4 hover:underline h-10 px-4 py-2 text-sm">
                     نسيت كلمة المرور؟
                   </button>
-                </a>
+                </Link>
 
                 <div className="flex items-center gap-2">
                   <div className="bg-gray-200 h-[1px] w-full flex-1"></div>

@@ -69,8 +69,6 @@ const ProfilePage = () => {
                 role: user?.role || ["مستخدم"],
               }}
               isEditing={true}
-              onSuccess={() => setIsPEditing(true)}
-              onCancel={() => setIsPEditing(true)}
             />
 
             <MemberForm

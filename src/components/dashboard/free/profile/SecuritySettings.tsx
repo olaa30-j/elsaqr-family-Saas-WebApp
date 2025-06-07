@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import ChangePasswordForm from './ChangePasswordForm';
 
 const SecuritySettings = () => {
-  const [searchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab'); 
+    const [searchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab');
+    const [showPasswordForm, setShowPasswordForm] = useState(false); 
 
     return (
         <div>
@@ -19,9 +22,16 @@ const SecuritySettings = () => {
                     <div className="space-y-4">
                         <div className="p-4 border rounded-lg">
                             <h4 className="font-medium mb-2">تغيير كلمة المرور</h4>
-                            <button className="text-sm text-primary hover:underline">
-                                اضغط هنا لتغيير كلمة المرور
-                            </button>
+                            {!showPasswordForm ? (
+                                <button
+                                    onClick={() => setShowPasswordForm(true)}
+                                    className="text-sm text-primary hover:underline"
+                                >
+                                    اضغط هنا لتغيير كلمة المرور
+                                </button>
+                            ) : (
+                                <ChangePasswordForm onCancel={() => setShowPasswordForm(false)} />
+                            )}
                         </div>
                         <div className="p-4 border rounded-lg">
                             <h4 className="font-medium mb-2">المصادقة الثنائية</h4>
