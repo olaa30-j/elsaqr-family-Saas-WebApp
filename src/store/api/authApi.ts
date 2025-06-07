@@ -70,11 +70,15 @@ export const authApi = baseApi.injectEndpoints({
       { success: boolean; message: string },
       { token: string; newPassword: string }
     >({
-      query: ({ token, newPassword }) => ({
-        url: `/auth/reset-password/${token}`,
-        method: 'PATCH',
-        body: { newPassword },
-      }),
+      query: ({ token, newPassword }) => {
+        console.log(token, newPassword);
+        
+        return{
+          url: `/auth/reset-password/${token}`,
+            method: 'POST',
+              body: { newPassword },
+        }
+      },
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;

@@ -11,7 +11,7 @@ const ResetPasswordPage = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (newPassword !== confirmPassword) {
             setError('كلمات المرور غير متطابقة');
             return;
@@ -109,11 +109,10 @@ const ResetPasswordPage = () => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className={`w-full py-2 px-4 rounded-md font-medium transition duration-200 ${
-                            isLoading
+                        className={`w-full py-2 px-4 rounded-md font-medium transition duration-200 ${isLoading
                                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 : 'bg-primary hover:bg-primary-dark text-white shadow-md'
-                        }`}
+                            }`}
                     >
                         {isLoading ? (
                             <span className="flex items-center justify-center">
