@@ -32,7 +32,8 @@ const ProfilePage = () => {
     data: userResponse,
     isError: isUserError,
     isLoading: isUserLoading,
-    error: userError
+    error: userError,
+    refetch: refetchUser
   } = useGetUserQuery(userId, {
     skip: !userId
   });
@@ -41,10 +42,17 @@ const ProfilePage = () => {
     data: memberResponse,
     isError: isMemberError,
     isLoading: isMemberLoading,
-    error: memberError
+    error: memberError,
+    refetch: refetchMember
   } = useGetMemberQuery(memberId, {
     skip: !memberId
   });
+
+  const refreshUserData = () => {
+    refetchUser();
+    refetchMember();
+    setIsPEditing(false);
+  };
 
   const tabs = useMemo(() => {
     if (!userResponse || !memberResponse) return [];
@@ -59,16 +67,9 @@ const ProfilePage = () => {
         content: (
           <div className="flex flex-col gap-8">
             <ProfileForm
-              defaultValues={{
-                email: user?.email || '',
-                phone: user?.phone || '',
-                familyBranch: user?.familyBranch || 'الفرع الثالث',
-                familyRelationship: user?.familyRelationship || 'ابن',
-                address: user?.address || '',
-                status: user?.status || 'قيد الانتظار',
-                role: user?.role || ["مستخدم"],
-              }}
-              isEditing={true}
+              userId={user._id}
+              defaultValues={user}
+              onSuccess={() => refreshUserData()}
             />
 
             <MemberForm
@@ -79,7 +80,7 @@ const ProfilePage = () => {
                 familyBranch: member.familyBranch || 'الفرع الاول',
                 familyRelationship: member.familyRelationship || 'ابن',
                 gender: member.gender || 'أنثى',
-                summary: member.summary || '' , 
+                summary: member.summary || '',
                 ...(member?.father && { father: member.father }),
                 ...(member?.husband && { husband: member.husband }),
                 ...(member?.wives && { wives: member.wives }),

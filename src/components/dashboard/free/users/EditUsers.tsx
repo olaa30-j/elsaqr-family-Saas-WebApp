@@ -27,7 +27,7 @@ const EditUsers = () => {
                     familyRelationship: user.familyRelationship || 'ابن',
                     address: user.address || '',
                     status: user.status || 'قيد الانتظار',
-                    role: user.role || ['مستخدم'],
+                    role: user.role[0] || ['مستخدم'],
                 }}
                 isEditing={true}
             />

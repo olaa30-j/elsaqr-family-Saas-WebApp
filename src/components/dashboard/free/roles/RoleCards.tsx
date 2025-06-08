@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import {
     useGetAllRolesQuery,
-    useRemoveUserRoleMutation,
+    useRemoveRoleFromAllUsersMutation,
     useUpdateRolesWithPermissionsMutation
 } from "../../../../store/api/roleApi";
 import { useGetUsersQuery } from "../../../../store/api/usersApi";
@@ -12,7 +12,6 @@ import { Edit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
-// أنواع الصلاحيات
 export type PermissionEntity = 'مناسبه' | 'عضو' | 'مستخدم' | 'معرض الصور' | 'ماليه' | 'اعلان';
 export type PermissionAction = 'view' | 'create' | 'update' | 'delete';
 
@@ -31,7 +30,7 @@ const countUsersPerRole = (users: User[] | []) => {
 
 const RoleCards = () => {
     const { data: roles, isLoading: isLoadingRoles } = useGetAllRolesQuery();
-    const [removeUserRole] = useRemoveUserRoleMutation();
+    const [removeUserRole] = useRemoveRoleFromAllUsersMutation();
     const { data: users, isLoading: isLoadingUsers } = useGetUsersQuery({ page: 1, limit: 10 });
     const [selectedRole, setSelectedRole] = useState<string | null>(null);
     const [sortConfig, setSortConfig] = useState<SortConfig<User>>({ key: 'email', direction: 'asc' });
@@ -46,7 +45,7 @@ const RoleCards = () => {
     const handleDeleteRole = async () => {
         if (!roleToDelete) return;
         try {
-            await removeUserRole({ id: roleToDelete, role: roleToDelete }).unwrap();
+            await removeUserRole({ role: roleToDelete }).unwrap();
             toast.success("تم حذف الدور بنجاح");
             setIsDeleteModalOpen(false);
             setRoleToDelete(null);

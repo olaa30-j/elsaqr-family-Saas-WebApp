@@ -16,10 +16,9 @@ export const userSchema = yup.object().shape({
 
 export const profileSchema = yup.object().shape({
     email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
-    phone: yup.string()
-        .required('رقم الهاتف مطلوب')
-        .matches(/^5\d{8}$/, 'يجب أن يتكون رقم الهاتف من 9 أرقام ويبدأ بـ 5').required(),
-    address: yup.string().optional(),
+    phone: yup.string().required('رقم الهاتف مطلوب'),
+    address: yup.string().required('العنوان مطلوب'), // تغيير من optional إلى required
+    role: yup.string().required('الدور مطلوب'), // تغيير من optional إلى required
 });
 
 

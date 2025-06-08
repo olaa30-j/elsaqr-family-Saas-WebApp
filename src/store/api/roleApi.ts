@@ -1,6 +1,11 @@
 import type { User } from '../../types/user';
 import { baseApi } from './baseApi';
 
+type RoleResponse = {
+    data: any;
+    roles: string[];
+};
+
 export const roleApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         updateRolesWithPermissions: build.mutation<User, {
@@ -16,42 +21,48 @@ export const roleApi = baseApi.injectEndpoints({
                 credentials: 'include'
             }),
             invalidatesTags: (_result, _error, { id }) => [
-                { type: 'Users' as const, id },
+                { type: 'Roles', id },
             ],
         }),
 
-        // إضافة دور للمستخدم
         addUserRole: build.mutation<User, { id: string; role: string }>({
             query: ({ id, role }) => ({
-                url: `/user/${id}/roles`,
-                method: 'POST',
+                url: `/user/${id}`,
+                method: 'PATCH',
                 body: { role },
                 credentials: 'include'
             }),
             invalidatesTags: (_result, _error, { id }) => [
-                { type: 'Users' as const, id },
+                { type: 'Roles', id },
+                { type: 'Users' }
             ],
         }),
 
-        // إزالة دور من المستخدم
-        removeUserRole: build.mutation<User, { id: string; role: string }>({
-            query: ({ id, role }) => ({
-                url: `/user/${id}/roles`,
+        removeRoleFromAllUsers: build.mutation<{ success: boolean; message: string }, { role: string }>({
+            query: ({ role }) => ({
+                url: `/user/role`,
                 method: 'DELETE',
                 body: { role },
                 credentials: 'include'
             }),
-            invalidatesTags: (_result, _error, { id }) => [
-                { type: 'Users' as const, id },
+            invalidatesTags: () => [
+                { type: 'Roles', id: 'LIST' },
             ],
         }),
 
-        getAllRoles: build.query<any, void>({
+        getAllRoles: build.query<RoleResponse, void>({
             query: () => ({
                 url: '/user/roles',
                 method: 'GET',
                 credentials: 'include'
             }),
+            providesTags: (result) =>
+                result?.roles
+                    ? [
+                        ...result.roles.map((role) => ({ type: 'Roles' as const, id: role })),
+                        { type: 'Roles', id: 'LIST' },
+                    ]
+                    : [{ type: 'Roles', id: 'LIST' }],
         }),
     }),
 });
@@ -59,6 +70,6 @@ export const roleApi = baseApi.injectEndpoints({
 export const {
     useUpdateRolesWithPermissionsMutation,
     useAddUserRoleMutation,
-    useRemoveUserRoleMutation,
+    useRemoveRoleFromAllUsersMutation,
     useGetAllRolesQuery,
 } = roleApi;

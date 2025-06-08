@@ -1,8 +1,7 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { BaseForm } from '../../../shared/BaseForm';
 import { useUpdateUserMutation } from '../../../../store/api/usersApi';
-import { useAppSelector } from '../../../../store/store';
+import { BaseForm } from '../../../shared/BaseForm';
 import { userSchema, type UserFormValues } from '../../../../types/schemas';
 
 type ErrorWithMessage = {
@@ -23,43 +22,39 @@ function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
 }
 
 interface ProfileFormProps {
-    defaultValues: UserFormValues;
+    defaultValues: Partial<UserFormValues>;
     onSuccess?: () => void;
     onCancel?: () => void;
-    isEditing?: boolean;
+    userId: string;
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({
     defaultValues,
     onSuccess,
     onCancel,
-    isEditing = false,
+    userId,
 }) => {
-    const user = useAppSelector(state => state.auth.user);
-    
     const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 
     const handleSubmit = async (data: UserFormValues) => {
         try {
             const requestData = {
-                email: data.email,
+                ...defaultValues,  
+                email: data.email, 
                 phone: data.phone,
                 address: data.address,
-                familyBranch: data.familyBranch,
-                familyRelationship: data.familyRelationship,
-                status: data.status,
-                role: data.role
+                role: Array.isArray(defaultValues.role) 
+                    ? defaultValues.role 
+                    : [defaultValues.role || 'مستخدم']
             };
 
-            if (user && user._id) {
-                await updateUser({
-                    id: user._id,
-                    data: requestData
-                }).unwrap();
-
-                toast.success("تم تحديث الملف الشخصي بنجاح");
-                onSuccess?.();
-            }
+            await updateUser({ 
+                id: userId, 
+                data: requestData 
+            }).unwrap();
+            
+            toast.success("تم تحديث الملف الشخصي بنجاح");
+            onSuccess?.();
         } catch (error) {
             if (isFetchBaseQueryError(error)) {
                 const errorData = error.data as { message?: string };
@@ -72,15 +67,16 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             console.error("تفاصيل الخطأ:", error);
         }
     };
+
     return (
         <BaseForm
-            onCancel={onCancel}
-            isEditing={isEditing}
             schema={userSchema}
             defaultValues={defaultValues}
             onSubmit={handleSubmit}
-            formTitle="الملف الشخصي"
-            formDescription="بيانات المستخدم الأساسية"
+            onCancel={onCancel}
+            isEditing={true}
+            formTitle='بيانات الحساب'
+            formDescription='قم بتعديل بيانات حسابك'
         >
             {({ register, formState: { errors } }) => (
                 <>
@@ -124,25 +120,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                             )}
                         </div>
 
-                        {/* Hidden Fields */}
-                        <input
-                            type="hidden"
-                            {...register('familyBranch')}
-                        />
-                        <input
-                            type="hidden"
-                            {...register('familyRelationship')}
-                        />
-                        <input
-                            type="hidden"
-                            {...register('status')}
-                        />
-                        <input
-                            type="hidden"
-                            {...register('role')}
-                        />
-
-                        {/* Address Field */}
+                        {/* Address Field (full width) */}
                         <div className="space-y-2 md:col-span-2">
                             <label htmlFor="address" className="block text-sm font-medium text-gray-700">
                                 العنوان
@@ -151,7 +129,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                                 id="address"
                                 {...register('address')}
                                 className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                rows={3}
+                                rows={2}
                                 disabled={isUpdating}
                             />
                             {errors.address && (

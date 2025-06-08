@@ -3,12 +3,10 @@ import { setCredentials } from '../../features/auth/authSlice';
 import type { User } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.PROD
-    ? 'https://saas4.vercel.app/api/v1'
-    : '/api',
+  baseUrl: 'https://saas5-sand.vercel.app/api/v1',
   credentials: 'include',
   prepareHeaders: (headers) => {
-    headers.set('x-vercel-project-id', 'prj_ApdJAxFMNPRHphOwgpOYIkZKI7nZ');
+    headers.set('x-vercel-project-id', 'prj_nh4IupYDWc98eDDfu9ijSAxnCztx');
     return headers;
   },
 });
@@ -25,7 +23,7 @@ const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, 
 
 export const baseApi = createApi({
   reducerPath: 'api',
-  tagTypes: ['Members', 'Users', 'Transaction', 'Albums', 'Events', 'Advertisements'],
+  tagTypes: ['Members', 'Users', 'Transaction', 'Albums', 'Events', 'Advertisements', 'Roles'],
   baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     getAuthUser: builder.query<User, void>({
