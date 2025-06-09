@@ -16,7 +16,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
   // الحصول على بيانات المسار الحالي
   const currentRoute = matches.find(match => match.pathname === location.pathname);
   const routeHandle = currentRoute?.handle as any;
-  console.log(currentRoute);
 
   const requiredPermissions = routeHandle?.permissions || [];
   const requiresServerCheck = routeHandle?.requiresServerCheck || false;

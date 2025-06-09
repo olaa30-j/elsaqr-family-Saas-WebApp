@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 const AlbumsList = () => {
     const user = useAppSelector((state) => state.auth.user);
     const { data: albumsData, isLoading, isError } = useGetAlbumsQuery({ page: 1, limit: 10 });
-
     const filteredAlbums = user?.role[0] === "مستخدم"
         ? albumsData?.data?.filter((album: any) => album.createdBy.familyBranch === user.familyBranch)
         : albumsData?.data;

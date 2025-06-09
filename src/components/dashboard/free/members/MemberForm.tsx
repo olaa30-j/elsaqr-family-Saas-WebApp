@@ -38,12 +38,12 @@ const MemberForm: React.FC<MemberFormProps> = ({
     isEditing = false,
 }) => {
     const [createMember, { isLoading: isCreating }] = useCreateMemberMutation();
-    const [updateMember, { isLoading: isUpdating }] = useUpdateMemberMutation(); 
-       
+    const [updateMember, { isLoading: isUpdating }] = useUpdateMemberMutation();
+
     let memberID = memberFormId;
-    if (!memberID) { 
+    if (!memberID) {
         const { memberId } = useParams<{ memberId: string }>();
-        memberID  = memberId
+        memberID = memberId
     }
 
 
@@ -67,7 +67,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                 await updateMember({ id: memberID, data: formData }).unwrap();
                 toast.success("تم تحديث بيانات العضو بنجاح");
             } else {
-                await createMember( formData ).unwrap();
+                await createMember(formData).unwrap();
                 toast.success("تم إضافة العضو بنجاح");
             }
 
@@ -86,6 +86,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
     };
 
 
+
     return (
         <BaseForm
             schema={memberSchema}
@@ -96,17 +97,9 @@ const MemberForm: React.FC<MemberFormProps> = ({
             formTitle={isEditing ? 'تعديل بيانات العضو' : 'إضافة عضو جديد'}
             formDescription={isEditing ? 'قم بتعديل بيانات العضو' : 'أدخل بيانات العضو الجديد'}
         >
-            {({ register, formState: { errors }, setValue }) => {
+            {({ register, formState: { errors } }) => {
                 // const gender = watch('gender');
                 // const familyRelationship = watch('familyRelationship');
-
-                const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-                    if (e.target.files && e.target.files[0]) {
-                        setValue('image', e.target.files[0]);
-                    } else {
-                        setValue('image', "");
-                    }
-                };
 
                 return (
                     <>
@@ -298,24 +291,6 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                 />
                                 {errors.summary && (
                                     <p className="mt-1 text-sm text-red-600">{errors.summary.message}</p>
-                                )}
-                            </div>
-
-                            {/* صورة */}
-                            <div className="space-y-2 col-span-2">
-                                <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-                                    صورة العضو
-                                </label>
-                                <input
-                                    id="image"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    disabled={isUpdating || isCreating}
-                                />
-                                {errors.image && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.image.message}</p>
                                 )}
                             </div>
                         </div>

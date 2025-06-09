@@ -20,7 +20,7 @@ const SettingDropDown = ({ user, onLogout, toggleProfileMenu }: SettingDropDownP
         <p className="text-md font-medium text-primary">
           {user?.memberId?.fname} {user?.memberId?.lname}
         </p>
-        <p className="text-sm text-gray-700 truncate">{user?.role[1]}</p>
+        <p className="text-sm text-gray-700 truncate">{user?.role[0]}</p>
       </div>
 
       <div className="py-1">

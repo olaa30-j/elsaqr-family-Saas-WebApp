@@ -17,18 +17,16 @@ export const permissionApi = baseApi.injectEndpoints({
     }, {
       entity: PermissionEntity;
       action: PermissionAction;
+      role?:string;
     }>({
       query: ({ entity, action }) => {
-        console.log('[Permission API] Request:', { entity, action });
         return {
-          url: '/permission',
+          url: '/permission/check',
           method: 'POST',
           body: { entity, action },
         };
       },
       transformResponse: (baseResponse: any, _, { entity, action }) => {
-        console.log('[Permission API] Response:', baseResponse);
-
         if (!isPermissionEntity(entity)) {
           console.error(`Invalid entity: ${entity}`);
           return {
@@ -47,7 +45,6 @@ export const permissionApi = baseApi.injectEndpoints({
           };
         }
 
-        // Transform the server response to match our expected format
         return {
           success: true,
           hasPermission: baseResponse?.hasPermission || false,
@@ -69,7 +66,7 @@ export const permissionApi = baseApi.injectEndpoints({
 export const hasPermission = (
   user: User | null,
   entity: PermissionEntity,
-  action: PermissionAction
+  action: PermissionAction,
 ): boolean => {
   if (!user) return false;
 

@@ -18,7 +18,6 @@ export const profileSchema = yup.object().shape({
     email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
     phone: yup.string().required('رقم الهاتف مطلوب'),
     address: yup.string().required('العنوان مطلوب'), // تغيير من optional إلى required
-    role: yup.string().required('الدور مطلوب'), // تغيير من optional إلى required
 });
 
 

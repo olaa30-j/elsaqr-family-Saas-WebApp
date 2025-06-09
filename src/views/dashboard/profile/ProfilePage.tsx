@@ -1,18 +1,18 @@
 import { useGetUserQuery } from "../../../store/api/usersApi";
 import { useAppSelector } from "../../../store/store";
 import { useState, useMemo } from "react";
-import { Mail, Phone, Pencil, X } from "lucide-react";
+import { Mail, Phone, Pencil, X, PencilIcon } from "lucide-react";
 import SecuritySettings from "../../../components/dashboard/free/profile/SecuritySettings";
 import NotificationsSettings from "../../../components/dashboard/free/profile/NotificationsSettings";
 import ActivitiesSettings from "../../../components/dashboard/free/profile/ActivitiesSettings";
 import { Tabs } from "../../../components/ui/Tabs";
 import { DEFAULT_IMAGE } from "../../../components/auth/RegisterationForm";
 import ProfileForm from "../../../components/dashboard/free/profile/ProfileForm";
-import { useGetMemberQuery } from "../../../store/api/memberApi";
+import { useGetMemberQuery, useUpdateMemberMutation } from "../../../store/api/memberApi";
 import MemberForm from "../../../components/dashboard/free/members/MemberForm";
 import type { User } from "../../../types/user";
 import type { Member } from "../../../types/member";
-
+import { toast } from "react-toastify";
 
 interface ApiResponse<T> {
   data?: T;
@@ -24,6 +24,7 @@ interface ApiResponse<T> {
 const ProfilePage = () => {
   const userData = useAppSelector((state) => state.auth.user) as User | null;
   const [isPEditing, setIsPEditing] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   const userId = userData?._id || '';
   const memberId = userData?.memberId?._id || '';
@@ -48,10 +49,41 @@ const ProfilePage = () => {
     skip: !memberId
   });
 
+  const [updateMember, { isLoading: isUpdating }] = useUpdateMemberMutation();
+
   const refreshUserData = () => {
     refetchUser();
     refetchMember();
     setIsPEditing(false);
+    setSelectedImage(null);
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedImage(file);
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        await updateMember({
+          id: memberId,
+          data: formData
+        }).unwrap();
+
+        toast.success("تم تحديث صورة العضو بنجاح");
+        refreshUserData();
+      } catch (error) {
+        toast.error("فشل في تحديث الصورة");
+        console.error(error);
+      }
+    }
+  };
+
+  const handleEditToggle = () => {
+    setIsPEditing(!isPEditing);
+    setSelectedImage(null);
   };
 
   const tabs = useMemo(() => {
@@ -121,8 +153,8 @@ const ProfilePage = () => {
     return (
       <div className="text-red-500 text-center p-4">
         <p>حدث خطأ في تحميل البيانات</p>
-        {userError && <p>خطأ المستخدم: {(userError as any).message}</p>}
-        {memberError && <p>خطأ العضو: {(memberError as any).message}</p>}
+        {userError && <p>خطأ المستخدم: {'message' in userError ? userError.message : String(userError)}</p>}
+        {memberError && <p>خطأ العضو: {'message' in memberError ? memberError.message : String(memberError)}</p>}
       </div>
     );
   }
@@ -138,7 +170,6 @@ const ProfilePage = () => {
   const user = (userResponse as ApiResponse<User>).data || userResponse as User;
   const member = (memberResponse as ApiResponse<Member>).data || memberResponse as Member;
 
-
   return (
     <main className="flex-1 overflow-y-auto pb-16">
       <div className="container mx-auto px-4 py-4">
@@ -148,13 +179,37 @@ const ProfilePage = () => {
             <div className="flex flex-col md:flex-row items-center gap-6">
               {/* Profile Image */}
               <div className="relative group">
-                <span className="relative flex shrink-0 overflow-hidden rounded-full h-28 w-28 border-4 border-primary/80 shadow-lg transition-all duration-300 group-hover:border-primary group-hover:scale-105">
-                  <img
-                    className="aspect-square h-full w-full object-cover"
-                    alt={`${user?.memberId?.fname || 'مستخدم'}`}
-                    src={member?.image || DEFAULT_IMAGE}
+                <label htmlFor="profileImage" className="cursor-pointer">
+                  <span className="relative flex shrink-0 overflow-hidden rounded-full h-28 w-28 border-4 border-primary/80 shadow-lg transition-all duration-300 group-hover:border-primary group-hover:scale-105">
+                    <img
+                      className="aspect-square h-full w-full object-cover"
+                      alt={`${user?.memberId?.fname || 'مستخدم'}`}
+                      src={
+                        selectedImage
+                          ? URL.createObjectURL(selectedImage)
+                          : member?.image || DEFAULT_IMAGE
+                      }
+                    />
+
+                    {/* Overlay layer appears only in edit mode */}
+                    {isPEditing && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-full transition-opacity duration-300">
+                        <PencilIcon className="w-10 h-10 text-white" />
+                      </div>
+                    )}
+                  </span>
+                </label>
+
+                {isPEditing && (
+                  <input
+                    id="profileImage"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    disabled={isUpdating}
                   />
-                </span>
+                )}
               </div>
 
               {/* Profile Info */}
@@ -202,9 +257,12 @@ const ProfilePage = () => {
               <div className="md:ml-auto">
                 <button
                   className="inline-flex items-center justify-center text-white gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-primary hover:bg-amber-500/80 h-10 px-4 py-2"
-                  onClick={() => setIsPEditing(!isPEditing)}
+                  onClick={handleEditToggle}
+                  disabled={isUpdating}
                 >
-                  {isPEditing ? (
+                  {isUpdating ? (
+                    <span>جاري التحديث...</span>
+                  ) : isPEditing ? (
                     <>
                       <X className="h-4 w-4" />
                       إلغاء التعديل
@@ -212,7 +270,7 @@ const ProfilePage = () => {
                   ) : (
                     <>
                       <Pencil className="h-4 w-4" />
-                      تعديل الملف الشخصي
+                      تعديل صورتك الشخصية
                     </>
                   )}
                 </button>

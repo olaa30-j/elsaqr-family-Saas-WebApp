@@ -17,14 +17,14 @@ const BranchCard = ({ familyBranch, mainHusband }: BranchCardProps) => {
                         <img
                             src={mainHusband.image}
                             alt={`صورة ${mainHusband.fname}`}
-                            className="h-[50vh] w-full object-cover"
+                            className="h-[45vh] w-full object-cover"
                         />
                     ) : (
                         <div className="text-center">
                             <img
                                 src={DEFAULT_IMAGE}
                                 alt={`صورة مستخدم`}
-                                className="h-[50vh] w-full object-cover"
+                                className="h-[45vh] w-full object-cover"
                             />
                         </div>
                     )}

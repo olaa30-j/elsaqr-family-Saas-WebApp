@@ -52,7 +52,7 @@ export const roleApi = baseApi.injectEndpoints({
 
         getAllRoles: build.query<RoleResponse, void>({
             query: () => ({
-                url: '/user/roles',
+                url: '/permission/roles',
                 method: 'GET',
                 credentials: 'include'
             }),

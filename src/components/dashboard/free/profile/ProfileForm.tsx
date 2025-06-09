@@ -2,7 +2,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import { useUpdateUserMutation } from '../../../../store/api/usersApi';
 import { BaseForm } from '../../../shared/BaseForm';
-import { userSchema, type UserFormValues } from '../../../../types/schemas';
+import { profileSchema, type ProfileFormValues } from '../../../../types/schemas';
 
 type ErrorWithMessage = {
     message: string;
@@ -22,7 +22,7 @@ function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
 }
 
 interface ProfileFormProps {
-    defaultValues: Partial<UserFormValues>;
+    defaultValues: Partial<ProfileFormValues>;
     onSuccess?: () => void;
     onCancel?: () => void;
     userId: string;
@@ -36,23 +36,19 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 }) => {
     const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 
-    const handleSubmit = async (data: UserFormValues) => {
+    const handleSubmit = async (data: ProfileFormValues) => {
         try {
+            console.log(data);
+
             const requestData = {
-                ...defaultValues,  
-                email: data.email, 
-                phone: data.phone,
-                address: data.address,
-                role: Array.isArray(defaultValues.role) 
-                    ? defaultValues.role 
-                    : [defaultValues.role || 'مستخدم']
+                ...data
             };
 
-            await updateUser({ 
-                id: userId, 
-                data: requestData 
+            await updateUser({
+                id: userId,
+                data: requestData
             }).unwrap();
-            
+
             toast.success("تم تحديث الملف الشخصي بنجاح");
             onSuccess?.();
         } catch (error) {
@@ -70,7 +66,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
     return (
         <BaseForm
-            schema={userSchema}
+            schema={profileSchema}
             defaultValues={defaultValues}
             onSubmit={handleSubmit}
             onCancel={onCancel}
@@ -120,7 +116,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                             )}
                         </div>
 
-                        {/* Address Field (full width) */}
                         <div className="space-y-2 md:col-span-2">
                             <label htmlFor="address" className="block text-sm font-medium text-gray-700">
                                 العنوان
@@ -129,7 +124,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                                 id="address"
                                 {...register('address')}
                                 className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                rows={2}
+                                rows={1}
                                 disabled={isUpdating}
                             />
                             {errors.address && (
@@ -142,5 +137,4 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         </BaseForm>
     );
 };
-
 export default ProfileForm;
