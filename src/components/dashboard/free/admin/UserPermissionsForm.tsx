@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 export type PermissionEntity = 'مناسبه' | 'عضو' | 'مستخدم' | 'معرض الصور' | 'ماليه' | 'اعلان';
 export type PermissionAction = 'view' | 'create' | 'update' | 'delete';
 
-
 export interface EntityPermission {
     entity: PermissionEntity;
     view: boolean;
@@ -25,82 +24,109 @@ const PermissionsSection = ({ user }: { user: User }) => {
     const [updatePermissions] = useUpdatePermissionsMutation();
     const [initialPermissions, setInitialPermissions] = useState<UserPermissions>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [hasChanges, setHasChanges] = useState(false);
 
-    const { control, handleSubmit, reset } = useForm({
+    const { control, reset, watch } = useForm<{ permissions: UserPermissions }>({
         defaultValues: {
-            permissions: user.permissions || []
+            permissions: permissionEntities.map(entity => ({
+                entity,
+                view: false,
+                create: false,
+                update: false,
+                delete: false
+            }))
         }
     });
 
+    const currentPermissions = watch('permissions');
+
+    // Check for changes between current and initial permissions
+    useEffect(() => {
+        if (initialPermissions.length > 0) {
+            const changesExist = currentPermissions.some(currentPerm => {
+                const initialPerm = initialPermissions.find(p => p.entity === currentPerm.entity);
+                if (!initialPerm) return true;
+                
+                return permissionActions.some(action => 
+                    currentPerm[action] !== initialPerm[action]
+                );
+            });
+            setHasChanges(changesExist);
+        }
+    }, [currentPermissions, initialPermissions]);
+
     useEffect(() => {
         if (user?.permissions) {
-            setInitialPermissions([...user.permissions]);
-            reset({
-                permissions: [...user.permissions]
-            });
-        }
+            const defaultPermissions = permissionEntities.map(entity => ({
+                entity,
+                view: false,
+                create: false,
+                update: false,
+                delete: false
+            }));
 
-        console.log(user.permissions);
-        
+            const mergedPermissions = defaultPermissions.map(defaultPerm => {
+                const userPerm = user.permissions.find(p => p.entity === defaultPerm.entity);
+                return userPerm ? { ...defaultPerm, ...userPerm } : defaultPerm;
+            });
+
+            setInitialPermissions(mergedPermissions);
+            reset({ permissions: mergedPermissions });
+        }
     }, [user, reset]);
 
-    const onSubmitOptimized = async (data: { permissions: UserPermissions }) => {        
-        if (isSubmitting || !user?._id) return;
-        setIsSubmitting(true);
+    const handlePermissionChange = (entity: PermissionEntity, action: PermissionAction, value: boolean) => {
+        const updated = currentPermissions.map(perm =>
+            perm.entity === entity ? { ...perm, [action]: value } : perm
+        );
+        reset({ permissions: updated });
+    };
+
+    const handleSaveChanges = async () => {
+        if (!user?._id || !hasChanges) return;
+
         try {
-            const changes: Array<{
-                entity: PermissionEntity;
-                action: PermissionAction;
-                value: boolean;
-            }> = [];
-
-            data.permissions.forEach(newPerm => {
-                const oldPerm = initialPermissions.find(p => p.entity === newPerm.entity) || {
-                    entity: newPerm.entity,
-                    view: false,
-                    create: false,
-                    update: false,
-                    delete: false
-                };
-
-                permissionActions.forEach(action => {
-                    if (newPerm[action] !== oldPerm[action]) {
-                        changes.push({
-                            entity: newPerm.entity,
-                            action,
-                            value: newPerm[action]
-                        });
-                    }
-                });
+            setIsSubmitting(true);
+            
+            // Find all changes
+            const changes = currentPermissions.flatMap(newPerm => {
+                const oldPerm = initialPermissions.find(p => p.entity === newPerm.entity);
+                if (!oldPerm) return [];
+                
+                return permissionActions
+                    .filter(action => newPerm[action] !== oldPerm[action])
+                    .map(action => ({
+                        entity: newPerm.entity,
+                        action,
+                        value: newPerm[action]
+                    }));
             });
 
-            const updatePromises = changes.map(change =>
+            // Send all changes at once
+            await Promise.all(changes.map(change =>
                 updatePermissions({
                     id: user._id,
                     ...change
                 }).unwrap()
-            );
-            await Promise.all(updatePromises);
+            ));
+
             toast.success("تم تحديث الصلاحيات بنجاح");
-            setInitialPermissions(data.permissions);
-
-
+            setInitialPermissions(currentPermissions);
+            setHasChanges(false);
         } catch (error: any) {
             console.error('Update error:', error);
-            toast.error(error.data?.message || "فشل في تحديث الصلاحيات. يرجى التحقق من البيانات والمحاولة مرة أخرى");
-            reset({
-                permissions: initialPermissions
-            });
+            toast.error(error.data?.message || "فشل في تحديث الصلاحيات. يرجى المحاولة مرة أخرى");
+            reset({ permissions: initialPermissions });
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-6 mt-6">
+        <div className="bg-white rounded-lg shadow-md p-6 mt-6 mb-4">
             <h3 className="text-lg font-semibold mb-4 text-primary text-center mb-6">إدارة الصلاحيات</h3>
 
-            <form onSubmit={handleSubmit(onSubmitOptimized)}>
+            <form>
                 <div className="overflow-x-auto">
                     <table className="min-w-full">
                         <thead>
@@ -132,34 +158,18 @@ const PermissionsSection = ({ user }: { user: User }) => {
                                                 name="permissions"
                                                 control={control}
                                                 render={({ field }) => {
-                                                    const currentPermissions = field.value || [];
-                                                    const entityPermission = currentPermissions.find((p: any) => p.entity === entity);
+                                                    const entityPermission = field.value.find(p => p.entity === entity);
                                                     const checked = entityPermission ? entityPermission[action] : false;
 
                                                     return (
                                                         <input
                                                             type="checkbox"
                                                             checked={checked}
-                                                            onChange={(e) => {
-                                                                const updated = currentPermissions.map((p: any) =>
-                                                                    p.entity === entity
-                                                                        ? { ...p, [action]: e.target.checked }
-                                                                        : p
-                                                                );
-
-                                                                if (!updated.some((p: any) => p.entity === entity)) {
-                                                                    updated.push({
-                                                                        entity,
-                                                                        view: false,
-                                                                        create: false,
-                                                                        update: false,
-                                                                        delete: false,
-                                                                        [action]: e.target.checked
-                                                                    });
-                                                                }
-
-                                                                field.onChange(updated);
-                                                            }}
+                                                            onChange={(e) => handlePermissionChange(
+                                                                entity,
+                                                                action,
+                                                                e.target.checked
+                                                            )}
                                                             className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
                                                             disabled={isSubmitting}
                                                         />
@@ -174,15 +184,18 @@ const PermissionsSection = ({ user }: { user: User }) => {
                     </table>
                 </div>
 
-                <div className="flex justify-end mt-4">
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark disabled:opacity-50"
-                    >
-                        {isSubmitting ? 'جاري الحفظ...' : 'حفظ الصلاحيات'}
-                    </button>
-                </div>
+                {hasChanges && (
+                    <div className="flex justify-end mt-4">
+                        <button
+                            type="button"
+                            onClick={handleSaveChanges}
+                            disabled={isSubmitting}
+                            className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark disabled:opacity-50"
+                        >
+                            {isSubmitting ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+                        </button>
+                    </div>
+                )}
             </form>
         </div>
     );

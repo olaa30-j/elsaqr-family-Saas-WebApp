@@ -1,13 +1,13 @@
-import type { PermissionAction, PermissionSection } from "./permissionsStructure";
+import type { PermissionAction, PermissionEntity } from "./permissionsStructure";
 
 export interface ProtectedRouteProps {
   children: React.ReactElement;
-  requiredSection?: PermissionSection;
+  requiredSection?: PermissionEntity;
   requiredAction?: PermissionAction;
 }
 
 export interface PermissionItem {
-  section: PermissionSection;
+  entity: PermissionEntity;
   action: PermissionAction;
   onClick: () => void;
   children: React.ReactNode;

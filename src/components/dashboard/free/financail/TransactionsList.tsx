@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import type { Transaction } from '../../../../types/financial';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { usePermission } from '../../../../hooks/usePermission';
 
 const TransactionsList = () => {
     const [page, setPage] = useState(1);
@@ -19,6 +20,11 @@ const TransactionsList = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
     const [sortConfig, setSortConfig] = useState<{ key: keyof Transaction; direction: 'asc' | 'desc' } | null>(null);
+    const { hasPermission: canCreateFinancial } = usePermission('FINANCIAL_CREATE');
+    const { hasPermission: canDeleteFinancial } = usePermission('FINANCIAL_DELETE');
+    const { hasPermission: canEditFinancial } = usePermission('FINANCIAL_EDIT');
+
+
     const limit = 10;
     const navigate = useNavigate();
 
@@ -171,6 +177,7 @@ const TransactionsList = () => {
                 <TransactionsActions
                     transactions={allTransactionsData?.transactions || []}
                     filters={{ typeFilter, timeFilter, debouncedSearchQuery }}
+                    canCreateFinancial={canCreateFinancial}
                 />
 
                 <TransactionStatsCards transactions={allTransactionsData?.transactions || []} />
@@ -191,6 +198,8 @@ const TransactionsList = () => {
                     transition={{ delay: 0.2 }}
                 >
                     <TransactionsTable
+                        canDeleteFinancial={canDeleteFinancial}
+                        canEditFinancial={canEditFinancial}
                         transactions={paginatedTransactions}
                         sortConfig={sortConfig}
                         onSort={handleSort}

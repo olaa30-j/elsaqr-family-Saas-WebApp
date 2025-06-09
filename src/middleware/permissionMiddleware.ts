@@ -4,11 +4,11 @@ import { permissionApi } from '../store/api/permissionApi';
 
 export const permissionMiddleware: Middleware<{}, RootState> = (store: any) => (next) => async (action: any) => {
     if (action.type.endsWith('/execute') && action.meta?.arg?.endpointName === 'verifyAction') {
-        const { section, action: permissionAction } = action.meta.arg.originalArgs;
+        const { entity, action: permissionAction } = action.meta.arg.originalArgs;
 
         try {
             const { data: hasPermission } = await store.dispatch(
-                permissionApi.endpoints.checkPermission.initiate({ section, action: permissionAction })
+                permissionApi.endpoints.checkPermission.initiate({ entity, action: permissionAction })
             ).unwrap();
 
             if (!hasPermission) {

@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { fadeIn, staggerContainer, slideIn } from '../../../../utils/motion';
 import Modal from '../../../ui/Modal';
 import { ar } from 'date-fns/locale';
+import { usePermission } from '../../../../hooks/usePermission';
 
 const EventCalendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -57,6 +58,9 @@ const EventCalendar = () => {
   const [createEvent] = useCreateEventMutation();
   const [updateEvent] = useUpdateEventMutation();
   const [deleteEvent] = useDeleteEventMutation();
+  const { hasPermission: canCreateEvent } = usePermission('EVENT_CREATE');
+  const { hasPermission: canDeleteEvent } = usePermission('EVENT_DELETE');
+  const { hasPermission: canEditEvent } = usePermission('EVENT_EDIT');
 
   // طلب الفرز
   const requestSort = (key: keyof IEvent) => {
@@ -135,7 +139,7 @@ const EventCalendar = () => {
         {/* رأس الصفحة مع التبويبات */}
         <motion.div
           variants={fadeIn('down', 'spring', 0.2, 0.5)}
-          className="flex flex-col gap-8 md:flex-row justify-between items-center mb-6"
+          className="flex flex-col gap-8 md:flex-row justify-between items-center mb-8"
         >
           <h1 className="text-2xl font-bold text-primary-600 flex gap-2 text-primary items-center">
             <CalendarDaysIcon className='w-5 h-5' />
@@ -186,17 +190,19 @@ const EventCalendar = () => {
                   التالي
                 </motion.button>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setEditingEvent(null);
-                  setShowForm(true);
-                }}
-                className="flex items-center px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-all shadow-md"
-              >
-                <Plus className="mr-2" /> إضافة حدث
-              </motion.button>
+              {canCreateEvent && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setEditingEvent(null);
+                    setShowForm(true);
+                  }}
+                  className="flex items-center px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-all shadow-md"
+                >
+                  <Plus className="mr-2" /> إضافة حدث
+                </motion.button>
+              )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -306,25 +312,34 @@ const EventCalendar = () => {
                                 </p>
                               </div>
                               <div className="flex space-x-2">
-                                <motion.button
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() => {
-                                    setEditingEvent(event);
-                                    setShowForm(true);
-                                  }}
-                                  className="text-primary-600 hover:text-primary-800"
-                                >
-                                  <Edit />
-                                </motion.button>
-                                <motion.button
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() => handleDelete(event._id)}
-                                  className="text-red-600 hover:text-red-800"
-                                >
-                                  <Trash2 />
-                                </motion.button>
+                                {
+                                  canEditEvent && (
+                                    <motion.button
+                                      whileHover={{ scale: 1.1 }}
+                                      whileTap={{ scale: 0.9 }}
+                                      onClick={() => {
+                                        setEditingEvent(event);
+                                        setShowForm(true);
+                                      }}
+                                      className="text-primary-600 hover:text-primary-800"
+                                    >
+                                      <Edit />
+                                    </motion.button>
+                                  )
+                                }
+
+                                {
+                                  canDeleteEvent && (
+                                    <motion.button
+                                      whileHover={{ scale: 1.1 }}
+                                      whileTap={{ scale: 0.9 }}
+                                      onClick={() => handleDelete(event._id)}
+                                      className="text-red-600 hover:text-red-800"
+                                    >
+                                      <Trash2 />
+                                    </motion.button>
+                                  )
+                                }
                               </div>
                             </div>
                           </motion.div>
@@ -351,17 +366,21 @@ const EventCalendar = () => {
           >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-primary-700">جميع الأحداث</h2>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setEditingEvent(null);
-                  setShowForm(true);
-                }}
-                className="flex items-center px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-all shadow-md"
-              >
-                <Plus className="mr-2" /> إضافة حدث جديد
-              </motion.button>
+              {
+                canCreateEvent && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setEditingEvent(null);
+                      setShowForm(true);
+                    }}
+                    className="flex items-center px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-all shadow-md"
+                  >
+                    <Plus className="mr-2" /> إضافة حدث جديد
+                  </motion.button>
+                )
+              }
             </div>
 
             <div className="overflow-x-auto">
@@ -407,9 +426,13 @@ const EventCalendar = () => {
                     <th scope="col" className="px-6 py-3 text-center  text-md font-medium text-white font-cairo   tracking-wider">
                       تاريخ الانتهاء
                     </th>
-                    <th scope="col" className="px-6 py-3 text-center  text-md font-medium text-white font-cairo   tracking-wider">
-                      الإجراءات
-                    </th>
+                    {
+                      (canDeleteEvent || canEditEvent) && (
+                        <th scope="col" className="px-6 py-3 text-center  text-md font-medium text-white font-cairo   tracking-wider">
+                          الإجراءات
+                        </th>
+                      )
+                    }
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 text-center">
@@ -434,32 +457,42 @@ const EventCalendar = () => {
                         <td className="px-6 py-4 whitespace-nowrap  text-md text-gray-500">
                           {event.endDate ? format(new Date(event.endDate), 'yyyy/MM/dd - h:mm a') : '--'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap  text-md font-medium">
-                          <div className="flex space-x-2  justify-center gap-2">
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => {
-                                setEditingEvent(event);
-                                setShowForm(true);
-                              }}
-                              className="text-primary-600 hover:text-primary-800"
-                            >
-                              <Edit />
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => {
-                                setdeletingEvent(event);
-                                setIsDeleteEvent(true)
-                              }}
-                              className="text-red-600 hover:text-red-800"
-                            >
-                              <Trash2 />
-                            </motion.button>
-                          </div>
-                        </td>
+                        {
+                          (canDeleteEvent || canEditEvent) && (
+                            <td className="px-6 py-4 whitespace-nowrap  text-md font-medium">
+                              <div className="flex space-x-2  justify-center gap-2">
+                                {
+                                  canEditEvent && (
+                                    <motion.button
+                                      whileHover={{ scale: 1.1 }}
+                                      whileTap={{ scale: 0.9 }}
+                                      onClick={() => {
+                                        setEditingEvent(event);
+                                        setShowForm(true);
+                                      }}
+                                      className="text-primary-600 hover:text-primary-800"
+                                    >
+                                      <Edit />
+                                    </motion.button>
+                                  )
+                                }
+                                {canDeleteEvent && (
+                                  <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => {
+                                      setdeletingEvent(event);
+                                      setIsDeleteEvent(true)
+                                    }}
+                                    className="text-red-600 hover:text-red-800"
+                                  >
+                                    <Trash2 />
+                                  </motion.button>
+                                )}
+                              </div>
+                            </td>
+                          )
+                        }
                       </motion.tr>
                     ))}
                   </AnimatePresence>

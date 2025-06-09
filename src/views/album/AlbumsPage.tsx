@@ -4,6 +4,7 @@ import { AlbumGrid } from '../../components/dashboard/free/album/AlbumGrid';
 import { PaginationControls } from '../../components/dashboard/free/album/PaginationControls';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import { AlbumFormModal } from '../../components/dashboard/free/album/AlbumFormModal';
+import { usePermission } from '../../hooks/usePermission';
 
 const AlbumsPage = () => {
     const {
@@ -18,6 +19,8 @@ const AlbumsPage = () => {
 
     const [isCreating, setIsCreating] = useState(false);
 
+    const { hasPermission: canCreateAlbum } = usePermission('GALLERY_CREATE');
+
     if (isLoading) return <LoadingSpinner />;
 
     return (
@@ -31,15 +34,19 @@ const AlbumsPage = () => {
                     <h2 className="text-xl font-heading font-bold">معرض الصور</h2>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => setIsCreating(true)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium hover:text-white bg-white border-2 border-primary text-primary rounded-lg hover:bg-primary transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus h-4 w-4">
-                            <path d="M5 12h14" />
-                            <path d="M12 5v14" />
-                        </svg>
-                        <span>إنشاء ألبوم</span>
-                    </button>
+                    {
+                        canCreateAlbum && (
+                            <button
+                                onClick={() => setIsCreating(true)}
+                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium hover:text-white bg-white border-2 border-primary text-primary rounded-lg hover:bg-primary transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus h-4 w-4">
+                                    <path d="M5 12h14" />
+                                    <path d="M12 5v14" />
+                                </svg>
+                                <span>إنشاء ألبوم</span>
+                            </button>
+                        )
+                    }
                 </div>
             </div>
 

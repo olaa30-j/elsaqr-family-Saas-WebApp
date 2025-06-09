@@ -1,3 +1,5 @@
+import type { Permission } from "./permissionsStructure";
+
 export const familyBranches = [
   { value: "الفرع الاول", label: 'الفرع الأول' },
   { value: "الفرع الثاني", label: 'الفرع الثاني' },
@@ -45,7 +47,7 @@ export interface User {
   familyRelationship: 'ابن' | 'ابنة' | 'زوجة' | 'زوج' | 'حفيد' | 'أخرى';
   status?: 'قيد الانتظار' | 'مرفوض' | 'مقبول';
   address?: string;
-  permissions?: any[];
+  permissions: Permission[];
   createdAt?: string;
   updatedAt?: string;
   memberId?: {

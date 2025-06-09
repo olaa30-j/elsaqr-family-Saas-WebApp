@@ -16,6 +16,7 @@ interface TransactionsActionsProps {
         timeFilter: string;
         debouncedSearchQuery: string;
     };
+    canCreateFinancial: boolean;
 }
 
 /**
@@ -24,7 +25,7 @@ interface TransactionsActionsProps {
  * @component
  * @param {TransactionsActionsProps} props - Component props
  */
-const TransactionsActions = ({ transactions, filters }: TransactionsActionsProps) => {
+const TransactionsActions = ({ transactions, filters, canCreateFinancial }: TransactionsActionsProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [createTransaction] = useCreateTransactionMutation();
 
@@ -60,7 +61,7 @@ const TransactionsActions = ({ transactions, filters }: TransactionsActionsProps
                 }
             });
 
-            await createTransaction(formDataObj).unwrap(); 
+            await createTransaction(formDataObj).unwrap();
             setIsModalOpen(false);
             toast.success("تم إضافة المعاملة بنجاح");
         } catch (error) {
@@ -114,15 +115,20 @@ const TransactionsActions = ({ transactions, filters }: TransactionsActionsProps
                     )}
                 </PDFDownloadLink>
 
-                <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors whitespace-nowrap"
-                >
-                    <PlusCircle className="h-5 w-5" />
-                    معاملة جديدة
-                </motion.button>
+                {
+                    canCreateFinancial && (
+                        <motion.button
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setIsModalOpen(true)}
+                            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors whitespace-nowrap"
+                        >
+                            <PlusCircle className="h-5 w-5" />
+                            معاملة جديدة
+                        </motion.button>
+
+                    )
+                }
 
                 <Modal
                     isOpen={isModalOpen}

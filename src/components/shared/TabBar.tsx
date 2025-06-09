@@ -4,16 +4,23 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from "../../store/store";
 import { isActive } from "../../App";
 import { toast } from "react-toastify";
+import { usePermission } from "../../hooks/usePermission";
 
 const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
   const { isAuthenticated, user } = useAppSelector(state => state.auth);
-  let homeButton = isAuthenticated ? '/dashboard' : '/'
   const navigate = useNavigate();
   const location = useLocation();
 
+  const homeButton = isAuthenticated ? '/dashboard' : '/';
+
+  // Permission checks
+  const { hasPermission: canViewAds } = usePermission('AD_VIEW');
+  const { hasPermission: canViewGallery } = usePermission('GALLERY_VIEW');
+  const { hasPermission: canViewFamily } = usePermission('MEMBER_VIEW');
+
   const handleNavigation = (path: string) => {
     if (!isAuthenticated && path !== '/') {
-      toast.warn("يرجى تسجيل الدخول")
+      toast.warn("يرجى تسجيل الدخول");
       navigate('/login', { state: { from: path } });
       return;
     }
@@ -21,17 +28,19 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
   };
 
   return (
-    <nav className="mobile-bottom-nav fixed bottom-0 right-0 left-0 bg-white dark:bg-slate-900 shadow-lg z-50 border-t border-gray-200 dark:border-gray-800 pb-safe">
-      <div className="grid grid-cols-5 h-16 max-w-md mx-auto">
-        {/* Home */}
+    <nav className="mobile-bottom-nav fixed bottom-0 right-0 left-0 bg-white dark:bg-slate-900 shadow-lg z-50 border-t border-gray-200 dark:border-gray-800 pb-safe pb-7">
+      <div className="flex gap-8 justify-center h-16 max-w-md mx-auto">
+        {/* Home - Always visible */}
         <button
           onClick={() => handleNavigation(homeButton)}
-          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
+          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/') ? 'text-primary' : 'text-color-2/60 hover:text-primary'
+            }`}
         >
           <div className="flex h-8 w-8 items-center justify-center">
             <svg
               aria-hidden="true"
-              className={`h-5 w-5 ${isActive(homeButton) ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
+              className={`h-5 w-5 ${isActive(homeButton) ? 'text-primary' : 'text-color-2/60 hover:text-primary'
+                }`}
               viewBox="0 0 576 512"
             >
               <path
@@ -43,65 +52,76 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
           <span className="mt-1">الرئيسية</span>
         </button>
 
-        {/* Family Tree */}
-        <button
-          onClick={() => handleNavigation(`/family-tree/${user?.familyBranch}`)}
-          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/family-tree') ? 'text-primary' : 'text-color-2 hover:text-foreground'}`}
-        >
-          <div className="flex h-8 w-8 items-center justify-center">
-            <svg
-              aria-hidden="true"
-              className={`h-5 w-5 ${isActive(`/family-tree/${user?.familyBranch}`) ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
-              viewBox="0 0 640 512"
-            >
-              <path
+        {/* Family Tree - Conditional */}
+        {(canViewFamily || !isAuthenticated) && (
+          <button
+            onClick={() => handleNavigation(`/family-tree/${user?.familyBranch}`)}
+            className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/family-tree') ? 'text-primary' : 'text-color-2 hover:text-foreground'
+              }`}
+          >
+            <div className="flex h-8 w-8 items-center justify-center">
+              <svg
+                aria-hidden="true"
+                className={`h-5 w-5 ${isActive(`/family-tree/${user?.familyBranch}`) ? 'text-primary' : 'text-color-2/60 hover:text-primary'
+                  }`}
+                viewBox="0 0 640 512"
+              >
+                <path
+                  fill="currentColor"
+                  d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192l42.7 0c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0L21.3 320C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7l42.7 0C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3l-213.3 0zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352l117.3 0C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7l-330.7 0c-14.7 0-26.7-11.9-26.7-26.7z"
+                />
+              </svg>
+            </div>
+            <span className="mt-1">العائلة</span>
+          </button>
+        )}
+
+        {/* Advertisement - Conditional */}
+        {(canViewAds || !isAuthenticated) && (
+          <button
+            onClick={() => handleNavigation('/advertisement')}
+            className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/advertisements') ? 'text-primary' : 'text-color-2 hover:text-foreground'
+              }`}
+          >
+            <div className="flex h-8 w-8 items-center justify-center">
+              <svg
+                aria-hidden="true"
+                className={`h-5 w-5 ${isActive('/advertisement') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
+                viewBox="0 0 448 512"
+              >
+                <path
+                  fill="currentColor"
+                  d="M224 0c-17.7 0-32 14.3-32 32l0 19.2C119 66 64 130.6 64 208l0 18.8c0 47-17.3 92.4-48.5 127.6l-7.4 8.3c-8.4 9.4-10.4 22.9-5.3 34.4S19.4 416 32 416l384 0c12.6 0 24-7.4 29.2-18.9s3.1-25-5.3-34.4l-7.4-8.3C401.3 319.2 384 273.9 384 226.8l0-18.8c0-77.4-55-142-128-156.8L256 32c0-17.7-14.3-32-32-32zm45.3 493.3c12-12 18.7-28.3 18.7-45.3l-64 0-64 0c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7z"
+                />
+              </svg>
+            </div>
+            <span className="mt-1">الإعلانات</span>
+          </button>
+        )}
+
+        {/* Gallery - Conditional */}
+        {(canViewGallery || !isAuthenticated) && (
+          <button
+            onClick={() => handleNavigation('/albums')}
+            className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/albums') ? 'text-primary' : 'text-color-2 hover:text-foreground'
+              }`}
+          >
+            <div className="flex h-8 w-8 items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`h-5 w-5 ${isActive('/albums') ? 'text-primary' : 'text-color-2/60 hover:text-primary'
+                  }`}
+                viewBox="0 0 24 24"
                 fill="currentColor"
-                d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192l42.7 0c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0L21.3 320C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7l42.7 0C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3l-213.3 0zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352l117.3 0C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7l-330.7 0c-14.7 0-26.7-11.9-26.7-26.7z"
-              />
-            </svg>
-          </div>
-          <span className="mt-1">العائلة</span>
-        </button>
+              >
+                <path d="M21 19V5a2 2 0 0 0-2-2H5c-1.1 0-2 .9-2 2v14h18zm-2-2H5V5h14v12zm-5.5-4.5l-2.5 3.01L10 13l-3 4h10l-3.5-4.5z" />
+              </svg>
+            </div>
+            <span className="mt-1">المعرض</span>
+          </button>
+        )}
 
-        {/* advertisement */}
-        <button
-          onClick={() => handleNavigation('/advertisement')}
-          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/advertisements') ? 'text-primary' : 'text-color-2 hover:text-foreground'}`}
-        >
-          <div className="flex h-8 w-8 items-center justify-center">
-            <svg
-              aria-hidden="true"
-              className={`h-5 w-5 ${isActive('/advertisement') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
-              viewBox="0 0 448 512"
-            >
-              <path
-                fill="currentColor"
-                d="M224 0c-17.7 0-32 14.3-32 32l0 19.2C119 66 64 130.6 64 208l0 18.8c0 47-17.3 92.4-48.5 127.6l-7.4 8.3c-8.4 9.4-10.4 22.9-5.3 34.4S19.4 416 32 416l384 0c12.6 0 24-7.4 29.2-18.9s3.1-25-5.3-34.4l-7.4-8.3C401.3 319.2 384 273.9 384 226.8l0-18.8c0-77.4-55-142-128-156.8L256 32c0-17.7-14.3-32-32-32zm45.3 493.3c12-12 18.7-28.3 18.7-45.3l-64 0-64 0c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7z"
-              />
-            </svg>
-          </div>
-          <span className="mt-1">الإعلانات</span>
-        </button>
-
-        {/* Events */}
-        <button
-          onClick={() => handleNavigation('/albums')}
-          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/events') ? 'text-primary' : 'text-color-2 hover:text-foreground'}`}
-        >
-          <div className="flex h-8 w-8 items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className={`h-5 w-5 ${isActive('/albums') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M21 19V5a2 2 0 0 0-2-2H5c-1.1 0-2 .9-2 2v14h18zm-2-2H5V5h14v12zm-5.5-4.5l-2.5 3.01L10 13l-3 4h10l-3.5-4.5z" />
-            </svg>
-          </div>
-          <span className="mt-1">المعرض</span>
-        </button>
-
-        {/* More */}
+        {/* More - Always visible */}
         <button
           onClick={() => {
             if (!isAuthenticated) {
@@ -110,12 +130,14 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
             }
             setShowMoreOptions();
           }}
-          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${location.pathname.startsWith('/more') ? 'text-primary' : 'text-color-2 hover:text-foreground'}`}
+          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${location.pathname.startsWith('/more') ? 'text-primary' : 'text-color-2 hover:text-foreground'
+            }`}
         >
           <div className="flex h-8 w-8 items-center justify-center">
             <svg
               aria-hidden="true"
-              className={`h-5 w-5 ${location.pathname.startsWith('/more') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
+              className={`h-5 w-5 ${location.pathname.startsWith('/more') ? 'text-primary' : 'text-color-2/60 hover:text-primary'
+                }`}
               viewBox="0 0 448 512"
             >
               <path

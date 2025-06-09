@@ -9,8 +9,6 @@ interface EventFormProps {
 }
 
 const EventForm = ({ initialData, onSubmit, onCancel }: EventFormProps) => {
-  console.log(initialData);
-
   const [formData, setFormData] = useState<IEventInput>({
     address: initialData?.address || '',
     description: initialData?.description || '',

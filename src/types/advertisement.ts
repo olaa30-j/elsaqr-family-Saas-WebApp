@@ -1,4 +1,5 @@
 export interface IAdvertisement {
+  status: string;
   _id: string;
   userId:UserId;
   title: string;

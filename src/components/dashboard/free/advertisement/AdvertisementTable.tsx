@@ -19,28 +19,30 @@ import Modal from '../../../ui/Modal';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'react-toastify';
+import { usePermission } from '../../../../hooks/usePermission';
 
-type SortField = 'title' | 'type' | 'createdAt';
+type SortField = keyof IAdvertisement;
 type SortDirection = 'asc' | 'desc';
 type AdvertisementType = 'general' | 'important' | 'social';
-type AdvertisementStatus = 'pending' | 'active' | 'inactive' | 'معلق';
+type AdvertisementStatus = "pending" | "reject" | "accept";
 
 const AdvertisementTable = () => {
-    const [page, setPage] = useState(1);
-    const [limit] = useState(10);
-    const [sortField, setSortField] = useState<SortField>('createdAt');
-    const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
+    const [sortConfig, setSortConfig] = useState<{ key: SortField; direction: SortDirection } | null>({
+        key: 'createdAt',
+        direction: 'desc'
+    });
     const [searchTerm, setSearchTerm] = useState('');
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [filters, setFilters] = useState({
-        type: 'all' as 'all' | AdvertisementType,
-        status: 'all' as 'all' | AdvertisementStatus
+        type: undefined as AdvertisementType | undefined,
+        status: undefined as AdvertisementStatus | undefined
     });
 
     // Form state
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [currentAd, setCurrentAd] = useState<Partial<IAdvertisement> | null>(null);
+    const [currentAd, setCurrentAd] = useState<IAdvertisement | null>(null);
     const [formData, setFormData] = useState<IAdvertisementForm>({
         title: '',
         type: 'general',
@@ -48,33 +50,10 @@ const AdvertisementTable = () => {
         image: null
     });
 
-    // Debounce search term
-    useEffect(() => {
-        const timerId = setTimeout(() => {
-            setDebouncedSearchTerm(searchTerm);
-            setPage(1);
-        }, 500);
-
-        return () => {
-            clearTimeout(timerId);
-        };
-    }, [searchTerm]);
-
-    const {
-        data,
-        isLoading,
-        isError,
-        error,
-        refetch
-    } = useGetAdvertisementsQuery({
-        page,
-        limit,
-        sort: `${sortDirection === 'desc' ? '-' : ''}${sortField}`,
-        search: debouncedSearchTerm,
-        ...(filters.type !== 'all' && { type: filters.type }),
-        ...(filters.status !== 'all' && {
-            status: filters.status === 'pending' ? 'معلق' : filters.status
-        })
+    // API calls
+    const { data, isLoading, isError, error, refetch } = useGetAdvertisementsQuery({
+        page: currentPage,
+        limit: itemsPerPage,
     }, {
         refetchOnMountOrArgChange: true
     });
@@ -82,8 +61,11 @@ const AdvertisementTable = () => {
     const [deleteAd] = useDeleteAdvertisementMutation();
     const [createAd, { isLoading: isCreating }] = useCreateAdvertisementMutation();
     const [updateAd, { isLoading: isUpdating }] = useUpdateAdvertisementMutation();
+    const { hasPermission: canCreateAD } = usePermission('AD_CREATE');
+    const { hasPermission: canDeleteAD } = usePermission('AD_EDIT');
+    const { hasPermission: canEditAD } = usePermission('AD_EDIT');
 
-    // Handle API errors
+
     useEffect(() => {
         if (isError) {
             toast.error('فشل في تحميل الإعلانات. يرجى المحاولة مرة أخرى.');
@@ -91,30 +73,76 @@ const AdvertisementTable = () => {
         }
     }, [isError, error]);
 
-    // Handle sort function with proper type checking
-    const handleSort = (field: SortField) => {
-        setPage(1);
-        if (sortField === field) {
-            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortField(field);
-            setSortDirection('asc');
+    const handleSort = (key: SortField) => {
+        let direction: SortDirection = 'asc';
+        if (sortConfig?.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
         }
+        setSortConfig({ key, direction });
     };
 
-    // Get sort icon for table headers
-    const getSortIcon = (field: SortField) => {
-        if (sortField !== field) {
-            return <span className="w-4 h-4 opacity-0"><ChevronUp className="w-4 h-4" /></span>;
+    const filteredAds = (data?.data || []).filter(ad => {
+        const matchesSearch = searchTerm === "" ||
+            ad.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            ad.content.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const matchesType = !filters.type || ad.type === filters.type;
+        const matchesStatus = !filters.status || ad.status === filters.status;
+
+        return matchesSearch && matchesType && matchesStatus;
+    });
+
+    const sortedAds = [...filteredAds].sort((a, b) => {
+        if (!sortConfig) return 0;
+
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+
+        if (aValue === undefined) return 1;
+        if (bValue === undefined) return -1;
+
+        if (aValue < bValue) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
         }
-        return sortDirection === 'asc' ? (
-            <ChevronUp className="w-4 h-4" />
-        ) : (
-            <ChevronDown className="w-4 h-4" />
-        );
+        if (aValue > bValue) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+    });
+
+    const paginatedAds = sortedAds.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const totalPages = Math.ceil(filteredAds.length / itemsPerPage);
+
+    const handleFilterChange = (key: keyof typeof filters, value: string) => {
+        setFilters(prev => ({
+            ...prev,
+            [key]: value === 'all' ? undefined : value as any
+        }));
+        setCurrentPage(1);
     };
 
-    // Handle form changes with type safety
+    const clearFilters = () => {
+        setFilters({
+            type: undefined,
+            status: undefined
+        });
+        setSearchTerm("");
+    };
+
+    const getSortIcon = (key: SortField) => {
+        if (!sortConfig || sortConfig.key !== key) {
+            return <ChevronUp className="w-4 h-4 opacity-50" />;
+        }
+        return sortConfig.direction === 'asc' ?
+            <ChevronUp className="w-4 h-4" /> :
+            <ChevronDown className="w-4 h-4" />;
+    };
+
+    // Form handlers
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -132,24 +160,6 @@ const AdvertisementTable = () => {
         }
     };
 
-    // Handle filter changes with proper type conversion
-    const handleFilterChange = (filterName: keyof typeof filters, value: string) => {
-        setFilters(prev => ({
-            ...prev,
-            [filterName]: value as any
-        }));
-        setPage(1);
-    };
-
-    const clearFilters = () => {
-        setFilters({
-            type: 'all',
-            status: 'all'
-        });
-        setPage(1);
-    };
-
-    // Form submission
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -172,18 +182,16 @@ const AdvertisementTable = () => {
         }
     };
 
-    // Reset form
     const resetForm = () => {
         setCurrentAd(null);
         setFormData({
             title: '',
-            type: '',
+            type: 'general',
             content: '',
             image: null
         });
     };
 
-    // Edit advertisement
     const handleEdit = (ad: IAdvertisement) => {
         setCurrentAd(ad);
         setFormData({
@@ -195,7 +203,6 @@ const AdvertisementTable = () => {
         setIsFormOpen(true);
     };
 
-    // Delete advertisement
     const handleDelete = async (id: string) => {
         if (window.confirm('هل أنت متأكد من حذف هذا الإعلان؟')) {
             try {
@@ -207,6 +214,11 @@ const AdvertisementTable = () => {
                 toast.error('فشل في حذف الإعلان. يرجى المحاولة مرة أخرى.');
             }
         }
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     return (
@@ -244,13 +256,17 @@ const AdvertisementTable = () => {
                             </svg>
                             {isFilterOpen ? 'إغلاق الفلاتر' : 'تصفية النتائج'}
                         </button>
-                        <button
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors"
-                            onClick={() => setIsFormOpen(true)}
-                        >
-                            <Plus className="h-5 w-5" />
-                            إضافة إعلان جديد
-                        </button>
+                        {
+                            canCreateAD && (
+                                <button
+                                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors"
+                                    onClick={() => setIsFormOpen(true)}
+                                >
+                                    <Plus className="h-5 w-5" />
+                                    إضافة إعلان جديد
+                                </button>
+                            )
+                        }
                     </div>
                 </div>
 
@@ -264,7 +280,7 @@ const AdvertisementTable = () => {
                                     نوع الإعلان
                                 </label>
                                 <select
-                                    value={filters.type}
+                                    value={filters.type || 'all'}
                                     onChange={(e) => handleFilterChange('type', e.target.value)}
                                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
                                 >
@@ -281,13 +297,13 @@ const AdvertisementTable = () => {
                                     الحالة
                                 </label>
                                 <select
-                                    value={filters.status}
+                                    value={filters.status || 'all'}
                                     onChange={(e) => handleFilterChange('status', e.target.value)}
                                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
                                 >
                                     <option value="all">الكل</option>
-                                    <option value="active">نشط</option>
-                                    <option value="inactive">غير نشط</option>
+                                    <option value="accept">مفعل</option>
+                                    <option value="reject">مرفوض</option>
                                     <option value="pending">قيد الانتظار</option>
                                 </select>
                             </div>
@@ -342,9 +358,11 @@ const AdvertisementTable = () => {
                                 <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     المحتوى
                                 </th>
-                                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                    الإجراءات
-                                </th>
+                                {(canEditAD || canDeleteAD) && (
+                                    <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
+                                        الإجراءات
+                                    </th>
+                                )}
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-slate-200">
@@ -362,8 +380,8 @@ const AdvertisementTable = () => {
                                         حدث خطأ أثناء تحميل البيانات
                                     </td>
                                 </tr>
-                            ) : (data && data?.data?.length > 0) ? (
-                                data.data.map((ad) => (
+                            ) : (paginatedAds.length > 0) ? (
+                                paginatedAds.map((ad) => (
                                     <tr key={ad._id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-center font-medium text-slate-900">
@@ -392,24 +410,36 @@ const AdvertisementTable = () => {
                                                 {ad.content.substring(0, 60)}...
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
-                                            <div className="flex justify-center space-x-2 gap-2">
-                                                <button
-                                                    onClick={() => handleEdit(ad)}
-                                                    className="text-slate-600 hover:text-primary transition-colors"
-                                                    title="تعديل"
-                                                >
-                                                    <Edit className="h-5 w-5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(ad._id)}
-                                                    className="text-red-700 hover:text-red-800 transition-colors"
-                                                    title="حذف"
-                                                >
-                                                    <Trash2 className="h-5 w-5" />
-                                                </button>
-                                            </div>
-                                        </td>
+                                        {(canEditAD || canDeleteAD) && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                                                <div className="flex justify-center space-x-2 gap-2">
+                                                    {
+                                                        canEditAD && (
+                                                            <button
+                                                                onClick={() => handleEdit(ad)}
+                                                                className="text-slate-600 hover:text-primary transition-colors"
+                                                                title="تعديل"
+                                                            >
+                                                                <Edit className="h-5 w-5" />
+                                                            </button>
+
+                                                        )
+                                                    }
+                                                    {
+                                                        canDeleteAD && (
+                                                            <button
+                                                                onClick={() => handleDelete(ad._id)}
+                                                                className="text-red-700 hover:text-red-800 transition-colors"
+                                                                title="حذف"
+                                                            >
+                                                                <Trash2 className="h-5 w-5" />
+                                                            </button>
+                                                        )
+                                                    }
+
+                                                </div>
+                                            </td>
+                                        )}
                                     </tr>
                                 ))
                             ) : (
@@ -422,67 +452,52 @@ const AdvertisementTable = () => {
                         </tbody>
                     </table>
                 </div>
-
                 {/* Pagination */}
-                {data?.pagination && (
-                    <div className="flex items-center justify-between mt-4 px-2">
-                        <div className="text-sm text-slate-500">
-                            عرض <span className="font-medium">{(page - 1) * limit + 1}</span> إلى{' '}
-                            <span className="font-medium">
-                                {Math.min(page * limit, data.pagination.totalAdvertisements)}
-                            </span>{' '}
-                            من <span className="font-medium">{data.pagination.totalAdvertisements}</span> نتائج
-                        </div>
-                        <div className="flex space-x-2 gap-2">
-                            <button
-                                onClick={() => setPage(p => Math.max(p - 1, 1))}
-                                disabled={page === 1}
-                                className={`px-3 py-1 rounded-md border ${page === 1 ?
-                                    'bg-slate-100 text-slate-400 cursor-not-allowed' :
-                                    'bg-white text-primary hover:bg-slate-50'
-                                    }`}
-                            >
-                                السابق
-                            </button>
-                            {Array.from({ length: Math.min(5, data.pagination.totalPages) }, (_, i) => {
-                                let pageNum;
-                                if (data.pagination.totalPages <= 5) {
-                                    pageNum = i + 1;
-                                } else if (page <= 3) {
-                                    pageNum = i + 1;
-                                } else if (page >= data.pagination.totalPages - 2) {
-                                    pageNum = data.pagination.totalPages - 4 + i;
-                                } else {
-                                    pageNum = page - 2 + i;
-                                }
-
-                                return (
-                                    <button
-                                        key={pageNum}
-                                        onClick={() => setPage(pageNum)}
-                                        className={`px-3 py-1 rounded-md ${page === pageNum ?
-                                            'bg-primary text-white' :
-                                            'bg-white text-primary hover:bg-slate-100 border'
-                                            }`}
-                                    >
-                                        {pageNum}
-                                    </button>
-                                );
-                            })}
-                            <button
-                                onClick={() => setPage(p => p + 1)}
-                                disabled={page >= data.pagination.totalPages}
-                                className={`px-3 py-1 rounded-md border ${page >= data.pagination.totalPages ?
-                                    'bg-slate-100 text-slate-400 cursor-not-allowed' :
-                                    'bg-white text-primary hover:bg-slate-50'
-                                    }`}
-                            >
-                                التالي
-                            </button>
-                        </div>
+                <div className="flex items-center justify-between mt-4 mb-16 px-2">
+                    <div className="text-sm text-slate-500">
+                        عرض <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> إلى{' '}
+                        <span className="font-medium">
+                            {Math.min(currentPage * itemsPerPage, filteredAds.length)}
+                        </span>{' '}
+                        من <span className="font-medium">{filteredAds.length}</span> نتائج
                     </div>
-                )}
+                    <div className="flex space-x-2">
+                        <button
+                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                            className={`px-3 py-1 rounded-md  mx-2 ${currentPage === 1
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                : 'bg-primary text-white hover:bg-primary/90'
+                                }`}
+                        >
+                            السابق
+                        </button>
 
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <button
+                                key={page}
+                                onClick={() => handlePageChange(page)}
+                                className={`px-3 py-1 rounded-md ${currentPage === page
+                                    ? 'bg-primary text-white'
+                                    : 'bg-white text-primary hover:bg-primary/10 border border-primary'
+                                    }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+
+                        <button
+                            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            className={`px-3 py-1 rounded-md ${currentPage === totalPages
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                : 'bg-primary text-white hover:bg-primary/90'
+                                }`}
+                        >
+                            التالي
+                        </button>
+                    </div>
+                </div>
                 {/* Advertisement Form Modal */}
                 <AnimatePresence>
                     {isFormOpen && (

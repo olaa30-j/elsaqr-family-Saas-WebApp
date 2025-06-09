@@ -3,21 +3,16 @@ import { baseApi } from './baseApi';
 
 export const advertisementApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    // Get all advertisements with pagination
     getAdvertisements: build.query<{ data: IAdvertisement[]; pagination: Pagination }, {
       page?: number;
       limit?: number;
-      sort?: string;
-      search?: string;
     }>({
-      query: ({ page = 1, limit = 10, sort, search }) => ({
+      query: ({ page = 1, limit = 10 }) => ({
         url: `/advertisement`,
         method: 'GET',
         params: {
           page,
           limit,
-          ...(sort && { sort }),
-          ...(search && { search })
         },
         credentials: 'include'
       }),

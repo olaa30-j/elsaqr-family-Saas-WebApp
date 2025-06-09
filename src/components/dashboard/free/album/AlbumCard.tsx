@@ -8,6 +8,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Modal from '../../../ui/Modal';
 import type { Album } from '../../../../types/album';
+import { usePermission } from '../../../../hooks/usePermission';
 
 interface Image {
   _id: string;
@@ -33,6 +34,8 @@ export const AlbumCard = ({ album, onSelect, onEdit, onDelete }: AlbumCardProps)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { hasPermission: canEditAlbum } = usePermission('GALLERY_EDIT');
+  const { hasPermission: canDeleteAlbum } = usePermission('GALLERY_DELETE');
 
   const {
     register,
@@ -69,7 +72,7 @@ export const AlbumCard = ({ album, onSelect, onEdit, onDelete }: AlbumCardProps)
 
   const handleConfirmDelete = async () => {
     console.log(album._id);
-    
+
     try {
       onDelete(album._id);
       toast.success('تم حذف الألبوم بنجاح');
@@ -92,10 +95,10 @@ export const AlbumCard = ({ album, onSelect, onEdit, onDelete }: AlbumCardProps)
   const onSubmit = async (data: Pick<Album, 'name' | 'description'>) => {
     setIsSubmitting(true);
     console.log(album._id, {
-        name: data.name,
-        description: data.description,
-      });
-    
+      name: data.name,
+      description: data.description,
+    });
+
     try {
       await onEdit(album._id, {
         name: data.name,
@@ -142,22 +145,27 @@ export const AlbumCard = ({ album, onSelect, onEdit, onDelete }: AlbumCardProps)
                 <p className="text-sm text-gray-500 mt-1 line-clamp-2">{album.description}</p>
               )}
             </div>
-            
+
             <div className="flex gap-1">
-              <button
-                onClick={handleEditClick}
-                className="text-color-2 hover:text-primary p-1 rounded-full hover:bg-blue-50 transition-colors"
-                aria-label="تعديل الألبوم"
-              >
-                <Edit size={18} />
-              </button>
-              <button
-                onClick={handleDeleteClick}
-                className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50 transition-colors"
-                aria-label="حذف الألبوم"
-              >
-                <Trash2 size={18} />
-              </button>
+              {canEditAlbum && (
+                <button
+                  onClick={handleEditClick}
+                  className="text-color-2 hover:text-primary p-1 rounded-full hover:bg-blue-50 transition-colors"
+                  aria-label="تعديل الألبوم"
+                >
+                  <Edit size={18} />
+                </button>
+              )}
+
+              {canDeleteAlbum && (
+                <button
+                  onClick={handleDeleteClick}
+                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50 transition-colors"
+                  aria-label="حذف الألبوم"
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
             </div>
           </div>
 
@@ -230,9 +238,8 @@ export const AlbumCard = ({ album, onSelect, onEdit, onDelete }: AlbumCardProps)
               id="album-name"
               type="text"
               {...register('name')}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:border-blue-500 ${
-                errors.name ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:border-blue-500 ${errors.name ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="أدخل اسم الألبوم"
             />
             {errors.name && (
@@ -248,9 +255,8 @@ export const AlbumCard = ({ album, onSelect, onEdit, onDelete }: AlbumCardProps)
               id="album-description"
               {...register('description')}
               rows={3}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:border-blue-500 ${
-                errors.description ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:border-blue-500 ${errors.description ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="أدخل وصف الألبوم (اختياري)"
             />
             {errors.description && (

@@ -6,49 +6,116 @@ import PublicLayout from '../components/layouts/PublicLayout';
 import ProtectedLayout from '../components/layouts/MainLayout';
 import AuthLayout from '../components/layouts/AuthLayout';
 import ProtectedRoute from './ProtectedRoute';
+import type { PermissionEntity, PermissionAction } from '../types/permissionsStructure';
 
+declare module 'react-router-dom' {
+  interface Handle {
+    permissions: { entity: PermissionEntity; action: PermissionAction }[];
+    permissionDescription?: string;
+    requiresServerCheck?: boolean;
+  }
+}
+
+// استيراد المكونات بطريقة lazy loading
 const Home = lazy(() => import('../views/home/Home'));
 const LoginPage = lazy(() => import('../views/auth/LoginPage'));
 const RegisterPage = lazy(() => import('../views/auth/RegisterationPage'));
 const ForgetPasswordPage = lazy(() => import('../components/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../components/auth/ResetPasswordPage'));
 
-// protected routes
+// المسارات المحمية
 const DashboardPage = lazy(() => import('../views/dashboard/Dashboard'));
 const ProfilePage = lazy(() => import('../views/dashboard/profile/ProfilePage'));
 const AdminPage = lazy(() => import('../views/dashboard/admin/Admin'));
 const UsersPage = lazy(() => import('../components/dashboard/free/admin/Users'));
 const EditUserPage = lazy(() => import('../components/dashboard/free/users/EditUsers'));
-
 const FinancialPage = lazy(() => import('../views/dashboard/financial/FinancialPage'));
 const TransactionDetailsPage = lazy(() => import('../components/dashboard/free/financail/TransactionDetails'));
-
 const AlbumsPage = lazy(() => import('../views/album/AlbumsPage'));
 const AlbumsDetailsPage = lazy(() => import('../views/album/AlbumDetailPage'));
-
 const AdminDashboardPage = lazy(() => import('../views/dashboard/admin/dashboard/AdminDashoard'));
 const StatisticsPage = lazy(() => import('../views/dashboard/admin/StatisticsPage'));
-
 const EventsPage = lazy(() => import('../components/dashboard/free/events/EventCalendar'));
-
 const MembersPage = lazy(() => import('../components/dashboard/free/admin/Member'));
 const MembersDeatilsPage = lazy(() => import('../components/dashboard/free/members/EditMember'));
-
 const AdvertisementPage = lazy(() => import('../components/dashboard/free/advertisement/AdvertisementTable'));
-
 const RolesPage = lazy(() => import('../components/dashboard/free/roles/Roles'));
-
 const FamilyTreePage = lazy(() => import('../views/dashboard/familyTree/FamilyTreePage'));
-
 const NotFoundPage = lazy(() => import('../views/errors/NotFoundPage'));
 
+// مكون تحميل مؤقت
 const SuspenseLoader = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={<LoadingSpinner fullScreen />}>
     {children}
   </Suspense>
 );
 
+const routePermissions = {
+  advertisement: {
+    permissions: [{ entity: 'اعلان', action: 'view' }],
+    description: 'إدارة الإعلانات'
+  },
+  financial: {
+    permissions: [{ entity: 'ماليه', action: 'view' }],
+    description: 'الصفحة المالية',
+    requiresServerCheck: true
+  },
+  'financial/:id': {
+    permissions: [{ entity: 'ماليه', action: 'view' }],
+    description: 'تفاصيل المعاملة المالية'
+  },
+  'family-tree/:branch': {
+    permissions: [{ entity: 'عضو', action: 'view' }],
+    description: 'شجرة العائلة'
+  },
+  albums: {
+    permissions: [{ entity: 'معرض الصور', action: 'view' }],
+    description: 'معرض الصور'
+  },
+  events: {
+    permissions: [{ entity: 'مناسبه', action: 'view' }],
+    description: 'المناسبات والأحداث'
+  },
+  'albums/:id': {
+    permissions: [{ entity: 'معرض الصور', action: 'view' }],
+    description: 'تفاصيل الألبوم'
+  },
+  'admin/users': {
+    permissions: [
+      { entity: 'مستخدم', action: 'view' },
+      { entity: 'مستخدم', action: 'update' }
+    ],
+    description: 'إدارة المستخدمين',
+    requiresServerCheck: true
+  },
+  'admin/users/:userId': {
+    permissions: [{ entity: 'مستخدم', action: 'update' }],
+    description: 'تعديل مستخدم'
+  },
+  'admin/members': {
+    permissions: [{ entity: 'عضو', action: 'view' }],
+    description: 'إدارة الأعضاء'
+  },
+  'admin/members/:memberId': {
+    permissions: [{ entity: 'عضو', action: 'update' }],
+    description: 'تعديل عضو'
+  },
+  'admin/roles-permissions': {
+    permissions: [{ entity: 'مستخدم', action: 'update' }],
+    description: 'إدارة الصلاحيات والأدوار',
+    requiresServerCheck: true
+  },
+  'admin/dashboard': {
+    permissions: [{ entity: 'مستخدم', action: 'view' }],
+    description: 'لوحة تحكم المدير'
+  },
+  'admin/statistics': {
+    permissions: [{ entity: 'مستخدم', action: 'view' }],
+    description: 'الإحصائيات'
+  }
+};
 
+// تعريف جميع مسارات التطبيق
 const routes: RouteObject[] = [
   {
     path: '/',
@@ -64,9 +131,7 @@ const routes: RouteObject[] = [
         ),
       },
       {
-        element: (
-          <AuthLayout />
-        ),
+        element: <AuthLayout />,
         errorElement: <ErrorPage />,
         children: [
           {
@@ -134,6 +199,7 @@ const routes: RouteObject[] = [
                 <AdvertisementPage />
               </SuspenseLoader>
             ),
+            handle: routePermissions.advertisement
           },
           {
             path: 'financial',
@@ -141,7 +207,8 @@ const routes: RouteObject[] = [
               <SuspenseLoader>
                 <FinancialPage />
               </SuspenseLoader>
-            )
+            ),
+            handle: routePermissions.financial
           },
           {
             path: 'financial/:id',
@@ -149,7 +216,8 @@ const routes: RouteObject[] = [
               <SuspenseLoader>
                 <TransactionDetailsPage />
               </SuspenseLoader>
-            )
+            ),
+            handle: routePermissions['financial/:id']
           },
           {
             path: 'family-tree/:branch',
@@ -158,6 +226,7 @@ const routes: RouteObject[] = [
                 <FamilyTreePage />
               </SuspenseLoader>
             ),
+            handle: routePermissions['family-tree/:branch']
           },
           {
             path: 'albums',
@@ -165,7 +234,8 @@ const routes: RouteObject[] = [
               <SuspenseLoader>
                 <AlbumsPage />
               </SuspenseLoader>
-            )
+            ),
+            handle: routePermissions.albums
           },
           {
             path: 'events',
@@ -173,7 +243,8 @@ const routes: RouteObject[] = [
               <SuspenseLoader>
                 <EventsPage />
               </SuspenseLoader>
-            )
+            ),
+            handle: routePermissions.events
           },
           {
             path: 'albums/:id',
@@ -181,7 +252,8 @@ const routes: RouteObject[] = [
               <SuspenseLoader>
                 <AlbumsDetailsPage />
               </SuspenseLoader>
-            )
+            ),
+            handle: routePermissions['albums/:id']
           },
           {
             path: 'admin',
@@ -190,6 +262,10 @@ const routes: RouteObject[] = [
                 <AdminPage />
               </SuspenseLoader>
             ),
+            handle: { 
+              permissions: [{ entity: 'مستخدم', action: 'view' }],
+              description: 'لوحة الإدارة'
+            },
             children: [
               {
                 path: 'users',
@@ -198,6 +274,7 @@ const routes: RouteObject[] = [
                     <UsersPage />
                   </SuspenseLoader>
                 ),
+                handle: routePermissions['admin/users']
               },
               {
                 path: 'users/:userId',
@@ -206,6 +283,7 @@ const routes: RouteObject[] = [
                     <EditUserPage />
                   </SuspenseLoader>
                 ),
+                handle: routePermissions['admin/users/:userId']
               },
               {
                 path: 'members',
@@ -214,6 +292,7 @@ const routes: RouteObject[] = [
                     <MembersPage />
                   </SuspenseLoader>
                 ),
+                handle: routePermissions['admin/members']
               },
               {
                 path: 'members/:memberId',
@@ -222,6 +301,7 @@ const routes: RouteObject[] = [
                     <MembersDeatilsPage />
                   </SuspenseLoader>
                 ),
+                handle: routePermissions['admin/members/:memberId']
               },
               {
                 path: 'roles-permissions',
@@ -230,6 +310,7 @@ const routes: RouteObject[] = [
                     <RolesPage />
                   </SuspenseLoader>
                 ),
+                handle: routePermissions['admin/roles-permissions']
               },
               {
                 path: 'dashboard',
@@ -238,6 +319,7 @@ const routes: RouteObject[] = [
                     <AdminDashboardPage />
                   </SuspenseLoader>
                 ),
+                handle: routePermissions['admin/dashboard']
               },
               {
                 path: 'statistics',
@@ -246,6 +328,7 @@ const routes: RouteObject[] = [
                     <StatisticsPage />
                   </SuspenseLoader>
                 ),
+                handle: routePermissions['admin/statistics']
               },
             ],
           },
@@ -263,6 +346,7 @@ const routes: RouteObject[] = [
   },
 ];
 
+// إنشاء الراوتر مع إعدادات BASE_URL
 const router = createBrowserRouter(routes, {
   basename: import.meta.env.BASE_URL,
 });

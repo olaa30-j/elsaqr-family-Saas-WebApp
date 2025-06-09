@@ -7,7 +7,6 @@ const AlbumsList = () => {
     const user = useAppSelector((state) => state.auth.user);
     const { data: albumsData, isLoading, isError } = useGetAlbumsQuery({ page: 1, limit: 10 });
 
-    // تصفية الألبومات بناءً على دور المستخدم
     const filteredAlbums = user?.role[0] === "مستخدم"
         ? albumsData?.data?.filter((album: any) => album.createdBy.familyBranch === user.familyBranch)
         : albumsData?.data;
@@ -31,7 +30,7 @@ const AlbumsList = () => {
             ) : (
                 <div className="p-4 overflow-y-auto flex-grow">
                     {filteredAlbums?.length ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="md:grid md:grid-cols-2 lg:grid-cols-3 flex overflow-x-auto gap-4">
                             {filteredAlbums.map((album) => (
                                 <Link to={`/albums/${album._id}`}>
                                     <div key={album._id} className="border rounded-lg p-3 hover:shadow-md transition-shadow flex justify-between">

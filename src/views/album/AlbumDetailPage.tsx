@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Modal from '../../components/ui/Modal';
 import type { Album } from '../../types/album';
+import { usePermission } from '../../hooks/usePermission';
 
 const AlbumDetailPage = () => {
   const { id } = useParams();
@@ -22,6 +23,8 @@ const AlbumDetailPage = () => {
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const [albumData, setAlbumData] = useState<Album | undefined>(album);
   const [selectedImage, setSelectedImage] = useState<{ id: string, url: string } | null>(null);
+  const { hasPermission: canDeleteAlbum } = usePermission('GALLERY_DELETE');
+  const { hasPermission: canCreateAlbum } = usePermission('GALLERY_CREATE');
 
   useEffect(() => {
     if (album && album.data) {
@@ -59,22 +62,28 @@ const AlbumDetailPage = () => {
           <h1 className="text-2xl text-primary font-bold flex items-center gap-3"><GalleryThumbnails size={25} /> {albumData.name}</h1>
         </div>
 
-        <div className='flex gap-4'>
-          <button
-            onClick={() => setIsUploadModalOpen(true)}
-            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90"
-            disabled={isUploading}
-          >
-            {isUploading ? `جاري الرفع... ${uploadProgress}%` : 'إضافة صورة جديدة'}
-          </button>
-          <button
-            onClick={() => setIsManageModalOpen(true)}
-            className="px-4 py-2 rounded-lg border-2 border-primary bg-white text-primary hover:bg-primary hover:text-white"
-            disabled={isUploading}
-          >
-            إدارة البوم الصور
-          </button>
-        </div>
+        {
+          canCreateAlbum && (
+            <div className='flex gap-4'>
+
+              <button
+                onClick={() => setIsUploadModalOpen(true)}
+                className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90"
+                disabled={isUploading}
+              >
+                {isUploading ? `جاري الرفع... ${uploadProgress}%` : 'إضافة صورة جديدة'}
+              </button>
+              <button
+                onClick={() => setIsManageModalOpen(true)}
+                className="px-4 py-2 rounded-lg border-2 border-primary bg-white text-primary hover:bg-primary hover:text-white"
+                disabled={isUploading}
+              >
+                إدارة البوم الصور
+              </button>
+            </div>
+
+          )
+        }
       </div>
 
       {/* Manage Modal */}
@@ -101,16 +110,20 @@ const AlbumDetailPage = () => {
                 onClick={() => setSelectedImage({ id: image._id, url: image.image })}
               />
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(album.data._id,image._id);
-                  }}
-                  className="bg-red-500 text-white p-2 rounded-full mr-2 hover:bg-red-600"
-                  title="حذف الصورة"
-                >
-                  <Trash2 size={18} />
-                </button>
+                {
+                  canDeleteAlbum && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(album.data._id, image._id);
+                      }}
+                      className="bg-red-500 text-white p-2 rounded-full mr-2 hover:bg-red-600"
+                      title="حذف الصورة"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )
+                }
               </div>
             </div>
           ))
@@ -118,12 +131,16 @@ const AlbumDetailPage = () => {
           <div className="col-span-full text-center py-12 m-auto text-gray-500">
             <ImageIcon size={48} className="mx-auto mb-4" />
             <p className="text-xl">لا توجد صور في هذا الألبوم</p>
-            <button
-              onClick={() => setIsUploadModalOpen(true)}
-              className="mt-4 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90"
-            >
-              إضافة صورة جديدة
-            </button>
+            {
+              canCreateAlbum && (
+                <button
+                  onClick={() => setIsUploadModalOpen(true)}
+                  className="mt-4 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90"
+                >
+                  إضافة صورة جديدة
+                </button>
+
+              )}
           </div>
         )}
       </div>

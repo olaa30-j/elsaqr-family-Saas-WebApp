@@ -6,6 +6,8 @@ import type { Transaction } from '../../../../types/financial';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
+    canEditFinancial: boolean;
+    canDeleteFinancial: boolean;
     onDelete: (transaction: Transaction) => void;
     onView: (transaction: Transaction) => void;
     onEdit: (transaction: Transaction) => void;
@@ -16,6 +18,8 @@ interface TransactionsTableProps {
     onSort: (key: keyof Transaction) => void;
 }
 const TransactionsTable = ({
+    canEditFinancial,
+    canDeleteFinancial,
     transactions,
     sortConfig,
     onSort,
@@ -133,10 +137,10 @@ const TransactionsTable = ({
                         }).map((transaction) => (
                             <tr key={transaction._id} className="hover:bg-slate-50 transition-colors">
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="flex justify-center">
+                                    <div className="flex justify-center w-15">
                                         {transaction.image ? (
                                             <img
-                                                className="w-10 h-10 rounded-md cursor-pointer hover:opacity-80"
+                                                className="w-15 h-10 rounded-md cursor-pointer hover:opacity-80"
                                                 src={transaction.image}
                                                 alt="Transaction"
                                                 onClick={() => window.open(transaction.image, '_blank')}
@@ -202,20 +206,30 @@ const TransactionsTable = ({
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-md font-medium text-center">
                                     <div className="flex justify-center items-center space-x-2 gap-2">
-                                        <button
-                                            onClick={() => onEdit(transaction)}
-                                            className="text-slate-600 hover:text-yellow-600 transition-colors"
-                                            title="تعديل"
-                                        >
-                                            <Edit className="h-5 w-5" />
-                                        </button>
-                                        <button
-                                            onClick={() => onDelete(transaction)}
-                                            className="text-red-600 hover:text-red-800 transition-colors"
-                                            title="حذف"
-                                        >
-                                            <Trash2 className="h-5 w-5" />
-                                        </button>
+                                        {
+                                            canEditFinancial && (
+                                                <button
+                                                    onClick={() => onEdit(transaction)}
+                                                    className="text-slate-600 hover:text-yellow-600 transition-colors"
+                                                    title="تعديل"
+                                                >
+                                                    <Edit className="h-5 w-5" />
+                                                </button>
+
+                                            )
+                                        }
+                                        {
+                                            canDeleteFinancial && (
+                                                <button
+                                                    onClick={() => onDelete(transaction)}
+                                                    className="text-red-600 hover:text-red-800 transition-colors"
+                                                    title="حذف"
+                                                >
+                                                    <Trash2 className="h-5 w-5" />
+                                                </button>
+                                            )
+                                        }
+
                                         <PDFDownloadLink
                                             document={<TransactionPDF transaction={transaction} />}
                                             fileName={`transaction_${transaction._id}.pdf`}
@@ -244,7 +258,7 @@ const TransactionsTable = ({
                 </tbody>
             </table>
 
-            
+
         </section>
     );
 };
