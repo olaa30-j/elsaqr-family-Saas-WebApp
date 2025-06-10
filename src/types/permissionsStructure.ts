@@ -18,7 +18,7 @@ export interface User {
   phone: string;
   image?: string;
   role: string[];
-  permissions: Permission[];  
+  permissions: Permission[];
   familyBranch: 'الفرع الخامس' | 'الفرع الرابع' | 'الفرع الثالث' | 'الفرع الثاني' | 'الفرع الاول';
   familyRelationship: 'ابن' | 'ابنة' | 'زوجة' | 'زوج' | 'حفيد' | 'أخرى';
   status?: 'قيد الانتظار' | 'مرفوض' | 'مقبول';
@@ -56,18 +56,23 @@ export const isUserRole = (value: string): value is UserRole => {
   return ['مدير النظام', 'مدير اللجنه الاجتماعية', 'مدير اللجنه الماليه'].includes(value);
 };
 
-// دالة معدلة للتحقق من الصلاحيات مع array
-export const checkUserPermission = (
-  user: User | null,
-  entity: PermissionEntity,
-  action: PermissionAction
-): boolean => {
-  if (!user || !user.role || !user.permissions) return false;
+
+export const checkUserPermission = (user: User, entity: PermissionEntity, action: PermissionAction): boolean => {
+  if (!user?.permissions) return false;
+
+  const entityPermission = user.permissions.find(p => p.entity === entity);
+  if (!entityPermission?.actions) return false;
+
+  return entityPermission.actions[action] === true;
+};
+
+
+export const hasPermission = (user: User | null, entity: PermissionEntity, action: PermissionAction): boolean => {
+  if (!user) return false;
   
-  if (user.role.includes('مدير النظام')) return true;
-  
-  const permission = user.permissions.find(p => p.entity === entity);
-  return permission?.actions[action] === true;
+  if (user.role.some(role => role === 'مدير النظام')) return true;
+
+  return checkUserPermission(user, entity, action);
 };
 
 export const checkRoutePermissions = (
@@ -75,10 +80,10 @@ export const checkRoutePermissions = (
   requiredPermissions: { entity: PermissionEntity; action: PermissionAction }[]
 ): boolean => {
   if (!user) return false;
-  
+
   if (user.role.includes('مدير النظام')) return true;
-  
-  return requiredPermissions.every(({ entity, action }) => 
+
+  return requiredPermissions.every(({ entity, action }) =>
     checkUserPermission(user, entity, action)
   );
 };

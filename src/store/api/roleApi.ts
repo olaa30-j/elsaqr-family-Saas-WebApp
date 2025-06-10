@@ -25,28 +25,35 @@ export const roleApi = baseApi.injectEndpoints({
             ],
         }),
 
-        addUserRole: build.mutation<User, { id: string; role: string }>({
-            query: ({ id, role }) => ({
-                url: `/user/${id}`,
-                method: 'PATCH',
+        addUserRole: build.mutation<RoleResponse, { role: string }>({
+            query: ({ role }) => ({
+                url: `/permission`,
+                method: 'POST',
                 body: { role },
                 credentials: 'include'
             }),
-            invalidatesTags: (_result, _error, { id }) => [
-                { type: 'Roles', id },
+            invalidatesTags: (_result, _error) => [
+                { type: 'Roles' },
                 { type: 'Users' }
             ],
         }),
 
-        removeRoleFromAllUsers: build.mutation<{ success: boolean; message: string }, { role: string }>({
+        removeRoleFromAllUsers: build.mutation<{
+            success: boolean;
+            message: string;
+            data?: {
+                deletedRole: string;
+                affectedUsers: number;
+            };
+        }, { role: string }>({
             query: ({ role }) => ({
-                url: `/user/role`,
+                url: `/permission/${role}`,
                 method: 'DELETE',
-                body: { role },
                 credentials: 'include'
             }),
             invalidatesTags: () => [
                 { type: 'Roles', id: 'LIST' },
+                { type: 'Users' }
             ],
         }),
 

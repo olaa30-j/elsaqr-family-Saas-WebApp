@@ -40,7 +40,6 @@ const PermissionsSection = ({ user }: { user: User }) => {
 
     const currentPermissions = watch('permissions');
 
-    // Check for changes between current and initial permissions
     useEffect(() => {
         if (initialPermissions.length > 0) {
             const changesExist = currentPermissions.some(currentPerm => {
@@ -123,7 +122,7 @@ const PermissionsSection = ({ user }: { user: User }) => {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-6 mt-6 mb-4">
+        <div className="bg-white rounded-lg shadow-md p-6 mt-6">
             <h3 className="text-lg font-semibold mb-4 text-primary text-center mb-6">إدارة الصلاحيات</h3>
 
             <form>

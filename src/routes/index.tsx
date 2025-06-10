@@ -15,7 +15,6 @@ declare module 'react-router-dom' {
     requiresServerCheck?: boolean;
   }
 }
-
 // استيراد المكونات بطريقة lazy loading
 const Home = lazy(() => import('../views/home/Home'));
 const LoginPage = lazy(() => import('../views/auth/LoginPage'));
@@ -40,6 +39,7 @@ const MembersPage = lazy(() => import('../components/dashboard/free/admin/Member
 const MembersDeatilsPage = lazy(() => import('../components/dashboard/free/members/EditMember'));
 const AdvertisementPage = lazy(() => import('../components/dashboard/free/advertisement/AdvertisementTable'));
 const RolesPage = lazy(() => import('../components/dashboard/free/roles/Roles'));
+const RolesPermissionsPage = lazy(() => import('../components/dashboard/free/roles/RolePermissions'));
 const FamilyTreePage = lazy(() => import('../views/dashboard/familyTree/FamilyTreePage'));
 const NotFoundPage = lazy(() => import('../views/errors/NotFoundPage'));
 
@@ -112,6 +112,10 @@ const routePermissions = {
   'admin/statistics': {
     permissions: [{ entity: 'مستخدم', action: 'view' }],
     description: 'الإحصائيات'
+  },
+  'admin/sections': {
+    permissions: [{ entity: 'مستخدم', action: 'view' }],
+    description: 'اقسام التطبيق'
   }
 };
 
@@ -320,6 +324,15 @@ const routes: RouteObject[] = [
                   </SuspenseLoader>
                 ),
                 handle: routePermissions['admin/dashboard']
+              },
+              {
+                path: 'sections',
+                element: (
+                  <SuspenseLoader>
+                    <RolesPermissionsPage />
+                  </SuspenseLoader>
+                ),
+                handle: routePermissions['admin/sections']
               },
               {
                 path: 'statistics',

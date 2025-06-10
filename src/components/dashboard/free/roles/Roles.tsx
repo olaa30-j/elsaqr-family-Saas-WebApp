@@ -15,9 +15,7 @@ const Roles = () => {
 
     if (user && user._id) {
       try {
-        console.log(newRole);
-
-        await addRole({ id: user._id, role: newRole }).unwrap();
+        await addRole({ role: newRole }).unwrap();
         await refetch();
         setNewRole("");
         toast.success("تمت إضافة الدور بنجاح!");

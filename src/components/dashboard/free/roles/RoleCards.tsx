@@ -1,8 +1,7 @@
 import { useMemo, useState } from "react";
 import {
     useGetAllRolesQuery,
-    useRemoveRoleFromAllUsersMutation,
-    useUpdateRolesWithPermissionsMutation
+    useRemoveRoleFromAllUsersMutation
 } from "../../../../store/api/roleApi";
 import { useGetUsersQuery } from "../../../../store/api/usersApi";
 import type { User } from "../../../../types/user";
@@ -12,11 +11,6 @@ import { Edit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
-export type PermissionEntity = 'مناسبه' | 'عضو' | 'مستخدم' | 'معرض الصور' | 'ماليه' | 'اعلان';
-export type PermissionAction = 'view' | 'create' | 'update' | 'delete';
-
-const permissionEntities: PermissionEntity[] = ['مناسبه', 'عضو', 'مستخدم', 'معرض الصور', 'ماليه', 'اعلان'];
-const permissionActions: PermissionAction[] = ['view', 'create', 'update', 'delete'];
 
 const countUsersPerRole = (users: User[] | []) => {
     const counts: Record<string, number> = {};
@@ -34,9 +28,6 @@ const RoleCards = () => {
     const { data: users, isLoading: isLoadingUsers } = useGetUsersQuery({ page: 1, limit: 10 });
     const [selectedRole, setSelectedRole] = useState<string | null>(null);
     const [sortConfig, setSortConfig] = useState<SortConfig<User>>({ key: 'email', direction: 'asc' });
-    const [isEditingPermissions, setIsEditingPermissions] = useState(false);
-    const [tempPermissions, setTempPermissions] = useState<Record<string, boolean>>({});
-    const [updateRolePermissions] = useUpdateRolesWithPermissionsMutation();
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [roleToDelete, setRoleToDelete] = useState<string | null>(null);
 
@@ -45,22 +36,31 @@ const RoleCards = () => {
     const handleDeleteRole = async () => {
         if (!roleToDelete) return;
         try {
-            await removeUserRole({ role: roleToDelete }).unwrap();
-            toast.success("تم حذف الدور بنجاح");
+            const response = await removeUserRole({ role: roleToDelete }).unwrap();
+            toast.success(response.message || "تم حذف الدور بنجاح");
             setIsDeleteModalOpen(false);
             setRoleToDelete(null);
-        } catch (error) {
-            toast.error("حدث خطأ أثناء حذف الدور");
-            console.error(error);
+        } catch (error: any) {
+            const errorMessage = error.data?.message || "حدث خطأ أثناء حذف الدور";
+            toast.error(errorMessage);
+            console.error("Delete role error:", error);
         }
     };
 
     if (isLoadingRoles || isLoadingUsers) {
-        return <div>جار التحميل...</div>;
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+        );
     }
 
     if (!roles?.data || !users?.data) {
-        return <div>لا توجد بيانات متاحة</div>;
+        return (
+            <div className="bg-white rounded-lg shadow p-6 text-center text-gray-600">
+                لا توجد بيانات متاحة
+            </div>
+        );
     }
 
     const filteredUsers = selectedRole
@@ -86,37 +86,8 @@ const RoleCards = () => {
         return 0;
     });
 
-    const handlePermissionChange = (entity: PermissionEntity, action: PermissionAction, value: boolean) => {
-        setTempPermissions(prev => ({
-            ...prev,
-            [`${entity}-${action}`]: value
-        }));
-    };
-
-    const handleSavePermissions = async () => {
-        if (!selectedRole) return;
-        try {
-            for (const [key, value] of Object.entries(tempPermissions)) {
-                const [entity, action] = key.split('-');
-                await updateRolePermissions({
-                    id: selectedRole,
-                    entity,
-                    action: action as PermissionAction,
-                    value
-                }).unwrap();
-            }
-
-            toast.success("تم تحديث صلاحيات الدور بنجاح");
-            setIsEditingPermissions(false);
-            setTempPermissions({});
-        } catch (error) {
-            toast.error("حدث خطأ أثناء تحديث الصلاحيات");
-            console.error(error);
-        }
-    };
-
     return (
-        <div className="p-4">
+        <div className="py-6 min-h-screen">
             {/* Delete Confirmation Modal */}
             <Modal
                 isOpen={isDeleteModalOpen}
@@ -128,42 +99,52 @@ const RoleCards = () => {
                 type="delete"
                 onConfirm={handleDeleteRole}
             >
-                <p className="text-center py-4">هل أنت متأكد أنك تريد حذف هذا الدور؟</p>
+                <p className="text-center py-4 text-gray-700">هل أنت متأكد أنك تريد حذف هذا الدور؟</p>
             </Modal>
 
-            {/* Cards للأدوار */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                {roles.data.map((role: string) => (
-                    <div
-                        key={role}
-                        className={`bg-white rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow border-2 ${selectedRole === role ? 'border-primary' : 'border-gray-200'
-                            }`}
-                    >
-                        <div className="flex justify-between bg-primary p-4">
-                            <h3 
-                                className="text-lg font-bold text-white cursor-pointer"
+            {/* بطاقات الأدوار */}
+            <div className="mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {roles.data.map((role: string) => (
+                        <div
+                            key={role}
+                            className={`bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md border-2  ${selectedRole === role ? 'border-primary' : 'border-primary/40'}`}
+                        >
+                            <div className="bg-gradient-to-r from-primary/90 to-primary p-5">
+                                <div className="flex justify-between items-center">
+                                    <h3
+                                        className="text-xl font-bold text-white cursor-pointer hover:underline"
+                                        onClick={() => setSelectedRole(role)}
+                                    >
+                                        {role}
+                                    </h3>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setRoleToDelete(role);
+                                            setIsDeleteModalOpen(true);
+                                        }}
+                                        className="rounded-full hover:bg-white/10 transition-colors"
+                                        aria-label="حذف الدور"
+                                    >
+                                        <Trash2 className="w-5 h-5 text-white hover:text-red-200" />
+                                    </button>
+                                </div>
+                            </div>
+                            <div
+                                className="p-5 cursor-pointer"
                                 onClick={() => setSelectedRole(role)}
                             >
-                                {role}
-                            </h3>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setRoleToDelete(role);
-                                    setIsDeleteModalOpen(true);
-                                }}
-                            >
-                                <Trash2 className="w-6 h-6 text-white hover:text-red-400" />
-                            </button>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-600">عدد المستخدمين:</span>
+                                    <span className="font-semibold text-primary text-lg">
+                                        {roleCounts?.[role] || 0}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <p 
-                            onClick={() => setSelectedRole(role)}
-                            className="text-gray-600 mt-2 p-6 cursor-pointer"
-                        >
-                            عدد المستخدمين: <span className="font-semibold">{roleCounts?.[role] || 0}</span>
-                        </p>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
 
             {/* Modal لعرض جدول المستخدمين وتعديل الصلاحيات */}
@@ -171,140 +152,87 @@ const RoleCards = () => {
                 isOpen={!!selectedRole}
                 onClose={() => {
                     setSelectedRole(null);
-                    setIsEditingPermissions(false);
-                    setTempPermissions({});
                 }}
-                title={isEditingPermissions
-                    ? `تعديل صلاحيات دور: ${selectedRole}`
-                    : `المستخدمين لدور: ${selectedRole}`}
+                title={`المستخدمين لدور: ${selectedRole}`}
                 type="form"
             >
-                {isEditingPermissions ? (
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <h3 className="text-lg font-semibold mb-4 text-primary text-center">
-                            تعديل صلاحيات دور: {selectedRole}
+
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-medium text-gray-900">
+                            عدد المستخدمين: <span className="text-primary">{sortedUsers.length}</span>
                         </h3>
-
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full">
-                                <thead>
-                                    <tr className='bg-primary text-white'>
-                                        <th className="text-right p-3">الاقسام</th>
-                                        {permissionActions.map(action => (
-                                            <th key={action} className="text-center p-3">
-                                                {action === 'view' ? 'عرض' :
-                                                    action === 'create' ? 'إنشاء' :
-                                                        action === 'update' ? 'تعديل' : 'حذف'}
-                                            </th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {permissionEntities.map(entity => (
-                                        <tr key={entity} className="border-t text-primary/80">
-                                            <td className="p-3 font-medium">
-                                                {entity === 'اعلان' ? 'اعلان' :
-                                                    entity === 'ماليه' ? 'ماليه' :
-                                                        entity === 'معرض الصور' ? 'معرض الصور' :
-                                                            entity === 'مستخدم' ? 'مستخدم' :
-                                                                entity === 'عضو' ? 'عضو' : 'مناسبه'}
-                                            </td>
-
-                                            {permissionActions.map(action => (
-                                                <td key={`${entity}-${action}`} className="text-center p-3">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={tempPermissions[`${entity}-${action}`] || false}
-                                                        onChange={(e) =>
-                                                            handlePermissionChange(entity, action, e.target.checked)
-                                                        }
-                                                        className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
-                                                    />
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div className="flex justify-end gap-4 mt-4 space-x-2">
-                            <button
-                                type="button"
-                                onClick={() => setIsEditingPermissions(false)}
-                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-                            >
-                                إلغاء
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleSavePermissions}
-                                className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark"
-                            >
-                                حفظ التغييرات
-                            </button>
-                        </div>
                     </div>
-                ) : (
-                    <>
-                        <div className="flex justify-end mb-4">
-                            <button
-                                onClick={() => setIsEditingPermissions(true)}
-                                className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark"
-                            >
-                                تعديل صلاحيات الدور
-                            </button>
-                        </div>
 
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th
-                                            className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                                            onClick={() => handleSort('email')}
-                                        >
-                                            <div className="flex items-center justify-center gap-3">
-                                                البريد الإلكتروني
-                                                {sortConfig.key === 'email' && (
-                                                    <span className="ml-1">
-                                                        {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </th>
-
-                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                                            الادوار
-                                        </th>
-
-                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                                            تعديل المستخدم
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200 text-center">
-                                    {sortedUsers.map(user => (
-                                        <tr key={user._id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <div className="overflow-x-auto rounded-lg border border-gray-200 shadow">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition"
+                                        onClick={() => handleSort('email')}
+                                    >
+                                        <div className="flex items-center justify-center gap-4">
+                                            البريد الإلكتروني
+                                            {sortConfig.key === 'email' && (
+                                                <span className="ml-1">
+                                                    {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    >
+                                        الأدوار
+                                    </th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    >
+                                        الإجراءات
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {sortedUsers.length > 0 ? (
+                                    sortedUsers.map((user) => (
+                                        <tr key={user._id} className="hover:bg-gray-50 transition">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                                 {user.email}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {user.role?.join(', ') || 'لا يوجد'}
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                                <div className="flex flex-wrap gap-4 justify-center">
+                                                    {user.role?.map(r => (
+                                                        <span key={r} className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
+                                                            {r}
+                                                        </span>
+                                                    )) || 'لا يوجد'}
+                                                </div>
                                             </td>
-
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex items-center justify-center">
-                                                <Link to={`/admin/users/${user._id}`}>
-                                                    <Edit className="w-4 h-4 text-primary" />
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center flex gap-4 justify-center">
+                                                <Link
+                                                    to={`/admin/users/${user._id}`}
+                                                    className="text-primary hover:text-primary/90 p-1 rounded-full hover:bg-primary/10 transition"
+                                                >
+                                                    <Edit className="w-5 h-5 text-center" />
                                                 </Link>
                                             </td>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </>
-                )}
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">
+                                            لا يوجد مستخدمين لهذا الدور
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </Modal>
         </div>
     );

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { useCreateUserMutation, useUpdateUserMutation } from '../../../../store/api/usersApi';
 import { BaseForm } from '../../../shared/BaseForm';
 import { userSchema, type UserFormValues } from '../../../../types/schemas';
 import { useParams } from 'react-router-dom';
+import { useGetAllRolesQuery } from '../../../../store/api/roleApi';
+import type { Role } from '../roles/RolePermissions';
 
 type ErrorWithMessage = {
     message: string;
@@ -37,6 +39,14 @@ const UserForm: React.FC<UserFormProps> = ({
 }) => {
     const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
     const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+    const {
+        data: rolesResponse
+    } = useGetAllRolesQuery();
+
+    const availableRoles: Role[] = useMemo(() => {
+        return rolesResponse?.data || [];
+    }, [rolesResponse]);
+
     const { userId } = useParams<{ userId: string }>();
 
     const handleSubmit = async (data: UserFormValues) => {
@@ -212,13 +222,13 @@ const UserForm: React.FC<UserFormProps> = ({
                                 className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                                 disabled={isUpdating || isCreating}
                             >
-                                <option value="مستخدم">مستخدم</option>
-                                <option value="مدير">مدير</option>
-                                <option value="مدير عام">مدير عام</option>
-                                <option value="مدير النظام">مدير النظام</option>
-                                <option value="مدير اللجنه الاجتماعية">مدير اللجنه الاجتماعية</option>
-                                <option value="مدير اللجنه الماليه">مدير اللجنه الماليه</option>
-                                <option value="كبار الاسرة">كبار الاسرة</option>                            </select>
+                                <option value="">اختر الدور</option>
+                                {availableRoles.map((role, index) => (
+                                    <option key={index} value={role}>
+                                        {role}
+                                    </option>
+                                ))}
+                            </select>
                             {errors.role && (
                                 <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>
                             )}

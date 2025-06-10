@@ -7,9 +7,55 @@ import {
   type PermissionEntity,
   type PermissionAction
 } from "../../types/permissionsStructure";
+interface PermissionUpdateArgs {
+  role: string;
+  entity: string;
+  action: 'view' | 'create' | 'update' | 'delete';
+  value: boolean;
+}
+
+interface ApiResponse {
+  success: boolean;
+  message: string;
+  data: any;
+}
 
 export const permissionApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    getAllPermissions: builder.query<{
+      data: Array<{
+        _id: string;
+        role: string;
+        permissions: Array<{
+          entity: string;
+          view: boolean;
+          create: boolean;
+          update: boolean;
+          delete: boolean;
+        }>;
+        createdAt: string;
+        updatedAt: string;
+      }>, total: number
+    }, { page: number, limit: number }>({
+      query: ({ page = 1, limit = 10 }) => `/permission?page=${page}&limit=${limit}`,
+      transformResponse: (response: any) => response,
+    }),
+
+    updatePermissionForRole: builder.mutation<ApiResponse, PermissionUpdateArgs>({
+      query: ({ role, ...body }) => ({
+        url: `/permission/${role}`,
+        method: 'PATCH',
+        body,
+        credentials: 'include'
+      }),
+      transformErrorResponse: (response: any) => {
+        return {
+          success: false,
+          message: response.data?.message || 'Failed to update permission'
+        };
+      },
+    }),
+
     checkPermission: builder.mutation<{
       success: boolean;
       hasPermission: boolean;
@@ -17,7 +63,7 @@ export const permissionApi = baseApi.injectEndpoints({
     }, {
       entity: PermissionEntity;
       action: PermissionAction;
-      role?:string;
+      role?: string;
     }>({
       query: ({ entity, action }) => {
         return {
@@ -87,11 +133,13 @@ export const checkRoutePermissions = (
   if (!requiredPermissions.length) return true;
   if (!user) return false;
 
-  return requiredPermissions.every(({ entity, action }) => 
+  return requiredPermissions.every(({ entity, action }) =>
     hasPermission(user, entity, action)
   );
 };
 
 export const {
-  useCheckPermissionMutation
+  useUpdatePermissionForRoleMutation,
+  useCheckPermissionMutation,
+  useGetAllPermissionsQuery
 } = permissionApi;
