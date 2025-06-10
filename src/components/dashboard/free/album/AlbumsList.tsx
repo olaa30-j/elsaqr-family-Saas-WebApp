@@ -30,9 +30,9 @@ const AlbumsList = () => {
                 <div className="p-4 overflow-y-auto flex-grow">
                     {filteredAlbums?.length ? (
                         <div className="md:grid md:grid-cols-2 lg:grid-cols-3 flex overflow-x-auto gap-4">
-                            {filteredAlbums.map((album) => (
-                                <Link to={`/albums/${album._id}`}>
-                                    <div key={album._id} className="border rounded-lg p-3 hover:shadow-md transition-shadow flex justify-between">
+                            {filteredAlbums.map((album, index) => (
+                                <Link to={`/albums/${album._id}`}  key={index} >
+                                    <div className="border rounded-lg p-3 hover:shadow-md transition-shadow flex justify-between">
                                         <div className="flex-1">
                                             <h3 className="font-medium text-lg">{album.name}</h3>
                                             <p className="text-gray-600 text-sm mt-1">

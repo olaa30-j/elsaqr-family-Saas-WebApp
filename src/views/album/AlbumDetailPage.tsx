@@ -158,18 +158,12 @@ const AlbumDetailPage = () => {
               alt="معاينة الصورة"
               className="w-full max-h-[70vh] object-contain"
             />
-            <div className="flex justify-end mt-4 space-x-2">
+            <div className="flex justify-end mt-4 gap-2">
               <button
                 onClick={() => handleDelete(album!.data._id, selectedImage.id)}
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
               >
                 حذف الصورة
-              </button>
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                إغلاق
               </button>
             </div>
           </div>

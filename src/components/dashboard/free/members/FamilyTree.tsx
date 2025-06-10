@@ -22,8 +22,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         const tree: any = {};
 
         const husband = members.find((m: any) => m.familyRelationship === 'زوج');
-        console.log(husband);
-        
+
         if (!husband) return null;
 
         tree.husband = husband;
@@ -370,7 +369,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
 
                         <TransformComponent wrapperClass="w-full h-full" contentClass="flex justify-center items-center">
                             <ul className="relative overflow-auto">
-                                {/* عرض الزوج */}
+                                {/* Husband */}
                                 <motion.li
                                     key={familyTree.husband._id}
                                     initial={{ opacity: 0 }}
@@ -384,17 +383,14 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                     >
                                         {renderMemberCard(familyTree.husband, 'زوج')}
                                         <div className="absolute -bottom-20 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
-                                            <div
-                                                className={`absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-5`}
-                                            />
+                                            <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-5" />
                                         </div>
                                     </motion.div>
 
                                     <div className="pt-6 relative">
-                                        {/* إذا كان هناك زوجات */}
+                                        {/* Wives section */}
                                         {familyTree.wives.length > 0 ? (
                                             <div className="relative">
-
                                                 <ul className="flex justify-center">
                                                     {familyTree.wives.map((wife: Member) => (
                                                         <motion.li
@@ -404,7 +400,6 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                             transition={{ duration: 0.5 }}
                                                             className="text-center list-none relative px-4"
                                                         >
-
                                                             <div className="pt-6">
                                                                 <motion.div
                                                                     whileHover={{ scale: 1.05 }}
@@ -412,9 +407,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                                 >
                                                                     {renderMemberCard(wife, 'زوجة')}
                                                                 </motion.div>
-
                                                                 <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-6 border-l-2 border-gray-300" />
-
                                                                 {renderChildren(wife._id)}
                                                             </div>
                                                         </motion.li>
@@ -422,35 +415,31 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                 </ul>
                                             </div>
                                         ) : (
-                                            <motion.li
+                                            // Changed from motion.li to motion.div since it's inside an li
+                                            <motion.div
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ duration: 0.5 }}
                                                 className="text-center list-none relative mx-auto"
                                             >
-
                                                 <div className="pt-6">
                                                     {renderAddButton('إضافة زوجة')}
-
                                                     <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0 h-6 border-l-2 border-gray-300" />
-
                                                     {renderChildren()}
                                                 </div>
-                                            </motion.li>
+                                            </motion.div>
                                         )}
                                     </div>
 
                                     {familyTree.wives.length > 0 && (
                                         <div className="pt-6 relative">
                                             <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0 h-6 border-l-2 border-gray-300" />
-
                                             {renderChildren()}
                                         </div>
                                     )}
                                 </motion.li>
                             </ul>
-                        </TransformComponent>
-                    </>
+                        </TransformComponent>                    </>
                 )}
             </TransformWrapper>
         </div>

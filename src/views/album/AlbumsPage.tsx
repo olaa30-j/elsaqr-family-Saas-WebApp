@@ -31,7 +31,7 @@ const AlbumsPage = () => {
                         <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
                         <circle cx="12" cy="13" r="3" />
                     </svg>
-                    <h2 className="text-xl font-heading font-bold text-primary">معرض الصور</h2>
+                    <h2 className="text-xl font-heading font-bold">معرض الصور</h2>
                 </div>
                 <div className="flex items-center gap-2">
                     {
@@ -55,9 +55,8 @@ const AlbumsPage = () => {
                 onDelete={deleteAlbum}
                 onEdit={updateAlbum}
                 onCreate={() => setIsCreating(true)}
-                onSelect={function (id: string): void {
-                    console.log(id);
-                    throw new Error('Function not implemented.');
+                onSelect={(id: string) => {
+                    return `${id} Function not implemented.`
                 }} />
 
             <PaginationControls
