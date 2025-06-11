@@ -21,8 +21,9 @@ const DeleteConfirmationModal = ({ transaction, onClose, onConfirm }: DeleteConf
                 <Modal
                     isOpen={!!transaction}
                     onClose={onClose}
+                    type={'delete'}
+                    onConfirm={onConfirm}
                     title="حذف المعاملة المالية"
-                    extraStyle="bg-red-600 underline text-white"
                 >
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
@@ -62,25 +63,6 @@ const DeleteConfirmationModal = ({ transaction, onClose, onConfirm }: DeleteConf
                                     <p>هل أنت متأكد من رغبتك في حذف هذه المعاملة؟ لا يمكن التراجع عن هذا الإجراء.</p>
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="flex justify-end gap-3 mt-6">
-                            <motion.button
-                                whileHover={{ scale: 1.03, backgroundColor: "#f3f4f6" }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={onClose}
-                                className="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-150"
-                            >
-                                إلغاء
-                            </motion.button>
-                            <motion.button
-                                whileHover={{ scale: 1.03, backgroundColor: "#dc2626" }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={onConfirm}
-                                className="px-5 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                            >
-                                نعم، احذف
-                            </motion.button>
                         </div>
                     </motion.div>
                 </Modal>
