@@ -247,3 +247,27 @@
 .transform-component-module_wrapper__SPB86{
   margin: auto !important;
 }
+
+/* في ملف CSS الرئيسي */
+.react-transform-wrapper {
+  touch-action: pan-x pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.react-transform-component {
+  display: flex !important;
+  justify-content: center !important;
+  min-height: 100%;
+}
+
+/* تحسينات للشاشات الصغيرة */
+@media (max-width: 640px) {
+  .family-member-card {
+    min-width: 120px;
+    max-width: 150px;
+  }
+  
+  .connection-line {
+    height: 30px !important;
+  }
+}

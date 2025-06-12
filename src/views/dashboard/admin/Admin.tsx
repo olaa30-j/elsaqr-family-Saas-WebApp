@@ -33,7 +33,7 @@ const Admin = () => {
                     ${!showControlPanel ? "-translate-x-full md:translate-x-0" : "translate-x-0"}
                     `}
             >
-                <ControlPanelSidebar />
+                <ControlPanelSidebar closePanel={() => setShowControlPanel(false)} />
             </div>
 
             <div className="flex-1 w-full md:w-[75vw] relative px-6">

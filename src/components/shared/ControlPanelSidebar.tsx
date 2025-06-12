@@ -58,8 +58,14 @@ const menuItems = [
     //     active: false
     // }
 ];
-const ControlPanelSidebar = () => {
+const ControlPanelSidebar = ({ closePanel }: { closePanel: () => void }) => {
     const { pathname } = useLocation();
+
+    const handleItemClick = () => {
+        if (window.innerWidth < 768) {
+            closePanel();
+        }
+    };
 
     return (
         <aside className="min-h-sceen overflow-y-auto bg-white rounded-lg shadow-sm border px-4 flex flex-col">
@@ -74,7 +80,7 @@ const ControlPanelSidebar = () => {
                 <ul className="space-y-2">
                     {menuItems.map((item, index) => (
                         <li key={index}>
-                            <Link to={item.path}>
+                            <Link to={item.path} onClick={handleItemClick}>
                                 <div
                                     className={`flex items-center p-3 rounded-md transition-colors hover:bg-muted cursor-pointer 
                                         ${pathname.includes(item.path)
@@ -96,15 +102,14 @@ const ControlPanelSidebar = () => {
                 </ul>
             </nav>
             <div className="mt-auto border-t pt-4">
-                <Link to={"/dashboard"}>
+                <Link to={"/dashboard"} onClick={handleItemClick}>
                     <div className="flex items-center p-3 rounded-md text-muted-foreground hover:bg-muted transition-colors cursor-pointer">
                         <Eye className="h-5 w-5 ml-3" />
                         <span>العودة للتطبيق</span>
                     </div>
                 </Link>
             </div>
-        </aside >
+        </aside>
     )
 }
-
 export default ControlPanelSidebar

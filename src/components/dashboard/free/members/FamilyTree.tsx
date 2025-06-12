@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useGetMembersQuery } from '../../../../store/api/memberApi';
 import { DEFAULT_IMAGE } from '../../../auth/RegisterationForm';
-import { Plus } from 'lucide-react';
+import { Plus, ZoomIn, ZoomOut } from 'lucide-react';
 import type { Member } from '../../../../types/member';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
@@ -303,142 +303,142 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
     };
 
     return (
-        <div className="mx-auto p-4">
+        <div className="mx-auto p-2 sm:p-4 bg-gray-50 rounded-lg">
             <TransformWrapper
                 initialScale={1}
                 minScale={0.5}
                 maxScale={3}
                 wheel={{ step: 0.1 }}
                 doubleClick={{ disabled: true }}
+                limitToBounds={false}
             >
                 {({ zoomIn, zoomOut, resetTransform }) => (
                     <>
-                        <div className="flex flex-col items-center mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                            {/* معلومات الزوج والفرع */}
-                            <div className='flex justify-between w-full'>
+                        {/* Header Section */}
+                        <div className="flex flex-col items-center gap-4 mb-4 bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
+                            <div className='flex flex-col md:flex-row justify-between w-full gap-3'>
                                 <div className="text-right">
-                                    <h2 className="text-xl font-bold text-primary">
+                                    <h2 className="text-lg sm:text-xl font-bold text-primary">
                                         {familyTree.husband.fname} {familyTree.husband.lname}
                                     </h2>
-                                    <p className="text-gray-600">فرع: {familyBranch}</p>
+                                    <p className="text-sm sm:text-base text-gray-600">فرع: {familyBranch}</p>
                                 </div>
 
-                                {/* إحصائيات العائلة */}
-                                <div className="flex gap-6">
-                                    <div className="text-center">
-                                        <p className="text-lg font-semibold text-primary">{familyStats.wives}</p>
-                                        <p className="text-sm text-gray-500">زوجات</p>
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-lg font-semibold text-primary">{familyStats.sons}</p>
-                                        <p className="text-sm text-gray-500">أبناء</p>
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-lg font-semibold text-primary">{familyStats.daughters}</p>
-                                        <p className="text-sm text-gray-500">بنات</p>
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-lg font-semibold text-primary">{familyStats.grandChildren}</p>
-                                        <p className="text-sm text-gray-500">أحفاد</p>
-                                    </div>
+                                <div className="flex gap-3 sm:gap-4 flex-wrap justify-center">
+                                    {[
+                                        { label: 'زوجات', value: familyStats.wives },
+                                        { label: 'أبناء', value: familyStats.sons },
+                                        { label: 'بنات', value: familyStats.daughters },
+                                        { label: 'أحفاد', value: familyStats.grandChildren }
+                                    ].map((stat, index) => (
+                                        <div key={index} className="text-center min-w-[60px]">
+                                            <p className="text-base sm:text-lg font-semibold text-primary">{stat.value}</p>
+                                            <p className="text-xs sm:text-sm text-gray-500">{stat.label}</p>
+                                        </div>
+                                    ))}
                                 </div>
-
                             </div>
-                            {/* أزرار التحكم بالتكبير */}
-                            <div className="flex gap-2 justify-end w-full mt-5">
+
+                            <div className="flex gap-2 justify-center w-full mt-3">
                                 <button
                                     onClick={() => zoomIn()}
-                                    className="px-3 py-1 bg-primary text-white rounded"
+                                    className="px-2 py-1 sm:px-3 sm:py-1 bg-primary text-white rounded flex items-center gap-1 text-sm"
                                 >
-                                    تكبير (+)
+                                    <ZoomIn className="w-4 h-4" />
+                                    تكبير
                                 </button>
                                 <button
                                     onClick={() => zoomOut()}
-                                    className="px-3 py-1 bg-primary text-white rounded"
+                                    className="px-2 py-1 sm:px-3 sm:py-1 bg-primary text-white rounded flex items-center gap-1 text-sm"
                                 >
-                                    تصغير (-)
+                                    <ZoomOut className="w-4 h-4" />
+                                    تصغير
                                 </button>
                                 <button
                                     onClick={() => resetTransform()}
-                                    className="px-3 py-1 bg-gray-500 text-white rounded"
+                                    className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-500 text-white rounded text-sm"
                                 >
                                     إعادة تعيين
                                 </button>
                             </div>
                         </div>
 
-                        <TransformComponent wrapperClass="w-full h-full" contentClass="flex justify-center items-center">
-                            <ul className="relative overflow-auto">
-                                {/* Husband */}
-                                <motion.li
-                                    key={familyTree.husband._id}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="text-center list-none relative mx-auto"
-                                >
-                                    <motion.div
-                                        whileHover={{ scale: 1.05 }}
-                                        className="border relative border-gray-300 px-4 py-3 bg-white rounded-md transition-all duration-300 hover:border-gray-400 mx-auto max-w-max"
-                                    >
-                                        {renderMemberCard(familyTree.husband, 'زوج')}
-                                        <div className="absolute -bottom-20 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
-                                            <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-5" />
-                                        </div>
-                                    </motion.div>
-
-                                    <div className="pt-6 relative">
-                                        {/* Wives section */}
-                                        {familyTree.wives.length > 0 ? (
-                                            <div className="relative">
-                                                <ul className="flex justify-center">
-                                                    {familyTree.wives.map((wife: Member) => (
-                                                        <motion.li
-                                                            key={wife._id}
-                                                            initial={{ opacity: 0, y: 20 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            transition={{ duration: 0.5 }}
-                                                            className="text-center list-none relative px-4"
-                                                        >
-                                                            <div className="pt-6">
-                                                                <motion.div
-                                                                    whileHover={{ scale: 1.05 }}
-                                                                    className="border border-gray-300 px-4 py-3 bg-white rounded-md transition-all duration-300 hover:bg-pink-50 mx-auto max-w-max"
-                                                                >
-                                                                    {renderMemberCard(wife, 'زوجة')}
-                                                                </motion.div>
-                                                                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-6 border-l-2 border-gray-300" />
-                                                                {renderChildren(wife._id)}
-                                                            </div>
-                                                        </motion.li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        ) : (
+                        {/* Tree Container */}
+                        <div className="relative bg-white rounded-lg border border-gray-200"
+                            style={{
+                                height: '60vh',
+                                width: '100%',
+                                overflow: 'hidden'
+                            }}>
+                            <TransformComponent
+                                wrapperStyle={{
+                                    width: '100%',
+                                    height: '100%',
+                                    overflow: 'auto',
+                                }}
+                                contentStyle={{
+                                    width: '100%',
+                                    minWidth: 'fit-content',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'flex-start',
+                                    padding: '20px'
+                                }}
+                            >
+                                <div className="relative mx-auto" style={{
+                                    minWidth: 'max-content',
+                                    maxWidth: '100%',
+                                    transformOrigin: 'center top'
+                                }}>
+                                    <ul className="flex flex-col items-center space-y-4">
+                                        {/* Husband */}
+                                        <motion.li
+                                            key={familyTree.husband._id}
+                                            className="text-center list-none relative"
+                                        >
                                             <motion.div
-                                                initial={{ opacity: 0, y: 20 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ duration: 0.5 }}
-                                                className="text-center list-none relative mx-auto"
+                                                whileHover={{ scale: 1.05 }}
+                                                className="border border-gray-300 bg-white rounded-md mx-auto w-fit p-4 relative"
                                             >
-                                                <div className="pt-6">
-                                                    {renderAddButton('إضافة زوجة')}
-                                                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0 h-6 border-l-2 border-gray-300" />
-                                                    {renderChildren()}
+                                                {renderMemberCard(familyTree.husband, 'زوج')}
+                                                <div className="absolute -bottom-20 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
+                                                    <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-5" />
                                                 </div>
                                             </motion.div>
-                                        )}
-                                    </div>
 
-                                    {familyTree.wives.length > 0 && (
-                                        <div className="pt-6 relative">
-                                            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0 h-6 border-l-2 border-gray-300" />
-                                            {renderChildren()}
-                                        </div>
-                                    )}
-                                </motion.li>
-                            </ul>
-                        </TransformComponent>                
+                                            {/* Wives and Children */}
+                                            <div className="relative pt-6">
+                                                {familyTree.wives.length > 0 ? (
+                                                    <ul className="flex flex-wrap justify-center gap-4">
+                                                        {familyTree.wives.map((wife: any) => (
+                                                            <motion.li key={wife._id} className="relative">
+                                                                <div className="flex flex-col items-center">
+                                                                    <motion.div
+                                                                        whileHover={{ scale: 1.05 }}
+                                                                        className="border border-gray-300 bg-white rounded-md p-4"
+                                                                    >
+                                                                        {renderMemberCard(wife, 'زوجة')}
+                                                                    </motion.div>
+                                                                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-6 border-l-2 border-gray-300" />
+
+                                                                    {renderChildren(wife._id)}
+                                                                </div>
+                                                            </motion.li>
+                                                        ))}
+                                                    </ul>
+                                                ) : (
+                                                    <div className="flex justify-center">
+                                                        {renderAddButton('إضافة زوجة')}
+                                                    </div>
+                                                )}
+
+                                                {familyTree.wives.length > 0 && renderChildren()}
+                                            </div>
+                                        </motion.li>
+                                    </ul>
+                                </div>
+                            </TransformComponent>
+                        </div>
                     </>
                 )}
             </TransformWrapper>

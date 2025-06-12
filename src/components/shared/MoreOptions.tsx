@@ -4,7 +4,7 @@ import OptionLink, { options } from "../ui/OptionLink";
 
 const MoreOptions: React.FC<TabBarProps> = ({setShowMoreOptions}) => {
     return (
-        <section className="overflow-y-auto pb-16 justify-between">
+        <section className="overflow-y-auto pb-16 justify-between h-screen">
             <div className="container mx-auto px-4 py-4 flex flex-col justify-between h-full">
                 <div>
                     <h1 className="text-2xl font-bold mb-4">المزيد من الخيارات</h1>
