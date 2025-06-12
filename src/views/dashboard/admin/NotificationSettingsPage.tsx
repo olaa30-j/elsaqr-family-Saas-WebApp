@@ -23,6 +23,7 @@ const NotificationSettingsPage = () => {
     const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
     const [toggleStates, setToggleStates] = useState<Record<EntityType, boolean>>({} as Record<EntityType, boolean>);
 
+    // استعلامات لكل نوع كيان
     const eventQuery = useGetShowStatusByEntityTypeQuery('مناسبه');
     const memberQuery = useGetShowStatusByEntityTypeQuery('عضو');
     const adQuery = useGetShowStatusByEntityTypeQuery('اعلان');
@@ -30,8 +31,7 @@ const NotificationSettingsPage = () => {
     const galleryQuery = useGetShowStatusByEntityTypeQuery('معرض الصور');
     const userQuery = useGetShowStatusByEntityTypeQuery('مستخدم');
 
-
-    const allQueries: Record<EntityType, typeof eventQuery> = {
+    const allQueries = {
         'مناسبه': eventQuery,
         'عضو': memberQuery,
         'اعلان': adQuery,
@@ -46,23 +46,25 @@ const NotificationSettingsPage = () => {
     );
 
     useEffect(() => {
-        const newStates: Partial<Record<EntityType, boolean>> = {};
-        let hasChanges = false;
-
+        const newToggleStates: Record<EntityType, boolean> = {} as Record<EntityType, boolean>;
+        
         entityTypes.forEach(({ value }) => {
-            if (allQueries[value]?.data && toggleStates[value] !== allQueries[value].data.data.show) {
-                newStates[value] = allQueries[value].data.data.show;
-                hasChanges = true;
-            } else if (allQueries[value]?.data && !(value in toggleStates)) {
-                newStates[value] = allQueries[value].data.data.show;
-                hasChanges = true;
+            if (allQueries[value]?.data?.data) {
+                newToggleStates[value] = allQueries[value].data.data.show;
             }
         });
 
-        if (hasChanges) {
-            setToggleStates(prev => ({ ...prev, ...newStates }));
+        if (Object.keys(newToggleStates).length > 0) {
+            setToggleStates(newToggleStates);
         }
-    }, [allQueries, toggleStates]);
+    }, [
+        eventQuery.data, 
+        memberQuery.data, 
+        adQuery.data, 
+        financialQuery.data, 
+        galleryQuery.data, 
+        userQuery.data
+    ]);
 
     const handleToggle = useCallback((entityType: EntityType) => {
         setToggleStates(prev => ({
@@ -76,10 +78,10 @@ const NotificationSettingsPage = () => {
             setLoadingStates(prev => ({ ...prev, global: true }));
 
             const changes = entityTypes
-                .filter(({ value }) =>
-                    allQueries[value]?.data &&
-                    toggleStates[value] !== allQueries[value].data.data.show
-                )
+                .filter(({ value }) => {
+                    const serverState = allQueries[value]?.data?.data?.show;
+                    return serverState !== undefined && toggleStates[value] !== serverState;
+                })
                 .map(({ value }) => ({
                     entityType: value,
                     show: toggleStates[value]
@@ -101,12 +103,20 @@ const NotificationSettingsPage = () => {
             }
         } catch (err) {
             toast.error('حدث خطأ أثناء حفظ التغييرات');
+            entityTypes.forEach(({ value }) => {
+                if (allQueries[value]?.data?.data) {
+                    setToggleStates(prev => ({
+                        ...prev,
+                        [value]: allQueries[value]?.data?.data.show
+                    }));
+                }
+            });
         } finally {
             setLoadingStates(prev => ({ ...prev, global: false }));
         }
-    }, [toggleStates, allQueries, updateSettings]);
+    }, [toggleStates, updateSettings]);
 
-    if (isLoading) return <div>جاري التحميل...</div>;
+    if (isLoading) return <div className="text-center py-8">جاري التحميل...</div>;
 
     return (
         <div className="w-full mx-auto">
@@ -135,6 +145,7 @@ const NotificationSettingsPage = () => {
                         {entityTypes.map(({ value, label, icon }) => {
                             const query = allQueries[value];
                             const isToggleLoading = loadingStates[value] || query?.isFetching;
+                            const isChecked = toggleStates[value] ?? false;
 
                             return (
                                 <motion.div
@@ -145,7 +156,7 @@ const NotificationSettingsPage = () => {
                                     className="p-6 flex items-center justify-between"
                                 >
                                     <div className="flex items-center">
-                                        <div className="p-2 rounded-lg bg-indigo-50 text-primary mx-4">
+                                        <div className="p-2 rounded-lg bg-primary/5 text-primary mx-4">
                                             {icon}
                                         </div>
                                         <div>
@@ -155,16 +166,17 @@ const NotificationSettingsPage = () => {
                                     </div>
 
                                     <button
+                                        type="button"
                                         onClick={() => handleToggle(value)}
                                         disabled={isToggleLoading || loadingStates.global}
                                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors 
-                                        ${toggleStates[value] ? 'bg-primary' : 'bg-gray-300'}
+                                        ${isChecked ? 'bg-primary' : 'bg-gray-300'}
                                         ${isToggleLoading ? 'opacity-50 cursor-not-allowed' : ''}
                                         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
                                     >
                                         <span
                                             className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                                            ${toggleStates[value] ? 'translate-x-6' : 'translate-x-1'}`}
+                                            ${isChecked ? '-translate-x-6' : 'translate-x-1'}`}
                                         />
                                         <span className="sr-only">تبديل الإشعارات</span>
                                     </button>
@@ -176,11 +188,12 @@ const NotificationSettingsPage = () => {
 
                 {/* Footer */}
                 <motion.div
-                    whileHover={{ scale: 1 }}
+                    whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
                     className="p-6 border-t border-gray-100 flex justify-end"
                 >
                     <button
+                        type="button"
                         className={`flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors
                         ${loadingStates.global ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onClick={handleSaveChanges}

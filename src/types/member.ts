@@ -9,7 +9,9 @@ export type Member = {
     father?: string;
     birthday: Date | string;
     deathDate: Date | string;
-    husband?: string;
+    husband?: {
+        _id: string;
+    };
     summary?: string;
     wives?: string[];
     image?: string;

@@ -238,9 +238,12 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
     };
 
     const renderGrandChildren = (parentId: string) => {
-        const grandChildren = familyTree.grandChildren.filter((gc: Member) =>
-            gc.data?.parentId === parentId
+        const grandChildren = familyTree.grandChildren.filter((gc: Member) => {
+            gc.husband?._id === parentId
+        }
         );
+        console.log(grandChildren);
+        
 
         return (
             <div className="relative pt-6">
@@ -385,12 +388,12 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                     padding: '20px'
                                 }}
                             >
-                                <div className="relative mx-auto" style={{
+                                <div className="relative mx-auto scrollbar-hide" style={{
                                     minWidth: 'max-content',
                                     maxWidth: '100%',
                                     transformOrigin: 'center top'
                                 }}>
-                                    <ul className="flex flex-col items-center space-y-4">
+                                    <ul className="flex flex-col items-center space-y-4 scrollbar-hide">
                                         {/* Husband */}
                                         <motion.li
                                             key={familyTree.husband._id}
@@ -432,7 +435,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                     </div>
                                                 )}
 
-                                                {familyTree.wives.length > 0 && renderChildren()}
+                                                {renderChildren()}
                                             </div>
                                         </motion.li>
                                     </ul>
