@@ -243,7 +243,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         }
         );
         console.log(grandChildren);
-        
+
 
         return (
             <div className="relative pt-6">
@@ -311,6 +311,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                 initialScale={1}
                 minScale={0.5}
                 maxScale={3}
+                initialPositionY={0}
                 wheel={{ step: 0.1 }}
                 doubleClick={{ disabled: true }}
                 limitToBounds={false}

@@ -4,11 +4,22 @@ import SettingDropDown from './SettingDropDown';
 import { useLogoutMutation } from '../../store/api/authApi';
 import DropdownNotification from './DropdownNotification';
 
+
 const Navbar = () => {
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const user = useAppSelector((state) => state.auth.user);
     const [logout] = useLogoutMutation();
-    
+
+    const now = new Date();
+    const hijriDate = new Date(now).toLocaleDateString('ar-SA', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    })
+
+
     const toggleProfileMenu = () => {
         setIsProfileMenuOpen(!isProfileMenuOpen);
     };
@@ -24,23 +35,9 @@ const Navbar = () => {
     return (
         <nav className="bg-white shadow-sm py-4 px-8 flex items-center justify-between sticky top-0 z-10 ">
             {/* Menu button  */}
-            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:text-accent-foreground h-10 w-10 mr-2 rounded-full hover:bg-muted transition-colors">
-                <svg
-                    aria-hidden="true"
-                    focusable="false"
-                    data-prefix="fas"
-                    data-icon="bars"
-                    className="svg-inline--fa fa-bars h-5 w-5"
-                    role="img"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 448 512"
-                >
-                    <path
-                        fill="currentColor"
-                        d="M0 96C0 78.3 14.3 64 32 64l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 128C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 288c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32L32 448c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0c17.7 0 32 14.3 32 32z"
-                    ></path>
-                </svg>
-            </button>
+            <div className="text-xs leading-none max-w-[23vw] -mr-2 md:w-full">
+                <span className="text-[0.75rem] text-gray-500">{hijriDate}</span>
+            </div>
 
             {/* logo */}
             <div className="absolute left-1/2 -translate-x-1/2 w-fit">
@@ -82,7 +79,7 @@ const Navbar = () => {
                     </button>
 
                     {user && isProfileMenuOpen && (
-                        <SettingDropDown user={user} onLogout={handleLogout} toggleProfileMenu={toggleProfileMenu}/>
+                        <SettingDropDown user={user} onLogout={handleLogout} toggleProfileMenu={toggleProfileMenu} />
                     )}
                 </div>
             </div>

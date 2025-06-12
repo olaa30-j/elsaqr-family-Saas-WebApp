@@ -5,6 +5,7 @@ import {
   useMarkAsReadMutation,
   useMarkAllAsReadMutation
 } from '../../store/api/notificationApi';
+import { Link } from 'react-router-dom';
 // import type { INotification } from '../../types/notifications';
 
 const DropdownNotification = () => {
@@ -148,12 +149,12 @@ const DropdownNotification = () => {
             
             {/* Footer */}
             <div className="px-4 py-2 border-t text-center">
-              <a 
-                href="/notifications" 
+              <Link
+                to={`/profile?tab=activities`}
                 className="text-sm font-medium text-primary hover:text-primary/90"
               >
                 عرض جميع الإشعارات
-              </a>
+              </Link>
             </div>
           </div>
         </div>
