@@ -36,8 +36,8 @@ const RoleCards = () => {
     const handleDeleteRole = async () => {
         if (!roleToDelete) return;
         try {
-            const response = await removeUserRole({ role: roleToDelete }).unwrap();
-            toast.success(response.message || "تم حذف الدور بنجاح");
+             await removeUserRole({ role: roleToDelete }).unwrap();
+            toast.success( "تم حذف الدور بنجاح");
             setIsDeleteModalOpen(false);
             setRoleToDelete(null);
         } catch (error: any) {

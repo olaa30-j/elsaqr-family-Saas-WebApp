@@ -15,8 +15,7 @@ export const authApi = baseApi.injectEndpoints({
       transformResponse: (response: { user: User }) => response,
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
-          let data = await queryFulfilled;
-          console.log(data);
+          await queryFulfilled;
           window.location.href = '/dashboard';
         } catch (error) {
           dispatch(setError('فشل تسجيل الدخول'));
@@ -70,9 +69,7 @@ export const authApi = baseApi.injectEndpoints({
       { success: boolean; message: string },
       { token: string; newPassword: string }
     >({
-      query: ({ token, newPassword }) => {
-        console.log(token, newPassword);
-        
+      query: ({ token, newPassword }) => {        
         return{
           url: `/auth/reset-password/${token}`,
             method: 'POST',

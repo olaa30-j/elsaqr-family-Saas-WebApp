@@ -7,9 +7,7 @@ const Users = () => {
         limit: 10
     });
 
-    const users = usersData?.data
-    console.log(users)
-    
+    const users = usersData?.data    
 
     if (error) {
         return <div>خطأ فى استدعاء المستخدمين</div>;

@@ -3,10 +3,10 @@ import { setCredentials } from '../../features/auth/authSlice';
 import type { User } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl:'https://sass32.vercel.app/api/v1',
+  baseUrl:'https://sass35.vercel.app/api/v1',
   credentials: 'include',
   prepareHeaders: (headers) => {
-    headers.set('x-vercel-project-id', 'prj_kkn5xIwUrYciPcF624UvW8KwNqbt');
+    headers.set('x-vercel-project-id', 'prj_VaPLcjU0YuySg8W4r9muXxSohZYr');
     return headers;
   },
 });
@@ -34,9 +34,7 @@ export const baseApi = createApi({
       }),
       providesTags: ['Users'],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
-          const { data } = await queryFulfilled; 
-          console.log(data);
-                   
+          const { data } = await queryFulfilled;                    
           dispatch(setCredentials({ user: data.data }));
       }
     }),

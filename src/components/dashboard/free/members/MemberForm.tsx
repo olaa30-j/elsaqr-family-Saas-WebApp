@@ -278,7 +278,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                             </div>
 
                             {/* ملخص */}
-                            <div className="space-y-2 col-span-2">
+                            <div className="space-y-2 md:col-span-2">
                                 <label htmlFor="summary" className="block text-sm font-medium text-gray-700">
                                     ملخص
                                 </label>

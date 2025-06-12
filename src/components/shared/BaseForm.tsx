@@ -51,8 +51,6 @@ export function BaseForm<T extends yup.AnyObjectSchema>({
   }, [defaultValues, methods]);
 
   const handleSubmit = async (data: yup.InferType<T>) => { 
-    console.log(data);
-       
     try {
       await onSubmit(data);
       methods.reset(data);

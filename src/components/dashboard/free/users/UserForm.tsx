@@ -60,7 +60,6 @@ const UserForm: React.FC<UserFormProps> = ({
                 await updateUser({ id: userId, data: requestData }).unwrap();
                 toast.success("تم تحديث المستخدم بنجاح");
             } else {
-                console.log(requestData);
                 await createUser({ data: requestData }).unwrap();
                 toast.success("تم إنشاء المستخدم بنجاح");
             }

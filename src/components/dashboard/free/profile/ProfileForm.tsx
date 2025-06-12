@@ -38,8 +38,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
     const handleSubmit = async (data: ProfileFormValues) => {
         try {
-            console.log(data);
-
             const requestData = {
                 ...data
             };

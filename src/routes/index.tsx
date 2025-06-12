@@ -41,6 +41,7 @@ const AdvertisementPage = lazy(() => import('../components/dashboard/free/advert
 const RolesPage = lazy(() => import('../components/dashboard/free/roles/Roles'));
 const RolesPermissionsPage = lazy(() => import('../components/dashboard/free/roles/RolePermissions'));
 const FamilyTreePage = lazy(() => import('../views/dashboard/familyTree/FamilyTreePage'));
+const NotificationSettingsPage = lazy(() => import('../views/dashboard/admin/NotificationSettingsPage'));
 const NotFoundPage = lazy(() => import('../views/errors/NotFoundPage'));
 
 // مكون تحميل مؤقت
@@ -112,6 +113,10 @@ const routePermissions = {
   'admin/statistics': {
     permissions: [{ entity: 'مستخدم', action: 'view' }],
     description: 'الإحصائيات'
+  },
+  'admin/notifications': {
+    permissions: [{ entity: 'عضو', action: 'update' }],
+    description: 'تعديل الاشعارات'
   },
   'admin/sections': {
     permissions: [{ entity: 'مستخدم', action: 'view' }],
@@ -343,6 +348,15 @@ const routes: RouteObject[] = [
                 ),
                 handle: routePermissions['admin/statistics']
               },
+              {
+                path: 'notifications',
+                element: (
+                  <SuspenseLoader>
+                    <NotificationSettingsPage />
+                  </SuspenseLoader>
+                ),
+                handle: routePermissions['admin/notifications']
+              },
             ],
           },
         ],
@@ -359,7 +373,6 @@ const routes: RouteObject[] = [
   },
 ];
 
-// إنشاء الراوتر مع إعدادات BASE_URL
 const router = createBrowserRouter(routes, {
   basename: import.meta.env.BASE_URL,
 });

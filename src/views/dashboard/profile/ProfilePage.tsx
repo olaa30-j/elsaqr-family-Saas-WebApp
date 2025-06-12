@@ -3,7 +3,7 @@ import { useAppSelector } from "../../../store/store";
 import { useState, useMemo } from "react";
 import { Mail, Phone, Pencil, X, PencilIcon } from "lucide-react";
 import SecuritySettings from "../../../components/dashboard/free/profile/SecuritySettings";
-import NotificationsSettings from "../../../components/dashboard/free/profile/NotificationsSettings";
+// import NotificationsSettings from "../../../components/dashboard/free/profile/NotificationsSettings";
 import ActivitiesSettings from "../../../components/dashboard/free/profile/ActivitiesSettings";
 import { Tabs } from "../../../components/ui/Tabs";
 import { DEFAULT_IMAGE } from "../../../components/auth/RegisterationForm";
@@ -127,12 +127,14 @@ const ProfilePage = () => {
         id: 'security',
         label: 'الأمان',
         content: <SecuritySettings />,
-      },
-      {
-        id: 'notifications',
-        label: 'الإشعارات',
-        content: <NotificationsSettings />,
-      },
+      }
+      // ,
+      // {
+      //   id: 'notifications',
+      //   label: 'الإشعارات',
+      //   content: <NotificationsSettings />,
+      // }
+      ,
       {
         id: 'activities',
         label: 'النشاطات',

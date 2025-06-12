@@ -28,7 +28,7 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
   };
 
   return (
-    <nav className="mobile-bottom-nav fixed bottom-0 right-0 left-0 bg-white dark:bg-slate-900 shadow-lg z-50 border-t border-gray-200 dark:border-gray-800 pb-safe">
+    <nav className="fixed -bottom-1 right-0 left-0 bg-white dark:bg-slate-900 shadow-lg z-50 border-t border-gray-200 dark:border-gray-800 pb-safe">
       <div className="flex gap-8 justify-center h-16 max-w-md mx-auto">
         {/* Home - Always visible */}
         <button

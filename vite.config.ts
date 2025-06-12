@@ -9,14 +9,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://sass32.vercel.app',
+        target: 'https://sass35.vercel.app',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api/v1'),
         headers: {
           "Access-Control-Allow-Origin": "http://localhost:5173",
           'Access-Control-Allow-Credentials': 'true',
-          'x-vercel-project-id': 'prj_kkn5xIwUrYciPcF624UvW8KwNqbt'
+          'x-vercel-project-id': 'prj_VaPLcjU0YuySg8W4r9muXxSohZYr'
         }
       }
     }

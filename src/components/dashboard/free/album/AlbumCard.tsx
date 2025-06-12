@@ -71,8 +71,6 @@ export const AlbumCard = ({ album, onSelect, onEdit, onDelete }: AlbumCardProps)
   };
 
   const handleConfirmDelete = async () => {
-    console.log(album._id);
-
     try {
       onDelete(album._id);
       toast.success('تم حذف الألبوم بنجاح');
@@ -94,10 +92,6 @@ export const AlbumCard = ({ album, onSelect, onEdit, onDelete }: AlbumCardProps)
 
   const onSubmit = async (data: Pick<Album, 'name' | 'description'>) => {
     setIsSubmitting(true);
-    console.log(album._id, {
-      name: data.name,
-      description: data.description,
-    });
 
     try {
       await onEdit(album._id, {

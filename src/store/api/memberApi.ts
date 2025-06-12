@@ -59,8 +59,6 @@ export const memberApi = baseApi.injectEndpoints({
 
         updateMember: build.mutation<Member, { id: string, data: FormData }>({
             query: ({ id, data }) => {
-                console.log(data);
-
                 return {
                     url: `/member/${id}`,
                     method: 'PATCH',

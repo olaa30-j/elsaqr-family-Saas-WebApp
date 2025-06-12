@@ -1,5 +1,5 @@
 import type { Pagination } from '../../types/user';
-import type { CreateNotificationDto, INotification } from '../../types/notifications';
+import type { INotification } from '../../types/notifications';
 import { baseApi } from './baseApi';
 
 export const notificationApi = baseApi.injectEndpoints({
@@ -61,7 +61,7 @@ export const notificationApi = baseApi.injectEndpoints({
             ],
         }),
 
-        createNotification: build.mutation<CreateNotificationDto, {
+        createNotification: build.mutation<INotification, {
             recipientId: string;
             message: string;
             action: string;
@@ -76,6 +76,42 @@ export const notificationApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: [{ type: 'Notifications' as const, id: 'LIST' }],
         }),
+
+        updateShowByEntityType: build.mutation<{
+            message: string;
+            data: {
+                entityType: string;
+                show: boolean;
+                matchedCount: number;
+                modifiedCount: number;
+            };
+        }, { show: boolean; entityType: string }>({
+            query: ({ show, entityType }) => ({
+                url: '/notification/show-by-entity',
+                method: 'PATCH',
+                body: { show, entityType },
+                credentials: 'include'
+            }),
+            invalidatesTags: ['Notifications']
+        }),
+
+        getShowStatusByEntityType: build.query<{
+            data: {
+                entityType: string;
+                show: boolean;
+                success: boolean;
+                consistent: boolean;
+            }
+        }, string>({
+            query: (entityType) => ({
+                url: `/notification/${entityType}`,
+                method: 'GET',
+                credentials: 'include'
+            }),
+            providesTags: (_result, _error, entityType) => [
+                { type: 'Notifications' as const, id: `ENTITY_TYPE_${entityType}` }
+            ],
+        }),
     }),
 });
 
@@ -86,4 +122,6 @@ export const {
     useMarkAllAsReadMutation,
     useDeleteNotificationMutation,
     useCreateNotificationMutation,
+    useUpdateShowByEntityTypeMutation,
+    useGetShowStatusByEntityTypeQuery,
 } = notificationApi;

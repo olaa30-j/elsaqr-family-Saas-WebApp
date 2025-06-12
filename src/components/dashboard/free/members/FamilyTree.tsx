@@ -415,7 +415,6 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                 </ul>
                                             </div>
                                         ) : (
-                                            // Changed from motion.li to motion.div since it's inside an li
                                             <motion.div
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
@@ -439,7 +438,8 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                     )}
                                 </motion.li>
                             </ul>
-                        </TransformComponent>                    </>
+                        </TransformComponent>                
+                    </>
                 )}
             </TransformWrapper>
         </div>

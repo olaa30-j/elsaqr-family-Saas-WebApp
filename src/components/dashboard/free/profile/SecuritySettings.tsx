@@ -33,15 +33,6 @@ const SecuritySettings = () => {
                                 <ChangePasswordForm onCancel={() => setShowPasswordForm(false)} />
                             )}
                         </div>
-                        <div className="p-4 border rounded-lg">
-                            <h4 className="font-medium mb-2">المصادقة الثنائية</h4>
-                            <p className="text-sm text-muted-foreground mb-2">
-                                تمكين المصادقة الثنائية لزيادة الأمان
-                            </p>
-                            <button className="text-sm text-primary hover:underline">
-                                تفعيل المصادقة الثنائية
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
