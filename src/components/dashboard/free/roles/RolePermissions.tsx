@@ -286,12 +286,12 @@ const RolePermissions: React.FC = () => {
                     </div>
 
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="bg-gray-50 px-6 py-4 flex justify-between items-center border-b border-gray-200">
+                        <div className="bg-gray-50 px-6 py-4 flex flex-col md:flex-row justify-between md:items-center border-b border-gray-200">
                             <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                                <ShieldCheck className="w-5 h-5 mx-2 text-primary-500" />
+                                <ShieldCheck className="w-5 h-5 mx-2 text-primary-500 hidden md:block" />
                                 صلاحيات دور: {selectedRole}
                             </h3>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                            <span className="inline-flex items-center justify-end px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                                 {filteredEntities.length} اقسام
                             </span>
                         </div>

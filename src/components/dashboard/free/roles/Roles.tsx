@@ -27,7 +27,7 @@ const Roles = () => {
 
   return (
     <div>
-      <div className="flex justify-between">
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <h3 className="text-primary text-responsive-lg font-bold px-4 mb-3"> الأدوار و الصلاحيات</h3>
         <div className="flex gap-2 mb-4">
           <input

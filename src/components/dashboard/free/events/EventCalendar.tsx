@@ -168,7 +168,7 @@ const EventCalendar = () => {
         {activeTab === 'calendar' ? (
           <motion.div variants={fadeIn('up', 'spring', 0.4, 0.7)}>
             {/* رأس التقويم */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col md:flex-row gap-6 justify-between items-center mb-6">
               <div className="flex space-x-4 gap-3 items-center">
                 <motion.button
                   whileHover={{ scale: 1.05 }}

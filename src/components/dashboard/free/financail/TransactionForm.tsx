@@ -312,7 +312,7 @@ export const TransactionForm = ({
                     </div>
 
                     {/* Left Column */}
-                    <div className="items-center grid grid-cols-2 gap-2 rounded-xl border border-color-2 ">
+                    <div className="items-center grid grid-cols-1 md:grid-cols-2 gap-2 rounded-xl border border-color-2 ">
                         {/* Date Field */}
                         <div className="bg-white dark:bg-gray-800 p-4 dark:border-gray-700">
                             <label className="block text-md font-medium text-color-2 underline mb-2 font-cairo">
