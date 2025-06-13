@@ -1,4 +1,5 @@
 export interface IAdvertisement {
+  data?: any;
   status: string;
   _id: string;
   userId:UserId;
@@ -40,7 +41,8 @@ export interface IAdvertisementForm {
   title: string;
   type: string;
   content: string;
-  image?: File | null;  
+  image?: File | null; 
+  status: string;
 }
 
 // types/common.ts

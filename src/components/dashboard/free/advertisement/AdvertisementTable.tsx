@@ -47,7 +47,8 @@ const AdvertisementTable = () => {
         title: '',
         type: 'general',
         content: '',
-        image: null
+        image: null,
+        status:'pending'
     });
 
     // API calls
@@ -188,7 +189,8 @@ const AdvertisementTable = () => {
             title: '',
             type: 'general',
             content: '',
-            image: null
+            image: null,
+            status: "pending" 
         });
     };
 
@@ -198,7 +200,8 @@ const AdvertisementTable = () => {
             title: ad.title,
             type: ad.type,
             content: ad.content,
-            image: null
+            image: null,
+            status: "pending" 
         });
         setIsFormOpen(true);
     };

@@ -26,22 +26,36 @@ const ResetPasswordPage = lazy(() => import('../components/auth/ResetPasswordPag
 const DashboardPage = lazy(() => import('../views/dashboard/Dashboard'));
 const ProfilePage = lazy(() => import('../views/dashboard/profile/ProfilePage'));
 const AdminPage = lazy(() => import('../views/dashboard/admin/Admin'));
+
 const UsersPage = lazy(() => import('../components/dashboard/free/admin/Users'));
 const EditUserPage = lazy(() => import('../components/dashboard/free/users/EditUsers'));
+
 const FinancialPage = lazy(() => import('../views/dashboard/financial/FinancialPage'));
 const TransactionDetailsPage = lazy(() => import('../components/dashboard/free/financail/TransactionDetails'));
+
 const AlbumsPage = lazy(() => import('../views/album/AlbumsPage'));
 const AlbumsDetailsPage = lazy(() => import('../views/album/AlbumDetailPage'));
+
 const AdminDashboardPage = lazy(() => import('../views/dashboard/admin/dashboard/AdminDashoard'));
+
 const StatisticsPage = lazy(() => import('../views/dashboard/admin/StatisticsPage'));
+
 const EventsPage = lazy(() => import('../components/dashboard/free/events/EventCalendar'));
+
 const MembersPage = lazy(() => import('../components/dashboard/free/admin/Member'));
 const MembersDeatilsPage = lazy(() => import('../components/dashboard/free/members/EditMember'));
+
 const AdvertisementPage = lazy(() => import('../components/dashboard/free/advertisement/AdvertisementTable'));
+
 const RolesPage = lazy(() => import('../components/dashboard/free/roles/Roles'));
 const RolesPermissionsPage = lazy(() => import('../components/dashboard/free/roles/RolePermissions'));
+
 const FamilyTreePage = lazy(() => import('../views/dashboard/familyTree/FamilyTreePage'));
+
 const NotificationSettingsPage = lazy(() => import('../views/dashboard/admin/NotificationSettingsPage'));
+
+const AdDetailsPage = lazy(() => import('../components/dashboard/free/advertisement/AdDetails'));
+
 const NotFoundPage = lazy(() => import('../views/errors/NotFoundPage'));
 
 // مكون تحميل مؤقت
@@ -53,6 +67,10 @@ const SuspenseLoader = ({ children }: { children: React.ReactNode }) => (
 
 const routePermissions = {
   advertisement: {
+    permissions: [{ entity: 'اعلان', action: 'view' }],
+    description: 'إدارة الإعلانات'
+  },
+  'advertisement-details/:id': {
     permissions: [{ entity: 'اعلان', action: 'view' }],
     description: 'إدارة الإعلانات'
   },
@@ -209,6 +227,15 @@ const routes: RouteObject[] = [
               </SuspenseLoader>
             ),
             handle: routePermissions.advertisement
+          },
+          {
+            path: 'advertisement-details/:id',
+            element: (
+              <SuspenseLoader>
+                <AdDetailsPage />
+              </SuspenseLoader>
+            ),
+            handle: routePermissions['advertisement-details/:id']
           },
           {
             path: 'financial',

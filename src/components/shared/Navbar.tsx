@@ -33,7 +33,7 @@ const Navbar = () => {
         }
     };
     return (
-        <nav className="bg-white shadow-sm py-4 px-8 flex items-center justify-between sticky top-0 z-10 ">
+        <nav className="bg-white shadow-sm py-4 px-8 flex items-center justify-between sticky -top-1 z-10 ">
             {/* Menu button  */}
             <div className="text-xs leading-none max-w-[23vw] -mr-2 md:w-full">
                 <span className="text-[0.75rem] text-gray-500">{hijriDate}</span>

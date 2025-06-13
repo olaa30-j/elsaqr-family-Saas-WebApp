@@ -39,12 +39,6 @@ type PermissionPoint = {
 };
 
 export const PERMISSION_POINTS = {
-  // // لوحة التحكم
-  // DASHBOARD_VIEW: {
-  //   entity: 'لوحة_التحكم',
-  //   action: 'view',
-  // },
-
   // مناسبه
   EVENT_VIEW: {
     entity: 'مناسبه',
