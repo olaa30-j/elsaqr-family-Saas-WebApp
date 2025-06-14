@@ -1,10 +1,10 @@
 export interface IAdvertisement {
   data?: any;
-  status: string;
+  status: AdvertisementStatus;
   _id: string;
   userId:UserId;
   title: string;
-  type: string;
+  type: AdvertisementType;
   content: string;
   image?: string;  
   createdAt: string;
@@ -29,7 +29,6 @@ export interface UserId {
   updatedAt: string;
 }
 
-// types/advertisement.ts
 export interface AdvertisementQueryParams {
   page?: number;
   limit?: number;
@@ -45,10 +44,12 @@ export interface IAdvertisementForm {
   status: string;
 }
 
-// types/common.ts
 export interface Pagination {
   totalAdvertisements: number;
   totalPages: number;
   currentPage: number;
   pageSize: number;
 }
+
+export type AdvertisementType = 'general' | 'important' | 'social';
+export type AdvertisementStatus = 'pending' | 'reject' | 'accept';

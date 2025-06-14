@@ -5,7 +5,6 @@ import { BaseForm } from '../../../shared/BaseForm';
 import { userSchema, type UserFormValues } from '../../../../types/schemas';
 import { useParams } from 'react-router-dom';
 import { useGetAllRolesQuery } from '../../../../store/api/roleApi';
-import type { Role } from '../roles/RolePermissions';
 
 type ErrorWithMessage = {
     message: string;
@@ -39,11 +38,11 @@ const UserForm: React.FC<UserFormProps> = ({
 }) => {
     const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
     const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
-    const {
-        data: rolesResponse
-    } = useGetAllRolesQuery();
-
-    const availableRoles: Role[] = useMemo(() => {
+    
+    // جلب الأدوار من API
+    const { data: rolesResponse, isLoading: isRolesLoading } = useGetAllRolesQuery();
+    
+    const availableRoles = useMemo(() => {
         return rolesResponse?.data || [];
     }, [rolesResponse]);
 
@@ -53,7 +52,7 @@ const UserForm: React.FC<UserFormProps> = ({
         try {
             const requestData = {
                 ...data,
-                role: [data.role]
+                role: [data.role]  
             };
 
             if (isEditing && userId) {
@@ -171,6 +170,7 @@ const UserForm: React.FC<UserFormProps> = ({
                             )}
                         </div>
 
+                        {/* Family Relationship Field */}
                         <div className="space-y-2">
                             <label htmlFor="familyRelationship" className="block text-sm font-medium text-gray-700">
                                 صلة القرابة
@@ -194,6 +194,7 @@ const UserForm: React.FC<UserFormProps> = ({
                             )}
                         </div>
 
+                        {/* Address Field */}
                         <div className="space-y-2">
                             <label htmlFor="address" className="block text-sm font-medium text-gray-700">
                                 العنوان
@@ -210,29 +211,34 @@ const UserForm: React.FC<UserFormProps> = ({
                             )}
                         </div>
 
-                        {/* Role Field */}
+                        {/* Role Field - Dynamic */}
                         <div className="space-y-2">
                             <label htmlFor="role" className="block text-sm font-medium text-gray-700">
                                 الدور
                             </label>
-                            <select
-                                id="role"
-                                {...register('role')}
-                                className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                disabled={isUpdating || isCreating}
-                            >
-                                <option value="">اختر الدور</option>
-                                {availableRoles.map((role, index) => (
-                                    <option key={index} value={role}>
-                                        {role}
-                                    </option>
-                                ))}
-                            </select>
+                            {isRolesLoading ? (
+                                <div className="animate-pulse rounded-md bg-gray-200 h-10 w-full"></div>
+                            ) : (
+                                <select
+                                    id="role"
+                                    {...register('role')}
+                                    className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    disabled={isUpdating || isCreating || isRolesLoading}
+                                >
+                                    <option value="">اختر الدور</option>
+                                    {availableRoles.map((role:string, index:number) => (
+                                        <option key={index} value={role}>
+                                            {role}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
                             {errors.role && (
                                 <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>
                             )}
                         </div>
 
+                        {/* Status Field */}
                         <div className="space-y-2">
                             <label htmlFor="status" className="block text-sm font-medium text-gray-700">
                                 الحالة

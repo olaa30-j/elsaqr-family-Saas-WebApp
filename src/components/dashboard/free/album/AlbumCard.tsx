@@ -166,7 +166,7 @@ export const AlbumCard = ({ album, onSelect, onEdit, onDelete }: AlbumCardProps)
           <div className="mt-3 flex justify-between items-center text-xs text-gray-400">
             <div className="flex items-center">
               <span className="ml-1">
-                {album.createdBy.email}
+                {album.createdBy?.email || "مستخدم غير معروف"}
               </span>
             </div>
             <div className="flex items-center gap-2">

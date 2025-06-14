@@ -1,18 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../../ui/Modal";
 import type { User } from "../../../../types/user";
 import { toast } from "react-toastify";
 import { useDeleteUserMutation } from "../../../../store/api/usersApi";
-import { statusOptions, familyRelationships, roleOptions } from "../../../../types/user";
+import { statusOptions, familyRelationships } from "../../../../types/user";
 import UserForm from "./UserForm";
-
-interface UsersTableProps {
-    currentPage?: number;
-    itemsPerPage?: number;
-    usersData: User[] | undefined;
-    refetchUsers?: () => void;
-}
+import { useGetAllRolesQuery } from '../../../../store/api/roleApi';
 
 type FilterOptions = {
     status?: User['status'];
@@ -20,17 +14,31 @@ type FilterOptions = {
     role?: string;
 };
 
+interface UsersTableProps {
+    currentPage: number;
+    itemsPerPage: number;
+    usersData: User[];
+    pagination?: {
+        totalPages?: number;
+        totalItems?: number;
+    };
+    onPageChange: (page: number) => void;
+    onLimitChange?: (limit: number) => void;
+    isLoading?: boolean;
+    refetchUsers?: () => void;
+}
+
 const UsersTable: React.FC<UsersTableProps> = ({
-    currentPage: initialPage = 1,
-    itemsPerPage = 10,
+    currentPage,
+    itemsPerPage,
     usersData,
+    pagination,
+    onPageChange,
     refetchUsers
 }) => {
     const navigate = useNavigate();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
-    const [currentPage, setCurrentPage] = useState(initialPage);
-    const [totalPages, setTotalPages] = useState(1);
     const [sortConfig, setSortConfig] = useState<{ key: keyof User; direction: 'asc' | 'desc' } | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -39,20 +47,24 @@ const UsersTable: React.FC<UsersTableProps> = ({
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [filters, setFilters] = useState<FilterOptions>({});
     const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+    const { data: rolesResponse } = useGetAllRolesQuery();
+    
+    const availableRoles = useMemo(() => {
+        return rolesResponse?.data || [];
+    }, [rolesResponse]);
 
     useEffect(() => {
         setLoading(true);
         try {
             const data = usersData || [];
             setUsers(data);
-            setTotalPages(Math.ceil(data.length / itemsPerPage));
         } catch (error) {
             console.error('Error loading users data:', error);
             toast.error('حدث خطأ في تحميل بيانات المستخدمين');
         } finally {
             setLoading(false);
         }
-    }, [usersData, itemsPerPage]);
+    }, [usersData]);
 
     const handleSort = (key: keyof User) => {
         let direction: 'asc' | 'desc' = 'asc';
@@ -97,11 +109,6 @@ const UsersTable: React.FC<UsersTableProps> = ({
         return 0;
     });
 
-    const paginatedUsers = sortedUsers.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-
     const handleEdit = (userId: string) => {
         navigate(`/admin/users/${userId}`);
     };
@@ -126,17 +133,12 @@ const UsersTable: React.FC<UsersTableProps> = ({
         }
     };
 
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
     const handleFilterChange = (key: keyof FilterOptions, value: string) => {
         setFilters(prev => ({
             ...prev,
             [key]: value === 'all' ? undefined : value
         }));
-        setCurrentPage(1);
+        onPageChange(1);
     };
 
     const clearFilters = () => {
@@ -172,6 +174,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
             </div>
         );
     }
+
 
     return (
         <div className="relative flex flex-col w-full h-full text-primary bg-white rounded-xl shadow-sm">
@@ -275,9 +278,9 @@ const UsersTable: React.FC<UsersTableProps> = ({
                                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
                                 >
                                     <option value="all">الكل</option>
-                                    {roleOptions.map(({ value, label }) => (
-                                        <option key={value} value={value}>
-                                            {label}
+                                    {availableRoles.map((role:string, index:number) => (
+                                        <option key={index} value={role}>
+                                            {role}
                                         </option>
                                     ))}
                                 </select>
@@ -367,13 +370,13 @@ const UsersTable: React.FC<UsersTableProps> = ({
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-slate-200">
-                            {paginatedUsers.length > 0 ? (
-                                paginatedUsers.map((user) => (
+                            {sortedUsers.length > 0 ? (
+                                sortedUsers.map((user) => (
                                     <tr key={user._id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex justify-center">
                                                 <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-medium">
-                                                    {user.email.charAt(0).toUpperCase()}
+                                                    {user.email?.charAt(0).toUpperCase()}
                                                 </div>
                                             </div>
                                         </td>
@@ -394,8 +397,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex justify-center">
                                                 <span className={`px-2 py-1 text-responsive-sm font-semibold rounded-md ${user.status === 'مقبول' ? 'bg-green-100 text-green-800' :
-                                                    user.status === 'مرفوض' ? 'bg-red-100 text-red-800' :
-                                                        'bg-slate-100 text-primary'
+                                                        user.status === 'مرفوض' ? 'bg-red-100 text-red-800' :
+                                                            'bg-slate-100 text-primary'
                                                     }`}>
                                                     {user.status === 'مقبول' ? 'مقبول' :
                                                         user.status === 'مرفوض' ? 'مرفوض' : 'قيد الانتظار'}
@@ -410,7 +413,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 text-center">
                                             {user.role?.map(r =>
-                                                roleOptions.find(ro => ro.value === r)?.label || r
+                                                availableRoles.find((ro:string) => ro === r)?.label || r
                                             ).join(', ')}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
@@ -454,13 +457,13 @@ const UsersTable: React.FC<UsersTableProps> = ({
                     <div className="text-sm text-slate-500">
                         عرض <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> إلى{' '}
                         <span className="font-medium">
-                            {Math.min(currentPage * itemsPerPage, filteredUsers.length)}
+                            {Math.min(currentPage * itemsPerPage, pagination?.totalItems || 0)}
                         </span>{' '}
-                        من <span className="font-medium">{filteredUsers.length}</span> نتائج
+                        من <span className="font-medium">{pagination?.totalItems || 0}</span> نتائج
                     </div>
                     <div className="flex space-x-2 gap-2">
                         <button
-                            onClick={() => handlePageChange(currentPage - 1)}
+                            onClick={() => onPageChange(currentPage - 1)}
                             disabled={currentPage === 1}
                             className={`px-3 py-1 rounded-md border ${currentPage === 1 ?
                                 'bg-slate-100 text-slate-400 cursor-not-allowed' :
@@ -469,10 +472,10 @@ const UsersTable: React.FC<UsersTableProps> = ({
                         >
                             السابق
                         </button>
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        {Array.from({ length: pagination?.totalPages || 1 }, (_, i) => i + 1).map((page) => (
                             <button
                                 key={page}
-                                onClick={() => handlePageChange(page)}
+                                onClick={() => onPageChange(page)}
                                 className={`px-3 py-1 rounded-md ${currentPage === page ?
                                     'bg-primary text-white' :
                                     'bg-white text-primary hover:bg-slate-100 border'
@@ -482,9 +485,9 @@ const UsersTable: React.FC<UsersTableProps> = ({
                             </button>
                         ))}
                         <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className={`px-3 py-1 rounded-md border ${currentPage === totalPages ?
+                            onClick={() => onPageChange(currentPage + 1)}
+                            disabled={currentPage === (pagination?.totalPages || 1)}
+                            className={`px-3 py-1 rounded-md border ${currentPage === (pagination?.totalPages || 1) ?
                                 'bg-slate-100 text-slate-400 cursor-not-allowed' :
                                 'bg-white text-primary hover:bg-slate-50'
                                 }`}

@@ -1,13 +1,30 @@
+import { useState } from "react";
 import { useGetMembersQuery } from "../../../../store/api/memberApi";
 import MembersTable from "../members/MemberTable";
 
 const Member = () => {
-    const { data: membersData, error } = useGetMembersQuery({
-        page: 1,
-        limit: 10
-    });    
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [familyBranch, setFamilyBranch] = useState("");
 
-    const users = membersData?.data    
+    const { 
+        data: membersData, 
+        error, 
+        isLoading 
+    } = useGetMembersQuery({
+        page,
+        limit,
+        familyBranch: familyBranch || undefined
+    });
+
+    const handlePageChange = (newPage: number) => {
+        setPage(newPage);
+    };
+
+    const handleBranchChange = (branch: string) => {
+        setFamilyBranch(branch);
+        setPage(1);  
+    };
 
     if (error) {
         return <div>خطأ فى استدعاء المستخدمين</div>;
@@ -15,9 +32,18 @@ const Member = () => {
 
     return (
         <div>
-            <MembersTable currentPage={1} itemsPerPage={10} membersData={users}/>
+            <MembersTable 
+                currentPage={page}
+                itemsPerPage={limit}
+                membersData={membersData?.data || []}
+                pagination={membersData?.pagination}
+                onPageChange={handlePageChange}
+                onBranchChange={handleBranchChange}
+                isLoading={isLoading}
+                selectedBranch={familyBranch}
+            />
         </div>
     )
 }
 
-export default Member
+export default Member;

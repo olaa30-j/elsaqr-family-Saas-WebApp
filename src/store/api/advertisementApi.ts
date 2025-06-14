@@ -41,12 +41,14 @@ export const advertisementApi = baseApi.injectEndpoints({
       type: string;
       content: string;
       image?: File | null;
+      status:string;
     }>({
       query: (adData) => {
         const formData = new FormData();
         formData.append('title', adData.title);
         formData.append('type', adData.type);
         formData.append('content', adData.content);
+        formData.append('status', adData.status);
         if (adData.image) {
           formData.append('image', adData.image);
         }
@@ -57,7 +59,6 @@ export const advertisementApi = baseApi.injectEndpoints({
           body: formData,
           credentials: 'include',
           headers: {
-            // Let the browser set Content-Type with boundary
             'Content-Type': undefined,
           },
         };
@@ -76,6 +77,7 @@ export const advertisementApi = baseApi.injectEndpoints({
         if (updates.title) formData.append('title', updates.title);
         if (updates.type) formData.append('type', updates.type);
         if (updates.content) formData.append('content', updates.content);
+        if (updates.status) formData.append('status', updates.status);
         if (updates.image) formData.append('image', updates.image);
 
         return {

@@ -7,24 +7,24 @@ import {
 import {
     ChevronUp,
     ChevronDown,
-    Check,
-    Loader2,
     Search,
     Plus,
-    Edit,
-    Trash2
+    Loader2,
+    Trash2,
+    Edit
 } from 'lucide-react';
-import type { IAdvertisement, IAdvertisementForm } from '../../../../types/advertisement';
+import type { IAdvertisement, IAdvertisementForm, AdvertisementType, AdvertisementStatus } from '../../../../types/advertisement';
 import Modal from '../../../ui/Modal';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { usePermission } from '../../../../hooks/usePermission';
+import AdvertisementForm from './AdvertisementForm';
+import AdvertisementTypeBadge from './AdvertisementTypeBadge';
+import AdvertisementStatusBadge from './AdvertisementStatusBadge';
 
 type SortField = keyof IAdvertisement;
 type SortDirection = 'asc' | 'desc';
-type AdvertisementType = 'general' | 'important' | 'social';
-type AdvertisementStatus = "pending" | "reject" | "accept";
 
 const AdvertisementTable = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,23 +35,16 @@ const AdvertisementTable = () => {
     });
     const [searchTerm, setSearchTerm] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
     const [filters, setFilters] = useState({
         type: undefined as AdvertisementType | undefined,
         status: undefined as AdvertisementStatus | undefined
     });
 
-    // Form state
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [currentAd, setCurrentAd] = useState<IAdvertisement | null>(null);
-    const [formData, setFormData] = useState<IAdvertisementForm>({
-        title: '',
-        type: 'general',
-        content: '',
-        image: null,
-        status:'pending'
-    });
 
-    // API calls
     const { data, isLoading, isError, error, refetch } = useGetAdvertisementsQuery({
         page: currentPage,
         limit: itemsPerPage,
@@ -62,10 +55,10 @@ const AdvertisementTable = () => {
     const [deleteAd] = useDeleteAdvertisementMutation();
     const [createAd, { isLoading: isCreating }] = useCreateAdvertisementMutation();
     const [updateAd, { isLoading: isUpdating }] = useUpdateAdvertisementMutation();
+
     const { hasPermission: canCreateAD } = usePermission('AD_CREATE');
     const { hasPermission: canDeleteAD } = usePermission('AD_EDIT');
     const { hasPermission: canEditAD } = usePermission('AD_EDIT');
-
 
     useEffect(() => {
         if (isError) {
@@ -73,6 +66,7 @@ const AdvertisementTable = () => {
             console.error('Error fetching advertisements:', error);
         }
     }, [isError, error]);
+
 
     const handleSort = (key: SortField) => {
         let direction: SortDirection = 'asc';
@@ -111,12 +105,21 @@ const AdvertisementTable = () => {
         return 0;
     });
 
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+        refetch();
+    }, [currentPage, refetch]);
+
+
     const paginatedAds = sortedAds.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
 
-    const totalPages = Math.ceil(filteredAds.length / itemsPerPage);
 
     const handleFilterChange = (key: keyof typeof filters, value: string) => {
         setFilters(prev => ({
@@ -143,26 +146,7 @@ const AdvertisementTable = () => {
             <ChevronDown className="w-4 h-4" />;
     };
 
-    // Form handlers
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setFormData(prev => ({
-                ...prev,
-                image: e.target.files![0]
-            }));
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (formData: IAdvertisementForm) => {
         try {
             if (currentAd?._id) {
                 await updateAd({
@@ -174,7 +158,6 @@ const AdvertisementTable = () => {
                 await createAd(formData).unwrap();
                 toast.success('تم إنشاء الإعلان بنجاح');
             }
-            resetForm();
             setIsFormOpen(false);
             refetch();
         } catch (error) {
@@ -183,46 +166,23 @@ const AdvertisementTable = () => {
         }
     };
 
-    const resetForm = () => {
-        setCurrentAd(null);
-        setFormData({
-            title: '',
-            type: 'general',
-            content: '',
-            image: null,
-            status: "pending" 
-        });
-    };
-
     const handleEdit = (ad: IAdvertisement) => {
         setCurrentAd(ad);
-        setFormData({
-            title: ad.title,
-            type: ad.type,
-            content: ad.content,
-            image: null,
-            status: "pending" 
-        });
         setIsFormOpen(true);
     };
 
     const handleDelete = async (id: string) => {
-        if (window.confirm('هل أنت متأكد من حذف هذا الإعلان؟')) {
-            try {
-                await deleteAd(id).unwrap();
-                toast.success('تم حذف الإعلان بنجاح');
-                refetch();
-            } catch (error) {
-                console.error('Failed to delete advertisement:', error);
-                toast.error('فشل في حذف الإعلان. يرجى المحاولة مرة أخرى.');
-            }
+        try {
+            await deleteAd(id).unwrap();
+            toast.success('تم حذف الإعلان بنجاح');
+            setIsDeleteModalOpen(false)
+            refetch();
+        } catch (error) {
+            console.error('Failed to delete advertisement:', error);
+            toast.error('فشل في حذف الإعلان. يرجى المحاولة مرة أخرى.');
         }
     };
 
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
 
     return (
         <div className="relative flex flex-col w-full h-full text-primary bg-white rounded-xl shadow-sm">
@@ -259,17 +219,18 @@ const AdvertisementTable = () => {
                             </svg>
                             {isFilterOpen ? 'إغلاق الفلاتر' : 'تصفية النتائج'}
                         </button>
-                        {
-                            canCreateAD && (
-                                <button
-                                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors"
-                                    onClick={() => setIsFormOpen(true)}
-                                >
-                                    <Plus className="h-5 w-5" />
-                                    إضافة إعلان جديد
-                                </button>
-                            )
-                        }
+                        {canCreateAD && (
+                            <button
+                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors"
+                                onClick={() => {
+                                    setCurrentAd(null);
+                                    setIsFormOpen(true);
+                                }}
+                            >
+                                <Plus className="h-5 w-5" />
+                                إضافة إعلان جديد
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -305,7 +266,7 @@ const AdvertisementTable = () => {
                                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
                                 >
                                     <option value="all">الكل</option>
-                                    <option value="accept">مفعل</option>
+                                    <option value="accept">مقبول</option>
                                     <option value="reject">مرفوض</option>
                                     <option value="pending">قيد الانتظار</option>
                                 </select>
@@ -328,6 +289,7 @@ const AdvertisementTable = () => {
                     <table className="min-w-full divide-y divide-slate-200">
                         <thead className="bg-slate-50">
                             <tr>
+                                <th></th>
                                 <th
                                     scope="col"
                                     className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
@@ -346,6 +308,16 @@ const AdvertisementTable = () => {
                                     <div className="flex items-center justify-center gap-1">
                                         النوع
                                         {getSortIcon('type')}
+                                    </div>
+                                </th>
+                                <th
+                                    scope="col"
+                                    className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
+                                    onClick={() => handleSort('status')}
+                                >
+                                    <div className="flex items-center justify-center gap-1">
+                                        الحالة
+                                        {getSortIcon('status')}
                                     </div>
                                 </th>
                                 <th
@@ -371,7 +343,7 @@ const AdvertisementTable = () => {
                         <tbody className="bg-white divide-y divide-slate-200">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-4 text-center">
+                                    <td colSpan={6} className="px-6 py-4 text-center">
                                         <div className="flex justify-center">
                                             <Loader2 className="animate-spin h-8 w-8 text-primary" />
                                         </div>
@@ -379,7 +351,7 @@ const AdvertisementTable = () => {
                                 </tr>
                             ) : isError ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-4 text-center text-red-500">
+                                    <td colSpan={6} className="px-6 py-4 text-center text-red-500">
                                         حدث خطأ أثناء تحميل البيانات
                                     </td>
                                 </tr>
@@ -387,20 +359,24 @@ const AdvertisementTable = () => {
                                 paginatedAds.map((ad) => (
                                     <tr key={ad._id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="w-10 h-10 mx-auto">
+                                                <img src={ad.image} className='w-full h-full rounded-md' alt={ad.title} />
+                                            </div>
+                                        </td>
+
+                                        <td className="px-2 py-4 whitespace-nowrap">
                                             <div className="text-center font-medium text-slate-900">
                                                 {ad.title}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex justify-center">
-                                                <span className={`px-2 py-1 text-xs font-semibold rounded-md ${ad.type === 'important' ? 'bg-red-100 text-red-800' :
-                                                    ad.type === 'general' ? 'bg-blue-100 text-blue-800' :
-                                                        'bg-green-100 text-green-800'
-                                                    }`}>
-                                                    {ad.type === 'important' ? 'مهم' :
-                                                        ad.type === 'general' ? 'عام' :
-                                                            'اجتماعي'}
-                                                </span>
+                                                <AdvertisementTypeBadge type={ad.type} />
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex justify-center">
+                                                <AdvertisementStatusBadge status={ad.status} />
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -416,30 +392,27 @@ const AdvertisementTable = () => {
                                         {(canEditAD || canDeleteAD) && (
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                                                 <div className="flex justify-center space-x-2 gap-2">
-                                                    {
-                                                        canEditAD && (
-                                                            <button
-                                                                onClick={() => handleEdit(ad)}
-                                                                className="text-slate-600 hover:text-primary transition-colors"
-                                                                title="تعديل"
-                                                            >
-                                                                <Edit className="h-5 w-5" />
-                                                            </button>
-
-                                                        )
-                                                    }
-                                                    {
-                                                        canDeleteAD && (
-                                                            <button
-                                                                onClick={() => handleDelete(ad._id)}
-                                                                className="text-red-700 hover:text-red-800 transition-colors"
-                                                                title="حذف"
-                                                            >
-                                                                <Trash2 className="h-5 w-5" />
-                                                            </button>
-                                                        )
-                                                    }
-
+                                                    {canEditAD && (
+                                                        <button
+                                                            onClick={() => handleEdit(ad)}
+                                                            className="text-slate-600 hover:text-primary transition-colors"
+                                                            title="تعديل"
+                                                        >
+                                                            <Edit className="h-5 w-5" />
+                                                        </button>
+                                                    )}
+                                                    {canDeleteAD && (
+                                                        <button
+                                                            onClick={() => {
+                                                                setCurrentAd(ad);
+                                                                setIsDeleteModalOpen(true);
+                                                            }}
+                                                            className="text-red-700 hover:text-red-800 transition-colors"
+                                                            title="حذف"
+                                                        >
+                                                            <Trash2 className="h-5 w-5" />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         )}
@@ -447,7 +420,7 @@ const AdvertisementTable = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-4 text-center text-slate-500">
+                                    <td colSpan={6} className="px-6 py-4 text-center text-slate-500">
                                         لا توجد إعلانات متاحة
                                     </td>
                                 </tr>
@@ -455,20 +428,22 @@ const AdvertisementTable = () => {
                         </tbody>
                     </table>
                 </div>
+
+
                 {/* Pagination */}
                 <div className="flex items-center justify-between mt-4 mb-16 px-2">
                     <div className="text-sm text-slate-500">
                         عرض <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> إلى{' '}
                         <span className="font-medium">
-                            {Math.min(currentPage * itemsPerPage, filteredAds.length)}
+                            {Math.min(currentPage * itemsPerPage, data?.pagination?.totalAdvertisements || 0)}
                         </span>{' '}
-                        من <span className="font-medium">{filteredAds.length}</span> نتائج
+                        من <span className="font-medium">{data?.pagination?.totalAdvertisements || 0}</span> نتائج
                     </div>
                     <div className="flex space-x-2">
                         <button
                             onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                             disabled={currentPage === 1}
-                            className={`px-3 py-1 rounded-md  mx-2 ${currentPage === 1
+                            className={`px-3 py-1 rounded-md mx-2 ${currentPage === 1
                                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                                 : 'bg-primary text-white hover:bg-primary/90'
                                 }`}
@@ -476,33 +451,92 @@ const AdvertisementTable = () => {
                             السابق
                         </button>
 
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                            <button
-                                key={page}
-                                onClick={() => handlePageChange(page)}
-                                className={`px-3 py-1 rounded-md ${currentPage === page
-                                    ? 'bg-primary text-white'
-                                    : 'bg-white text-primary hover:bg-primary/10 border border-primary'
-                                    }`}
-                            >
-                                {page}
-                            </button>
-                        ))}
+                        {Array.from(
+                            { length: Math.min(5, data?.pagination?.totalPages || 1) },
+                            (_, i) => {
+                                const totalPages = data?.pagination?.totalPages || 1;
+                                let pageNum;
+
+                                if (totalPages <= 5) {
+                                    pageNum = i + 1;
+                                } else if (currentPage <= 3) {
+                                    pageNum = i + 1;
+                                } else if (currentPage >= totalPages - 2) {
+                                    pageNum = totalPages - 4 + i;
+                                } else {
+                                    pageNum = currentPage - 2 + i;
+                                }
+
+                                return (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => handlePageChange(pageNum)}
+                                        className={`px-3 py-1 rounded-md ${currentPage === pageNum
+                                            ? 'bg-primary text-white'
+                                            : 'bg-white text-primary hover:bg-primary/10 border border-primary'
+                                            }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                );
+                            }
+                        )}
 
                         <button
-                            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                            disabled={currentPage === totalPages}
-                            className={`px-3 py-1 rounded-md ${currentPage === totalPages
-                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                : 'bg-primary text-white hover:bg-primary/90'
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage >= (data?.pagination?.totalPages || 1)}
+                            className={`px-3 py-1 rounded-md ${currentPage >= (data?.pagination?.totalPages || 1)
+                                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                : "bg-primary text-white hover:bg-primary/90"
                                 }`}
                         >
                             التالي
                         </button>
                     </div>
                 </div>
+
                 {/* Advertisement Form Modal */}
-                <AnimatePresence>
+                {
+                    canDeleteAD && (
+                        <Modal
+                            isOpen={isDeleteModalOpen}
+                            onClose={() => setIsDeleteModalOpen(false)}
+                            title="حذف الإعلان"
+                            type='delete'
+                            onConfirm={() => {
+                                if (currentAd) {
+                                    handleDelete(currentAd._id);
+                                }
+                            }}
+                        >
+                            <div className="space-y-4">
+                                <div className="flex gap-3 items-start">
+                                    <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-red-100 rounded-full mt-1">
+                                        <svg
+                                            className="w-6 h-6 text-red-600"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-gray-800">هل أنت متأكد من حذف الإعلان؟</p>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            سيتم حذف الإعلان بشكل دائم ولا يمكن استعادته.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </Modal>
+                    )
+                }                <AnimatePresence>
                     {isFormOpen && (
                         <Modal
                             title={currentAd?._id ? 'تعديل الإعلان' : 'إنشاء إعلان جديد'}
@@ -518,91 +552,12 @@ const AdvertisementTable = () => {
                                 className="rounded-lg w-full"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                <form onSubmit={handleSubmit}>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">العنوان</label>
-                                            <input
-                                                type="text"
-                                                name="title"
-                                                value={formData.title}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                required
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">النوع</label>
-                                            <select
-                                                name="type"
-                                                value={formData.type}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                required
-                                            >
-                                                <option value="">اختر النوع</option>
-                                                <option value="important">مهم</option>
-                                                <option value="general">عام</option>
-                                                <option value="social">اجتماعي</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">المحتوى</label>
-                                        <textarea
-                                            name="content"
-                                            value={formData.content}
-                                            onChange={handleInputChange}
-                                            rows={4}
-                                            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="mb-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">الصورة</label>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleFileChange}
-                                            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        />
-                                        {currentAd?.image && !formData.image && (
-                                            <div className="mt-2">
-                                                <p className="text-sm text-gray-500">الصورة الحالية: {currentAd.image}</p>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex justify-end gap-3">
-                                        <button
-                                            type="button"
-                                            onClick={() => setIsFormOpen(false)}
-                                            className="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100"
-                                        >
-                                            إلغاء
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            className="flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
-                                            disabled={isCreating || isUpdating}
-                                        >
-                                            {(isCreating || isUpdating) ? (
-                                                <>
-                                                    <Loader2 className="animate-spin mx-2" size={18} />
-                                                    جاري الحفظ...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Check className="mr-2" size={18} />
-                                                    حفظ
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
-                                </form>
+                                <AdvertisementForm
+                                    currentAd={currentAd}
+                                    onSubmit={handleSubmit}
+                                    onCancel={() => setIsFormOpen(false)}
+                                    isLoading={isCreating || isUpdating}
+                                />
                             </motion.div>
                         </Modal>
                     )}

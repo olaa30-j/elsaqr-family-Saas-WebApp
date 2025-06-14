@@ -1,4 +1,4 @@
-import { AlertOctagon, BellRingIcon, Lightbulb, Trophy } from 'lucide-react';
+import { BellRingIcon } from 'lucide-react';
 import type { IAdvertisement } from '../../../../types/advertisement';
 import { Link } from 'react-router-dom';
 
@@ -8,18 +8,6 @@ interface IAdsCard {
 }
 
 const AdCard = ({ ad, size = 'small' }: IAdsCard) => {
-  const getIcon = () => {
-    switch (ad.type) {
-      case 'photography':
-        return <AlertOctagon className="text-primary" />;
-      case 'idea':
-        return <Lightbulb className="text-primary" />;
-      case 'achievement':
-        return <Trophy className="text-primary" />;
-      default:
-        return <BellRingIcon className="text-primary" />;
-    }
-  };
 
   if (size === 'large') {
     return (
@@ -34,7 +22,7 @@ const AdCard = ({ ad, size = 'small' }: IAdsCard) => {
           )}
           <div className="absolute bottom-0 left-0 right-0 p-6 bg-black bg-opacity-50 text-white rounded-b-lg">
             <div className="w-10 h-10 mb-3 flex items-center justify-center bg-white rounded-lg">
-              {getIcon()}
+               <BellRingIcon className="text-primary" />
             </div>
             <h5 className="text-lg font-bold text-white text-right">{ad.title}</h5>
             <p className="text-sm opacity-80 text-right mt-2">{ad.content}</p>

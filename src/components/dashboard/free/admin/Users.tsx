@@ -1,13 +1,29 @@
+import { useState } from "react";
 import { useGetUsersQuery } from "../../../../store/api/usersApi";
 import UsersTable from "../users/UsersTable";
 
 const Users = () => {
-    const { data: usersData, error } = useGetUsersQuery({
-        page: 1,
-        limit: 10
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+
+    const { 
+        data: usersData, 
+        error, 
+        isLoading,
+        refetch 
+    } = useGetUsersQuery({ 
+        page, 
+        limit 
     });
 
-    const users = usersData?.data    
+    const handlePageChange = (newPage: number) => {
+        setPage(newPage);
+    };
+
+    const handleLimitChange = (newLimit: number) => {
+        setLimit(newLimit);
+        setPage(1);
+    };
 
     if (error) {
         return <div>خطأ فى استدعاء المستخدمين</div>;
@@ -15,9 +31,18 @@ const Users = () => {
 
     return (
         <div>
-            <UsersTable currentPage={1} itemsPerPage={10} usersData={users}/>
+            <UsersTable 
+                currentPage={page}
+                itemsPerPage={limit}
+                usersData={usersData?.data || []}
+                pagination={usersData?.pagination}
+                onPageChange={handlePageChange}
+                onLimitChange={handleLimitChange}
+                isLoading={isLoading}
+                refetchUsers={refetch}
+            />
         </div>
     )
 }
 
-export default Users
+export default Users;

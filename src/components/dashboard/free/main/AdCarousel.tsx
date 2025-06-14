@@ -9,7 +9,8 @@ interface IAdCarousel{
 
 const AdCarousel = ({ ads }:IAdCarousel) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+    const acceptedAds = ads.filter(ad => ad.status === "accept");
+
   useEffect(() => {
     const interval = setInterval(() => {
       goToNext();
@@ -19,24 +20,24 @@ const AdCarousel = ({ ads }:IAdCarousel) => {
 
   const goToPrev = () => {
     setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? ads.length - 1 : prevIndex - 1
+      prevIndex === 0 ? acceptedAds.length - 1 : prevIndex - 1
     );
   };
 
   const goToNext = () => {
     setCurrentIndex((prevIndex) => 
-      prevIndex === ads.length - 1 ? 0 : prevIndex + 1
+      prevIndex === acceptedAds.length - 1 ? 0 : prevIndex + 1
     );
   };
 
-  if (!ads || ads.length === 0) {
+  if (!acceptedAds || acceptedAds.length === 0) {
     return <div className="text-center py-10">لا توجد إعلانات متاحة</div>;
   }
 
   return (
     <div className="w-full max-w-full px-3 lg:w-11/12 mx-auto">
       <div className="relative w-full h-96 overflow-hidden rounded-2xl">
-        <AdGrid ads={ads} currentIndex={currentIndex} />
+        <AdGrid ads={acceptedAds} currentIndex={currentIndex} />
 
         {/* Navigation Controls */}
         <div className="absolute inset-0 flex items-center justify-between px-4">
@@ -56,7 +57,7 @@ const AdCarousel = ({ ads }:IAdCarousel) => {
         
         {/* Indicators */}
         <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-          {ads.map((_: any, index:number) => (
+          {acceptedAds.map((_: any, index:number) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}

@@ -10,7 +10,8 @@ export const memberApi = baseApi.injectEndpoints({
                 totalPages: number;
                 currentPage: number;
                 pageSize: number;
-            }
+            };
+            showPagination: boolean; 
         }, {
             page?: number;
             limit?: number;
@@ -25,6 +26,21 @@ export const memberApi = baseApi.injectEndpoints({
                     url,
                     method: 'GET',
                     credentials: 'include'
+                };
+            },
+            transformResponse: (response: {
+                data: Member[];
+                pagination: {
+                    totalMembers: number;
+                    totalPages: number;
+                    currentPage: number;
+                    pageSize: number;
+                }
+            }) => {
+                const showPagination = response.pagination.totalPages > 1;
+                return {
+                    ...response,
+                    showPagination,
                 };
             },
             providesTags: (result) =>
@@ -88,7 +104,7 @@ export const memberApi = baseApi.injectEndpoints({
             ],
         }),
 
-        getMembersByBranchAndRelationship: build.query<MemberProps[], { familyBranch: string; relationship: string}>({
+        getMembersByBranchAndRelationship: build.query<MemberProps[], { familyBranch: string; relationship: string }>({
             query: ({ familyBranch, relationship }) => {
                 const params = new URLSearchParams();
                 params.append('familyBranch', familyBranch);
