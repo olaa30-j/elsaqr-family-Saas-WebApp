@@ -28,6 +28,8 @@ const MemberForm: React.FC<MemberFormProps> = ({
     onCancel,
     isEditing = false,
 }) => {
+    console.log(defaultValues);
+
     const [familyBranch, setFamilyBranch] = useState<FamilyBranchType | ''>(defaultValues?.familyBranch || "");
     const [filteredMembers, setFilteredMembers] = useState<GetMembers[]>([]);
     const [maleMembers, setMaleMembers] = useState<GetMembers[]>([]);
@@ -70,8 +72,8 @@ const MemberForm: React.FC<MemberFormProps> = ({
             );
 
             const parents = filtered.filter(m => {
-                return !defaultValues?.birthday || !m?.birthday || 
-                       new Date(m.birthday) < new Date(defaultValues.birthday);
+                return !defaultValues?.birthday || !m?.birthday ||
+                    new Date(m.birthday) < new Date(defaultValues.birthday);
             });
 
             setMaleMembers(males);
@@ -79,11 +81,11 @@ const MemberForm: React.FC<MemberFormProps> = ({
             setParentOptions(parents);
 
             if (defaultValues) {
-                const spouseExists = (isEditing && defaultValues.gender === 'ذكر') 
+                const spouseExists = (isEditing && defaultValues.gender === 'ذكر')
                     ? defaultValues.wives?.length > 0
-                    : (defaultValues.gender === 'ذكر' && defaultValues.wives?.length > 0) || 
-                      (defaultValues.gender === 'أنثى' && defaultValues.husband);
-                
+                    : (defaultValues.gender === 'ذكر' && defaultValues.wives?.length > 0) ||
+                    (defaultValues.gender === 'أنثى' && defaultValues.husband);
+
                 const childrenExist = defaultValues.children?.length > 0;
 
                 setHasSpouse(spouseExists);
@@ -101,7 +103,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
 
                 if (key === 'image' && value instanceof File) {
                     formData.append(key, value);
-                } 
+                }
                 else if (Array.isArray(value)) {
                     value.forEach((item, i) => {
                         if (typeof item === 'object' && item._id) {
@@ -146,17 +148,16 @@ const MemberForm: React.FC<MemberFormProps> = ({
         }
     };
 
-    // دالة لاستخراج المعرف من القيمة سواء كانت نصية أو كائن
     const getIdFromValue = (value: any): string => {
         if (!value) return '';
         return typeof value === 'object' ? value._id : value;
     };
 
-    // دالة للتعامل مع تغيير الفرع العائلي
     const handleFamilyBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value as FamilyBranchType | '';
         setFamilyBranch(value);
     };
+
 
     return (
         <BaseForm
@@ -184,7 +185,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                 {/* First Name */}
                                 <div className="space-y-1">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        الاسم الأول <span className="text-red-500">*</span>
+                                        الاسم الاول <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         {...register('fname')}
@@ -220,7 +221,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                                     >
                                         <option value="">اختر الفرع</option>
-                                        {(['الفرع الأول', 'الفرع الثاني', 'الفرع الثالث', 'الفرع الرابع', 'الفرع الخامس'] as FamilyBranchType[]).map(b => (
+                                        {(['الفرع الاول', 'الفرع الثاني', 'الفرع الثالث', 'الفرع الرابع', 'الفرع الخامس'] as FamilyBranchType[]).map(b => (
                                             <option key={b} value={b}>{b}</option>
                                         ))}
                                     </select>
@@ -354,18 +355,36 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                         }
                                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
                                                     >
-                                                        {femaleMembers.map(m => (
-                                                            <option key={m._id} value={m._id}>
-                                                                {m.fname} {m.lname}
-                                                            </option>
-                                                        ))}
+                                                        {femaleMembers.map(m => {
+                                                            const currentWivesIds = new Set(
+                                                                Array.isArray(defaultValues?.wives)
+                                                                    ? defaultValues.wives.map((w: any) => getIdFromValue(w))
+                                                                    : []
+                                                            );
+
+                                                            const isCurrentWife = currentWivesIds.has(m._id);
+
+                                                            return (
+                                                                <option
+                                                                    key={m._id}
+                                                                    value={m._id}
+                                                                    className={isCurrentWife ? "bg-blue-100 font-medium" : ""}
+                                                                    style={isCurrentWife ? { backgroundColor: '#ebf5ff' } : {}}
+                                                                >
+                                                                    {m.fname} {m.lname}
+                                                                    {isCurrentWife && " (زوجة حالية)"}
+                                                                </option>
+                                                            );
+                                                        })}
                                                     </select>
-                                                    <p className="mt-1 text-xs text-gray-500">يمكن اختيار أكثر من زوجة (بحد أقصى 4)</p>
+                                                    <p className="mt-1 text-xs text-gray-500">
+                                                        يمكن اختيار أكثر من زوجة (بحد أقصى 4) - الزوجات الحالية مميزة باللون الأزرق
+                                                    </p>
                                                     {errors.wives && (
                                                         <p className="mt-1 text-sm text-red-600">{errors.wives.message}</p>
                                                     )}
                                                 </div>
-                                            )}
+                                            )}                
                                         </>
                                     )}
 
@@ -463,7 +482,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
                                             >
                                                 {filteredMembers
-                                                    .filter(m => 
+                                                    .filter(m =>
                                                         ['ابن', 'ابنة', 'حفيد', 'حفيدة'].includes(m.familyRelationship)
                                                     )
                                                     .map(m => (
