@@ -10,13 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@balkangraph/orgchart.js": "^8.19.18",
     "@emailjs/browser": "^4.4.1",
     "@hookform/resolvers": "^5.0.1",
     "@react-pdf/renderer": "^4.3.0",
     "@reduxjs/toolkit": "^2.8.2",
+    "@types/d3": "^7.4.3",
     "@types/react-big-calendar": "^1.16.2",
     "axios": "^1.9.0",
     "chart.js": "^4.4.9",
+    "d3": "^7.9.0",
     "date-fns": "^4.1.0",
     "emailjs-com": "^3.2.0",
     "framer-motion": "^12.15.0",

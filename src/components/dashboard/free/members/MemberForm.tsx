@@ -168,7 +168,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
             isEditing={isEditing}
             formTitle={isEditing ? 'تعديل بيانات العضو' : 'إضافة عضو جديد'}
         >
-            {({ register, formState: { errors }, watch }) => {
+            {({ register, formState: { errors }, watch, setValue }) => {
                 const gender = watch('gender');
                 const relationship = watch('familyRelationship');
                 const isMale = gender === 'ذكر';
@@ -366,28 +366,25 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                         disabled={femaleMembers.length === 0}
                                                         value={
                                                             Array.isArray(defaultValues?.wives)
-                                                                ? defaultValues.wives.map((w: any) => getIdFromValue(w))
+                                                                ? defaultValues.wives
+                                                                    .map((w: any) => getIdFromValue(w))
+                                                                    .filter((id: string | undefined): id is string => !!id)
                                                                 : []
                                                         }
                                                         onChange={(e) => {
-                                                            const selected = Array.from(e.target.selectedOptions).map(option => option.value);
-                                                            register('wives').onChange({
-                                                                target: {
-                                                                    value: selected,
-                                                                    name: 'wives'
-                                                                }
-                                                            });
+                                                            const selected = Array.from(e.target.selectedOptions, option => option.value);
+                                                            setValue('wives', selected);
                                                         }}
                                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
                                                     >
                                                         {femaleMembers.map(m => {
-                                                            const currentWivesIds = new Set(
-                                                                Array.isArray(defaultValues?.wives)
-                                                                    ? defaultValues.wives.map((w: any) => getIdFromValue(w))
-                                                                    : []
-                                                            );
+                                                            const currentWives = Array.isArray(defaultValues?.wives)
+                                                                ? defaultValues.wives
+                                                                    .map((w: any) => getIdFromValue(w))
+                                                                    .filter((id: string | undefined): id is string => !!id)
+                                                                : [];
 
-                                                            const isCurrentWife = currentWivesIds.has(m._id);
+                                                            const isCurrentWife = currentWives.includes(m._id);
 
                                                             return (
                                                                 <option
@@ -405,8 +402,38 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                             );
                                                         })}
                                                     </select>
+
+                                                    {/* عرض الزوجات المختارة */}
+                                                    <div className="flex flex-wrap gap-2 mt-2">
+                                                        {(Array.isArray(defaultValues?.wives)
+                                                            ? defaultValues.wives
+                                                                .map((w: any) => {
+                                                                    const id = getIdFromValue(w);
+                                                                    const wife = femaleMembers.find(m => m._id === id);
+                                                                    return wife ? { id, name: `${wife.fname} ${wife.lname}` } : null;
+                                                                })
+                                                                .filter(Boolean)
+                                                            : []).map((wife: { id: string; name: string }) => (
+                                                                <div key={wife.id} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm flex items-center">
+                                                                    {wife.name}
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const newWives = (Array.isArray(defaultValues?.wives)
+                                                                                ? defaultValues.wives.filter((w: any) => getIdFromValue(w) !== wife.id)
+                                                                                : []);
+                                                                            setValue('wives', newWives);
+                                                                        }}
+                                                                        className="mr-1 text-blue-600 hover:text-blue-800"
+                                                                    >
+                                                                        &times;
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                    </div>
+
                                                     <p className="mt-1 text-xs text-gray-500">
-                                                        يمكن اختيار أكثر من زوجة (بحد أقصى 4) - الزوجات الحالية مميزة باللون الأزرق
+                                                        يمكن اختيار أكثر من زوجة (بحد أقصى 4) - اضغط على (Ctrl + Click) لتحديد أكثر من زوجة
                                                     </p>
                                                     {errors.wives && (
                                                         <p className="mt-1 text-sm text-red-600">{errors.wives.message}</p>
@@ -415,7 +442,6 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                             )}
                                         </>
                                     )}
-
                                     {/* Parents (for children) */}
                                     {(isChild || isGrandChild) && (
                                         <>

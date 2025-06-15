@@ -19,16 +19,13 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
     const members = membersData?.data || [];
 
     const familyTree = useMemo(() => {
-        // العثور على رب الأسرة (الزوج)
-        const husband = members.find(m => {
+        const husband = members.find(m =>
             m.familyRelationship === 'زوج' &&
-                (m.isFamilyHead || !members.some(m2 => m2.parents?.father === m._id))
-                || members.find(m => m.familyRelationship === 'زوج');
-        })
+            (!m.parents?.father && !m.parents?.mother)
+        );
 
         if (!husband) return null;
 
-        // فرز الأبناء حسب النوع (ذكر أولاً)
         const sortChildren = (children: GetMembers[]) => {
             return children.sort((a, b) => {
                 if (a.gender === 'ذكر' && b.gender !== 'ذكر') return -1;
@@ -37,27 +34,18 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
             });
         };
 
-        // العثور على الزوجات والأبناء والأحفاد
+        // الزوجات المرتبطة بهذا الزوج
         const wives = members.filter(m =>
             m.familyRelationship === 'زوجة' &&
-            m.husband === husband._id);
+            m.husband?._id === husband._id);
 
-        const children = sortChildren(members.filter(m =>
-            (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') &&
-            m.parents?.father === husband._id));
-
-        // العثور على الأحفاد (أبناء الأبناء)
-        const grandchildren = members.filter(m =>
-            m.familyRelationship === 'حفيد' &&
-            members.some(child =>
-                child._id === m.parents?.father &&
-                child.parents?.father === husband._id));
+        const children = sortChildren(
+            members.filter(m => (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') && m.parents?.father === husband._id));
 
         return {
             husband,
             wives,
-            children,
-            grandchildren
+            children
         };
     }, [members]);
 
@@ -67,20 +55,20 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         return isNaN(d.getTime()) ? 'غير معروف' : d.toLocaleDateString('ar-EG');
     };
 
-const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
-    let gender: Gender = 'ذكر';  
-    
-    if ('gender' in member && member.gender) {
-        gender = member.gender;
-    } else {
-        gender = (member.familyRelationship === 'ابن' || member.familyRelationship === 'زوج') 
-            ? 'ذكر' 
-            : 'أنثى';
-    }
+    const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
+        let gender: Gender = 'ذكر';
+
+        if ('gender' in member && member.gender) {
+            gender = member.gender;
+        } else {
+            gender = (member.familyRelationship === 'ابن' || member.familyRelationship === 'زوج')
+                ? 'ذكر'
+                : 'أنثى';
+        }
 
         return (
-            <div className="flex flex-col items-center min-w-[120px] max-w-[150px] mx-2">
-                <div className="w-full h-48 bg-gray-200 mb-2 overflow-hidden flex items-center justify-center border border-gray-300">
+            <div className="flex flex-col items-center min-w-[120px] max-w-[150px] mx-2 relative">
+                <div className="w-full h-48 bg-gray-200 mb-2 overflow-hidden flex items-center justify-center border border-gray-300 rounded-md">
                     {member.image ? (
                         <img
                             src={member.image || DEFAULT_IMAGE}
@@ -88,17 +76,17 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
                             className="w-full h-full object-cover"
                         />
                     ) : (
-                        <div className="text-gray-400 text-2xl">
+                        <div className="text-gray-400 text-4xl">
                             {gender === 'ذكر' ? '👨' : '👩'}
                         </div>
                     )}
                 </div>
 
-                <div className="text-center">
-                    <p className="font-medium text-gray-700 text-sm leading-tight">
-                        {member.fname} {member.lname} <span className="text-xs text-gray-400">({role})</span>
+                <div className="text-center w-full">
+                    <p className="font-medium text-gray-700 text-sm leading-tight truncate">
+                        {member.fname} {member.lname}
                     </p>
-
+                    <p className="text-xs text-gray-400">({role})</p>
                     <div className="text-xs text-gray-500 mt-1">
                         <p>{formatDate(member.birthday)}</p>
                         {member.deathDate && (
@@ -113,13 +101,21 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
     const familyStats = useMemo(() => {
         if (!familyTree) return null;
 
+        const grandChildren = familyTree.children.reduce((acc, child) => {
+            const childrenOfChild = members.filter(m =>
+                (m.parents?.father === child._id || m.parents?.mother === child._id)
+            );
+            return acc + childrenOfChild.length;
+        }, 0);
+
+
         return {
             wives: familyTree.wives.length,
             sons: familyTree.children.filter(c => c.gender === 'ذكر').length,
             daughters: familyTree.children.filter(c => c.gender === 'أنثى').length,
-            grandChildren: familyTree.grandchildren.length
+            grandChildren
         };
-    }, [familyTree]);
+    }, [familyTree, members]);
 
     const renderAddButton = (text: string, onClick?: () => void) => {
         return (
@@ -130,55 +126,71 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
             >
                 <div className="flex flex-col items-center">
                     <div className="w-10 h-10 rounded-full bg-gray-200 mb-1 overflow-hidden flex items-center justify-center">
-                        <div className="text-gray-400 text-xl">
-                            <Plus className='w-5 h-5' />
-                        </div>
+                        <Plus className="w-5 h-5 text-gray-400" />
                     </div>
-                    <div className="text-center">
-                        <p className="font-medium text-gray-700 text-sm">{text}</p>
-                    </div>
+                    <p className="font-medium text-gray-700 text-sm">{text}</p>
                 </div>
             </motion.div>
         );
     };
 
-    const renderConnectionLine = (isFirstChild = false, isLastChild = false) => {
-        return (
-            <div className="absolute top-0 left-0 right-0 h-10 flex justify-center pointer-events-none">
-                {/* الخط العمودي الرئيسي */}
-                <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-8" />
+    const renderConnectionLine = (type: 'parent' | 'sibling' | 'spouse', position?: 'first' | 'last' | 'middle') => {
+        const baseClass = "absolute pointer-events-none border-gray-400";
 
-                {/* الخط الأفقي */}
-                {(!isFirstChild || !isLastChild) && (
-                    <div
-                        className={`absolute top-0 h-0 border-t-2 border-gray-300
-                        ${isLastChild ? 'left-1/2 right-0' : ''}
-                        ${isFirstChild ? 'left-0 right-1/2' : ''}
-                        ${!isFirstChild && !isLastChild ? 'left-0 right-0' : ''}`}
-                    />
-                )}
-            </div>
-        );
+        if (type === 'parent') {
+            return (
+                <div className={`${baseClass} top-0 left-1/2 w-0 h-6 border-l-2 border-dashed transform -translate-x-1/2`} />
+            );
+        }
+
+        if (type === 'spouse') {
+            return (
+                <div className={`${baseClass} bottom-0 left-1/2 w-0 h-6 border-l-2 border-dashed transform -translate-x-1/2`} />
+            );
+        }
+
+        if (type === 'sibling') {
+            return (
+                <>
+                    <div className={`${baseClass} top-0 left-1/2 w-0 h-6 border-l-2 border-dashed transform -translate-x-1/2`} />
+                    <div className={`${baseClass} top-0 h-0 border-t-2 border-dashed ${position === 'first' ? 'right-1/2 left-0' :
+                        position === 'last' ? 'right-0 left-1/2' :
+                            'left-0 right-0'
+                        }`} />
+                </>
+            );
+        }
+
+        return null;
     };
 
-    const renderChildren = (parentId: string) => {
+    const renderChildren = (parentId: string, motherId?: string) => {
         const children = members.filter(m =>
             (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') &&
-            m.parents?.father?._id === parentId);
+            m.parents?.father === parentId &&
+            (!motherId || m.parents?.mother === motherId));
 
         const sons = children.filter(child => child.gender === 'ذكر');
         const daughters = children.filter(child => child.gender === 'أنثى');
 
-        return (
-            <div className="relative pt-6">
-                {children.length > 0 && (
-                    <div className="absolute top-0 left-0 right-0 h-6 flex justify-center pointer-events-none">
-                        <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2" />
+        if (children.length === 0) {
+            return (
+                <div className="relative pt-6 family-connector">
+                    <div className="absolute top-0 left-0 right-0 h-6 flex justify-center">
+                        {renderConnectionLine('parent')}
                     </div>
-                )}
+                    {renderAddButton('إضافة ابن/ابنة')}
+                </div>
+            );
+        }
+
+        return (
+            <div className="relative pt-6 family-connector">
+                <div className="absolute top-0 left-0 right-0 h-6 flex justify-center">
+                    {renderConnectionLine('parent')}
+                </div>
 
                 <ul className="flex justify-center">
-                    {/* عرض البنات أولاً */}
                     {daughters.map((daughter, index) => (
                         <motion.li
                             key={daughter._id}
@@ -187,7 +199,13 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
                             transition={{ duration: 0.5 }}
                             className="relative px-2"
                         >
-                            {renderConnectionLine(index === 0 && sons.length === 0, index === daughters.length - 1 && sons.length === 0)}
+                            <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
+                                {renderConnectionLine('sibling',
+                                    index === 0 && sons.length === 0 ? 'first' :
+                                        index === daughters.length - 1 && sons.length === 0 ? 'last' :
+                                            'middle'
+                                )}
+                            </div>
 
                             <div className="pt-6">
                                 <motion.div
@@ -196,13 +214,13 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
                                 >
                                     {renderMemberCard(daughter, 'ابنة')}
                                 </motion.div>
-
-                                {renderGrandChildren(daughter._id || '')}
                             </div>
+
+                            {/* عرض أحفاد الابنة إذا كان لديها أبناء */}
+                            {daughter._id && renderGrandChildren(daughter._id)}
                         </motion.li>
                     ))}
 
-                    {/* عرض الأبناء */}
                     {sons.map((son, index) => (
                         <motion.li
                             key={son._id}
@@ -211,7 +229,13 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
                             transition={{ duration: 0.5 }}
                             className="relative px-2"
                         >
-                            {renderConnectionLine(index === 0 && daughters.length === 0, index === sons.length - 1)}
+                            <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
+                                {renderConnectionLine('sibling',
+                                    index === 0 && daughters.length === 0 ? 'first' :
+                                        index === sons.length - 1 ? 'last' :
+                                            'middle'
+                                )}
+                            </div>
 
                             <div className="pt-6">
                                 <motion.div
@@ -220,28 +244,12 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
                                 >
                                     {renderMemberCard(son, 'ابن')}
                                 </motion.div>
-
-                                {renderGrandChildren(son._id || '')}
                             </div>
+
+                            {/* عرض أحفاد الابن إذا كان لديه أبناء */}
+                            {son._id && renderGrandChildren(son._id)}
                         </motion.li>
                     ))}
-
-                    {/* زر إضافة ابن إذا لم يكن هناك أبناء */}
-                    {children.length === 0 && (
-                        <motion.li
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="relative px-2"
-                        >
-                            <div className="absolute -top-10 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
-                                <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-5" />
-                            </div>
-                            <div className="pt-6">
-                                {renderAddButton('إضافة ابن/ابنة')}
-                            </div>
-                        </motion.li>
-                    )}
                 </ul>
             </div>
         );
@@ -249,57 +257,45 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
 
     const renderGrandChildren = (parentId: string) => {
         const grandChildren = members.filter(m =>
-            m.familyRelationship === 'حفيد' &&
-            members.some(child =>
-                child._id === m.parents?.father &&
-                child.parents?.father?._id === parentId));
+            (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') &&
+            (m.parents?.father === parentId || m.parents?.mother === parentId));
+
+        if (grandChildren.length === 0) return null;
 
         return (
             <div className="relative pt-6">
-                {grandChildren.length > 0 && (
-                    <div className="absolute -top-5 left-0 right-0 h-10 flex justify-center pointer-events-none">
-                        <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2" />
-                    </div>
-                )}
-                <ul className="flex justify-center">
+                {/* <div className="absolute top-0 left-0 right-0 h-6 flex justify-center">
+                    {renderConnectionLine('parent')}
+                </div> */}
+
+                {/* <ul className="flex justify-center flex-wrap gap-2">
                     {grandChildren.map((grandChild, index) => (
                         <motion.li
                             key={grandChild._id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="relative px-2"
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            className="relative px-1"
                         >
-                            {renderConnectionLine(index === 0, index === grandChildren.length - 1)}
+                            <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
+                                {renderConnectionLine('sibling',
+                                    index === 0 ? 'first' :
+                                        index === grandChildren.length - 1 ? 'last' :
+                                            'middle'
+                                )}
+                            </div>
 
                             <div className="pt-6">
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
-                                    className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-green-50"
+                                    className="border border-gray-300 px-2 py-1 bg-white rounded-md transition-all duration-300 hover:bg-green-50"
                                 >
-                                    {renderMemberCard(grandChild, 'حفيد')}
+                                    {renderMemberCard(grandChild, grandChild.familyRelationship === 'ابن' ? 'حفيد' : 'حفيدة')}
                                 </motion.div>
                             </div>
                         </motion.li>
                     ))}
-
-                    {/* زر إضافة حفيد إذا لم يكن هناك أحفاد */}
-                    {grandChildren.length === 0 && (
-                        <motion.li
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="relative px-2"
-                        >
-                            <div className="absolute -top-10 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
-                                <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-5" />
-                            </div>
-                            <div className="pt-6">
-                                {renderAddButton('إضافة حفيد')}
-                            </div>
-                        </motion.li>
-                    )}
-                </ul>
+                </ul> */}
             </div>
         );
     };
@@ -308,6 +304,7 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
         return (
             <div className="text-center py-4 text-gray-500">
                 <p>لا يوجد بيانات للعائلة في هذا الفرع</p>
+                {renderAddButton('إضافة رب الأسرة')}
             </div>
         );
     }
@@ -405,15 +402,15 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
                                         {/* Husband */}
                                         <motion.li
                                             key={familyTree.husband._id}
-                                            className="text-center list-none relative"
+                                            className="text-center list-none relative family-connector"
                                         >
                                             <motion.div
                                                 whileHover={{ scale: 1.05 }}
                                                 className="border border-gray-300 bg-white rounded-md mx-auto w-fit p-4 relative"
                                             >
                                                 {renderMemberCard(familyTree.husband, 'زوج')}
-                                                <div className="absolute -bottom-20 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
-                                                    <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-5" />
+                                                <div className="absolute -bottom-3 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
+                                                    {renderConnectionLine('spouse')}
                                                 </div>
                                             </motion.div>
 
@@ -421,18 +418,23 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
                                             <div className="relative pt-6">
                                                 {familyTree.wives.length > 0 ? (
                                                     <ul className="flex flex-wrap justify-center gap-4">
-                                                        {familyTree.wives.map((wife) => (
-                                                            <motion.li key={wife._id} className="relative">
-                                                                <div className="flex flex-col items-center">
+                                                        {familyTree.wives.map((wife, index) => (
+                                                            <motion.li
+                                                                key={wife._id}
+                                                                className="relative family-connector wife-to-children"
+                                                                initial={{ opacity: 0, x: -20 }}
+                                                                animate={{ opacity: 1, x: 0 }}
+                                                                transition={{ duration: 0.3, delay: index * 0.1 }}
+                                                            >
+                                                                <div className="flex flex-col items-center wives-connector">
                                                                     <motion.div
                                                                         whileHover={{ scale: 1.05 }}
                                                                         className="border border-gray-300 bg-white rounded-md p-4"
                                                                     >
                                                                         {renderMemberCard(wife, 'زوجة')}
                                                                     </motion.div>
-                                                                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-6 border-l-2 border-gray-300" />
-
-                                                                    {renderChildren(wife._id || '')}
+                                                                    {/* عرض أبناء هذه الزوجة مع الزوج */}
+                                                                    {familyTree.husband._id && wife._id && renderChildren(familyTree.husband._id, wife._id)}
                                                                 </div>
                                                             </motion.li>
                                                         ))}
@@ -443,7 +445,6 @@ const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
                                                     </div>
                                                 )}
 
-                                                {renderChildren(familyTree.husband._id || '')}
                                             </div>
                                         </motion.li>
                                     </ul>

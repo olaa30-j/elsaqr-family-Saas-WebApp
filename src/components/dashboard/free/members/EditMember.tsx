@@ -39,7 +39,6 @@ const EditMember = () => {
 
     return (
         <div className="p-4">
-            <h1 className="text-2xl font-bold mb-6">تعديل بيانات العضو</h1>
             <MemberForm
                 defaultValues={defaultValues}
                 isEditing={true}

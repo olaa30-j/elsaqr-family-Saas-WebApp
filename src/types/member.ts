@@ -12,6 +12,7 @@ export type FamilyRelationship =
     | "زوجة"
     | "زوج"
     | "حفيد"
+    | "حفيدة"
     | "أخرى";
 
 
@@ -63,7 +64,11 @@ export interface GetMembers {
             gender: "ذكر" | "أنثى";
             familyBranch: FamilyBranch;
             familyRelationship: FamilyRelationship;
-        };
+            birthday?: Date | string;
+            deathDate?: Date | string;
+            summary?: string;
+            
+        } | string;
         mother?: {
             _id: string;
             userId?: string;
@@ -72,7 +77,7 @@ export interface GetMembers {
             gender: "ذكر" | "أنثى";
             familyBranch: FamilyBranch;
             familyRelationship: FamilyRelationship;
-        };
+        } | string;
     };
     husband?: {
         _id: string;
@@ -161,5 +166,6 @@ export const familyRelationshipOptions = [
     { value: "زوج", label: "زوج" },
     { value: "زوجة", label: "زوجة" },
     { value: "حفيد", label: "حفيد" },
+    { value: "حفيدة", label: "حفيدة" },
     { value: "أخرى", label: "أخرى" },
 ];
