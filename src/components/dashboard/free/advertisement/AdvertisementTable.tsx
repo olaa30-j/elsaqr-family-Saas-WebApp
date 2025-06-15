@@ -115,12 +115,6 @@ const AdvertisementTable = () => {
     }, [currentPage, refetch]);
 
 
-    const paginatedAds = sortedAds.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-
-
     const handleFilterChange = (key: keyof typeof filters, value: string) => {
         setFilters(prev => ({
             ...prev,
@@ -355,8 +349,8 @@ const AdvertisementTable = () => {
                                         حدث خطأ أثناء تحميل البيانات
                                     </td>
                                 </tr>
-                            ) : (paginatedAds.length > 0) ? (
-                                paginatedAds.map((ad) => (
+                            ) : (sortedAds.length > 0) ? (
+                                sortedAds.map((ad) => (
                                     <tr key={ad._id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="w-10 h-10 mx-auto">

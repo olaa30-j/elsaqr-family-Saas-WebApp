@@ -15,9 +15,9 @@ export const AlbumGrid = ({ albums, onCreate, onSelect, onDelete, onEdit }: Albu
   if (albums.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
-        <div className="mb-6 p-4 bg-blue-50 rounded-full">
+        <div className="mb-6 p-4 bg-primary/5 rounded-full w-fit mx-auto">
           <svg
-            className="w-12 h-12 text-blue-500"
+            className="w-12 h-12 text-primary"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

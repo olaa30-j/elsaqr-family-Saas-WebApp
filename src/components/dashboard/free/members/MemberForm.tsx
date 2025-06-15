@@ -1,91 +1,162 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { BaseForm } from '../../../shared/BaseForm';
-import { memberSchema, type MemberFormValues } from '../../../../types/schemas';
+import { memberSchema } from '../../../../types/schemas';
 import { useParams } from 'react-router-dom';
-import { useCreateMemberMutation, useUpdateMemberMutation } from '../../../../store/api/memberApi';
+import {
+    useCreateMemberMutation,
+    useUpdateMemberMutation,
+    useGetMembersQuery
+} from '../../../../store/api/memberApi';
+import type { GetMembers } from '../../../../types/member';
 
-type ErrorWithMessage = {
-    message: string;
-};
-
-type FetchBaseQueryError = {
-    status: number;
-    data: unknown;
-};
-
-function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
-    return typeof error === 'object' && error !== null && 'message' in error;
-}
-
-function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
-    return typeof error === 'object' && error !== null && 'status' in error;
-}
+// تعريف نوع للفرع العائلي
+type FamilyBranchType = "الفرع الخامس" | "الفرع الرابع" | "الفرع الثالث" | "الفرع الثاني" | "الفرع الاول";
 
 interface MemberFormProps {
-    defaultValues?: Partial<MemberFormValues>;
+    memberFormId?: string;
+    defaultValues?: any;
     onSuccess?: () => void;
     onCancel?: () => void;
     isEditing?: boolean;
-    memberFormId?: string;
 }
 
 const MemberForm: React.FC<MemberFormProps> = ({
+    memberFormId,
     defaultValues,
     onSuccess,
     onCancel,
-    memberFormId,
     isEditing = false,
 }) => {
-    const [createMember, { isLoading: isCreating }] = useCreateMemberMutation();
-    const [updateMember, { isLoading: isUpdating }] = useUpdateMemberMutation();
+    const [familyBranch, setFamilyBranch] = useState<FamilyBranchType | ''>(defaultValues?.familyBranch || "");
+    const [filteredMembers, setFilteredMembers] = useState<GetMembers[]>([]);
+    const [maleMembers, setMaleMembers] = useState<GetMembers[]>([]);
+    const [femaleMembers, setFemaleMembers] = useState<GetMembers[]>([]);
+    const [parentOptions, setParentOptions] = useState<GetMembers[]>([]);
+    const [hasSpouse, setHasSpouse] = useState<boolean>(false);
+    const [hasChildren, setHasChildren] = useState<boolean>(false);
+
+    const { data: membersData } = useGetMembersQuery({
+        page: 1,
+        limit: 200,
+        familyBranch: familyBranch || undefined
+    });
 
     let memberID = memberFormId;
     if (!memberID) {
         const { memberId } = useParams<{ memberId: string }>();
-        memberID = memberId
+        memberID = memberId;
     }
 
+    const [createMember] = useCreateMemberMutation();
+    const [updateMember] = useUpdateMemberMutation();
 
-    const handleSubmit = async (data: MemberFormValues) => {
+    useEffect(() => {
+        if (membersData?.data) {
+            const filtered = familyBranch
+                ? membersData.data.filter(m => m.familyBranch === familyBranch)
+                : membersData.data;
+
+            setFilteredMembers(filtered);
+
+            const males = filtered.filter(m =>
+                m.gender === 'ذكر' &&
+                ['زوج', 'ابن', 'حفيد', 'أب'].includes(m.familyRelationship)
+            );
+
+            const females = filtered.filter(m =>
+                m.gender === 'أنثى' &&
+                ['زوجة', 'ابنة', 'أم'].includes(m.familyRelationship)
+            );
+
+            const parents = filtered.filter(m => {
+                return !defaultValues?.birthday || !m?.birthday || 
+                       new Date(m.birthday) < new Date(defaultValues.birthday);
+            });
+
+            setMaleMembers(males);
+            setFemaleMembers(females);
+            setParentOptions(parents);
+
+            if (defaultValues) {
+                const spouseExists = (isEditing && defaultValues.gender === 'ذكر') 
+                    ? defaultValues.wives?.length > 0
+                    : (defaultValues.gender === 'ذكر' && defaultValues.wives?.length > 0) || 
+                      (defaultValues.gender === 'أنثى' && defaultValues.husband);
+                
+                const childrenExist = defaultValues.children?.length > 0;
+
+                setHasSpouse(spouseExists);
+                setHasChildren(childrenExist);
+            }
+        }
+    }, [membersData, familyBranch, defaultValues, isEditing]);
+
+    const handleSubmit = async (data: any) => {
+        parentOptions
         try {
             const formData = new FormData();
+            const prepareData = (key: string, value: any) => {
+                if (value === null || value === undefined || value === '') return;
 
-            Object.entries(data).forEach(([key, value]) => {
                 if (key === 'image' && value instanceof File) {
                     formData.append(key, value);
-                } else if (key === 'wives' && Array.isArray(value)) {
-                    value.forEach((wife, index) => {
-                        formData.append(`wives[${index}]`, wife);
+                } 
+                else if (Array.isArray(value)) {
+                    value.forEach((item, i) => {
+                        if (typeof item === 'object' && item._id) {
+                            formData.append(`${key}[${i}]`, item._id);
+                        } else {
+                            formData.append(`${key}[${i}]`, item);
+                        }
                     });
-                } else if (value !== null && value !== undefined) {
+                }
+                else if (typeof value === 'object' && value._id) {
+                    formData.append(key, value._id);
+                }
+                else {
                     formData.append(key, String(value));
+                }
+            };
+
+            // معالجة حقل parents بشكل خاص
+            if (data.parents) {
+                prepareData('parents[father]', data.parents.father);
+                prepareData('parents[mother]', data.parents.mother);
+            }
+
+            // معالجة بقية الحقول
+            Object.entries(data).forEach(([key, value]) => {
+                if (key !== 'parents' && key !== 'image') {
+                    prepareData(key, value);
                 }
             });
 
             if (isEditing && memberID) {
                 await updateMember({ id: memberID, data: formData }).unwrap();
-                toast.success("تم تحديث بيانات العضو بنجاح");
+                toast.success("تم تحديث العضو بنجاح");
             } else {
                 await createMember(formData).unwrap();
                 toast.success("تم إضافة العضو بنجاح");
             }
 
             onSuccess?.();
-        } catch (error) {
-            if (isFetchBaseQueryError(error)) {
-                const errorData = error.data as { message?: string };
-                toast.error(errorData.message || "حدث خطأ في الخادم");
-            } else if (isErrorWithMessage(error)) {
-                toast.error(error.message);
-            } else {
-                toast.error("حدث خطأ غير معروف");
-            }
-            console.error("تفاصيل الخطأ:", error);
+        } catch (error: any) {
+            toast.error(error.data?.message || "حدث خطأ");
         }
     };
 
+    // دالة لاستخراج المعرف من القيمة سواء كانت نصية أو كائن
+    const getIdFromValue = (value: any): string => {
+        if (!value) return '';
+        return typeof value === 'object' ? value._id : value;
+    };
 
+    // دالة للتعامل مع تغيير الفرع العائلي
+    const handleFamilyBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value as FamilyBranchType | '';
+        setFamilyBranch(value);
+    };
 
     return (
         <BaseForm
@@ -95,206 +166,386 @@ const MemberForm: React.FC<MemberFormProps> = ({
             onCancel={onCancel}
             isEditing={isEditing}
             formTitle={isEditing ? 'تعديل بيانات العضو' : 'إضافة عضو جديد'}
-            formDescription={isEditing ? 'قم بتعديل بيانات العضو' : 'أدخل بيانات العضو الجديد'}
         >
-            {({ register, formState: { errors } }) => {
-                // const gender = watch('gender');
-                // const familyRelationship = watch('familyRelationship');
+            {({ register, formState: { errors }, watch }) => {
+                const gender = watch('gender');
+                const relationship = watch('familyRelationship');
+                const isMale = gender === 'ذكر';
+                const isFemale = gender === 'أنثى';
+                const isChild = ['ابن', 'ابنة'].includes(relationship);
+                const isGrandChild = ['حفيد', 'حفيدة'].includes(relationship);
 
                 return (
-                    <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* الاسم الأول */}
-                            <div className="space-y-2">
-                                <label htmlFor="fname" className="block text-sm font-medium text-gray-700">
-                                    الاسم الأول
-                                </label>
-                                <input
-                                    id="fname"
-                                    type="text"
-                                    {...register('fname')}
-                                    className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    disabled={isUpdating || isCreating}
-                                />
-                                {errors.fname && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.fname.message}</p>
-                                )}
-                            </div>
-
-                            {/* الاسم الأخير */}
-                            <div className="space-y-2">
-                                <label htmlFor="lname" className="block text-sm font-medium text-gray-700">
-                                    الاسم الأخير
-                                </label>
-                                <input
-                                    id="lname"
-                                    type="text"
-                                    {...register('lname')}
-                                    className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    disabled={isUpdating || isCreating}
-                                />
-                                {errors.lname && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.lname.message}</p>
-                                )}
-                            </div>
-
-                            {/* فرع العائلة */}
-                            <div className="space-y-2">
-                                <label htmlFor="familyBranch" className="block text-sm font-medium text-gray-700">
-                                    فرع العائلة
-                                </label>
-                                <select
-                                    id="familyBranch"
-                                    {...register('familyBranch')}
-                                    className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    disabled={isUpdating || isCreating}
-                                >
-                                    <option value="">اختر فرع العائلة</option>
-                                    <option value="الفرع الاول">الفرع الاول</option>
-                                    <option value="الفرع الثاني">الفرع الثاني</option>
-                                    <option value="الفرع الثالث">الفرع الثالث</option>
-                                    <option value="الفرع الرابع">الفرع الرابع</option>
-                                    <option value="الفرع الخامس">الفرع الخامس</option>
-                                </select>
-                                {errors.familyBranch && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.familyBranch.message}</p>
-                                )}
-                            </div>
-
-                            {/* صلة القرابة */}
-                            <div className="space-y-2">
-                                <label htmlFor="familyRelationship" className="block text-sm font-medium text-gray-700">
-                                    صلة القرابة
-                                </label>
-                                <select
-                                    id="familyRelationship"
-                                    {...register('familyRelationship')}
-                                    className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    disabled={isUpdating || isCreating}
-                                >
-                                    <option value="">اختر صلة القرابة</option>
-                                    <option value="ابن">ابن</option>
-                                    <option value="ابنة">ابنة</option>
-                                    <option value="زوج">زوج</option>
-                                    <option value="زوجة">زوجة</option>
-                                    <option value="حفيد">حفيد</option>
-                                    <option value="أخرى">أخرى</option>
-                                </select>
-                                {errors.familyRelationship && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.familyRelationship.message}</p>
-                                )}
-                            </div>
-
-                            {/* الجنس */}
-                            <div className="space-y-2">
-                                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
-                                    الجنس
-                                </label>
-                                <select
-                                    id="gender"
-                                    {...register('gender')}
-                                    className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    disabled={isUpdating || isCreating}
-                                >
-                                    <option value="">اختر الجنس</option>
-                                    <option value="ذكر">ذكر</option>
-                                    <option value="أنثى">أنثى</option>
-                                </select>
-                                {errors.gender && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.gender.message}</p>
-                                )}
-                            </div>
-
-                            {/* الزوج (يظهر فقط إذا كانت الأنثى زوجة) */}
-                            {/* {gender === 'أنثى' && familyRelationship === 'زوجة' && (
-                                <div className="space-y-2">
-                                    <label htmlFor="husband" className="block text-sm font-medium text-gray-700">
-                                        الزوج
+                    <div className="space-y-6">
+                        {/* Basic Information Section */}
+                        <div className="bg-white p-4 rounded-lg shadow">
+                            <h3 className="text-lg font-medium mb-4 border-b pb-2">المعلومات الأساسية</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* First Name */}
+                                <div className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        الاسم الأول <span className="text-red-500">*</span>
                                     </label>
                                     <input
-                                        id="husband"
-                                        type="text"
-                                        {...register('husband')}
-                                        className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        disabled={isUpdating || isCreating}
+                                        {...register('fname')}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                                     />
-                                    {errors.husband && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.husband.message}</p>
+                                    {errors.fname && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.fname.message}</p>
                                     )}
                                 </div>
-                            )} */}
 
-                            {/* الزوجات (يظهر فقط إذا كان الذكر زوج) */}
-                            {/* {gender === 'ذكر' && familyRelationship === 'زوج' && (
-                                <div className="space-y-2">
-                                    <label htmlFor="wives" className="block text-sm font-medium text-gray-700">
-                                        الزوجات (أدخل الأرقام مفصولة بفواصل)
+                                {/* Last Name */}
+                                <div className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        الاسم الأخير <span className="text-red-500">*</span>
                                     </label>
                                     <input
-                                        id="wives"
-                                        type="text"
-                                        {...register('wives')}
-                                        className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        disabled={isUpdating || isCreating}
+                                        {...register('lname')}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                                     />
-                                    {errors.wives && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.wives.message}</p>
+                                    {errors.lname && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.lname.message}</p>
                                     )}
                                 </div>
-                            )}
- */}
-                            {/* تاريخ الميلاد */}
-                            <div className="space-y-2">
-                                <label htmlFor="birthday" className="block text-sm font-medium text-gray-700">
-                                    تاريخ الميلاد
-                                </label>
-                                <input
-                                    id="birthday"
-                                    type="date"
-                                    {...register('birthday')}
-                                    className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    disabled={isUpdating || isCreating}
-                                />
-                                {errors.birthday && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.birthday.message}</p>
-                                )}
-                            </div>
 
-                            {/* تاريخ الوفاة */}
-                            <div className="space-y-2">
-                                <label htmlFor="deathDate" className="block text-sm font-medium text-gray-700">
-                                    تاريخ الوفاة (إن وجد)
-                                </label>
-                                <input
-                                    id="deathDate"
-                                    type="date"
-                                    {...register('deathDate')}
-                                    className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    disabled={isUpdating || isCreating}
-                                />
-                                {errors.deathDate && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.deathDate.message}</p>
-                                )}
-                            </div>
+                                {/* Family Branch */}
+                                <div className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        الفرع العائلي <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        {...register('familyBranch')}
+                                        onChange={handleFamilyBranchChange}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                    >
+                                        <option value="">اختر الفرع</option>
+                                        {(['الفرع الأول', 'الفرع الثاني', 'الفرع الثالث', 'الفرع الرابع', 'الفرع الخامس'] as FamilyBranchType[]).map(b => (
+                                            <option key={b} value={b}>{b}</option>
+                                        ))}
+                                    </select>
+                                    {errors.familyBranch && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.familyBranch.message}</p>
+                                    )}
+                                </div>
 
-                            {/* ملخص */}
-                            <div className="space-y-2 md:col-span-2">
-                                <label htmlFor="summary" className="block text-sm font-medium text-gray-700">
-                                    ملخص
-                                </label>
-                                <textarea
-                                    id="summary"
-                                    {...register('summary')}
-                                    className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    rows={3}
-                                    disabled={isUpdating || isCreating}
-                                />
-                                {errors.summary && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.summary.message}</p>
-                                )}
+                                {/* Relationship */}
+                                <div className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        صلة القرابة <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        {...register('familyRelationship')}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                    >
+                                        <option value="">اختر الصلة</option>
+                                        <option value="زوج">زوج (رأس الأسرة)</option>
+                                        <option value="زوجة">زوجة</option>
+                                        <option value="ابن">ابن</option>
+                                        <option value="ابنة">ابنة</option>
+                                        <option value="حفيد">حفيد</option>
+                                        <option value="حفيدة">حفيدة</option>
+                                        <option value="أخرى">أخرى</option>
+                                    </select>
+                                    {errors.familyRelationship && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.familyRelationship.message}</p>
+                                    )}
+                                </div>
+
+                                {/* Gender */}
+                                <div className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        الجنس <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        {...register('gender')}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                    >
+                                        <option value="">اختر الجنس</option>
+                                        <option value="ذكر">ذكر</option>
+                                        <option value="أنثى">أنثى</option>
+                                    </select>
+                                    {errors.gender && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.gender.message}</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </>
+
+                        {/* Family Relationships Section */}
+                        {(isFemale && relationship === 'زوجة') ||
+                            (isMale && (relationship === 'زوج' || relationship === 'ابن' || relationship === 'حفيد')) ||
+                            (isChild || isGrandChild) ? (
+                            <div className="bg-white p-4 rounded-lg shadow">
+                                <h3 className="text-lg font-medium mb-4 border-b pb-2">العلاقات العائلية</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Husband (for wives) */}
+                                    {isFemale && relationship === 'زوجة' && (
+                                        <div className="space-y-1">
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                الزوج <span className="text-red-500">*</span>
+                                            </label>
+                                            <select
+                                                {...register('husband')}
+                                                disabled={maleMembers.length === 0}
+                                                defaultValue={getIdFromValue(defaultValues?.husband)}
+                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
+                                            >
+                                                <option value="">اختر الزوج</option>
+                                                {maleMembers.map(m => (
+                                                    <option key={m._id} value={m._id}>
+                                                        {m.fname} {m.lname}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {maleMembers.length === 0 && (
+                                                <p className="mt-1 text-sm text-yellow-600">لا يوجد أزواج في هذا الفرع</p>
+                                            )}
+                                            {errors.husband && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.husband.message}</p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Wives (for husbands) */}
+                                    {isMale && (relationship === 'ابن' || relationship === 'حفيد' || relationship === 'زوج') && (
+                                        <>
+                                            <div className="space-y-1">
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    هل لديك زوجة؟
+                                                </label>
+                                                <div className="flex space-x-4">
+                                                    <label className="inline-flex items-center">
+                                                        <input
+                                                            type="radio"
+                                                            name="hasSpouse"
+                                                            checked={hasSpouse}
+                                                            onChange={() => setHasSpouse(true)}
+                                                            className="form-radio h-4 w-4 text-blue-600"
+                                                        />
+                                                        <span className="mx-2 text-sm text-gray-700">نعم</span>
+                                                    </label>
+                                                    <label className="inline-flex items-center">
+                                                        <input
+                                                            type="radio"
+                                                            name="hasSpouse"
+                                                            checked={!hasSpouse}
+                                                            onChange={() => setHasSpouse(false)}
+                                                            className="form-radio h-4 w-4 text-blue-600"
+                                                        />
+                                                        <span className="mx-2 text-sm text-gray-700">لا</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            {hasSpouse && (
+                                                <div className="space-y-1">
+                                                    <label className="block text-sm font-medium text-gray-700">
+                                                        الزوجات
+                                                    </label>
+                                                    <select
+                                                        multiple
+                                                        {...register('wives')}
+                                                        disabled={femaleMembers.length === 0}
+                                                        defaultValue={
+                                                            Array.isArray(defaultValues?.wives)
+                                                                ? defaultValues.wives.map((w: any) => getIdFromValue(w))
+                                                                : []
+                                                        }
+                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
+                                                    >
+                                                        {femaleMembers.map(m => (
+                                                            <option key={m._id} value={m._id}>
+                                                                {m.fname} {m.lname}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <p className="mt-1 text-xs text-gray-500">يمكن اختيار أكثر من زوجة (بحد أقصى 4)</p>
+                                                    {errors.wives && (
+                                                        <p className="mt-1 text-sm text-red-600">{errors.wives.message}</p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+
+                                    {/* Parents (for children) */}
+                                    {(isChild || isGrandChild) && (
+                                        <>
+                                            <div className="space-y-1">
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    الأب
+                                                </label>
+                                                <select
+                                                    {...register('parents.father')}
+                                                    defaultValue={getIdFromValue(defaultValues?.parents?.father)}
+                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                                >
+                                                    <option value="">اختر الأب</option>
+                                                    {maleMembers.map(m => (
+                                                        <option key={m._id} value={m._id}>
+                                                            {m.fname} {m.lname}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    الأم
+                                                </label>
+                                                <select
+                                                    {...register('parents.mother')}
+                                                    defaultValue={getIdFromValue(defaultValues?.parents?.mother)}
+                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                                >
+                                                    <option value="">اختر الأم</option>
+                                                    {femaleMembers.map(m => (
+                                                        <option key={m._id} value={m._id}>
+                                                            {m.fname} {m.lname}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        ) : null}
+
+                        {/* Children Section */}
+                        {(isMale || isFemale) && (relationship === 'زوج' || relationship === 'زوجة' || isChild || isGrandChild) && (
+                            <div className="bg-white p-4 rounded-lg shadow">
+                                <h3 className="text-lg font-medium mb-4 border-b pb-2">الأبناء</h3>
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div className="space-y-1">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            هل لديك أبناء؟
+                                        </label>
+                                        <div className="flex space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="hasChildren"
+                                                    checked={hasChildren}
+                                                    onChange={() => setHasChildren(true)}
+                                                    className="form-radio h-4 w-4 text-blue-600"
+                                                />
+                                                <span className="mx-2 text-sm text-gray-700">نعم</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="hasChildren"
+                                                    checked={!hasChildren}
+                                                    onChange={() => setHasChildren(false)}
+                                                    className="form-radio h-4 w-4 text-blue-600"
+                                                />
+                                                <span className="mx-2 text-sm text-gray-700">لا</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {hasChildren && (
+                                        <div className="space-y-1">
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                الأبناء
+                                            </label>
+                                            <select
+                                                multiple
+                                                {...register('children')}
+                                                disabled={filteredMembers.length === 0}
+                                                defaultValue={
+                                                    Array.isArray(defaultValues?.children)
+                                                        ? defaultValues.children.map((c: any) => getIdFromValue(c))
+                                                        : []
+                                                }
+                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
+                                            >
+                                                {filteredMembers
+                                                    .filter(m => 
+                                                        ['ابن', 'ابنة', 'حفيد', 'حفيدة'].includes(m.familyRelationship)
+                                                    )
+                                                    .map(m => (
+                                                        <option key={m._id} value={m._id}>
+                                                            {m.fname} {m.lname} ({m.familyRelationship})
+                                                        </option>
+                                                    ))}
+                                            </select>
+                                            <p className="mt-1 text-xs text-gray-500">يمكن اختيار أكثر من ابن</p>
+                                            {errors.children && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.children.message}</p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Additional Information Section */}
+                        <div className="bg-white p-4 rounded-lg shadow">
+                            <h3 className="text-lg font-medium mb-4 border-b pb-2">معلومات إضافية</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Birthday */}
+                                <div className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        تاريخ الميلاد
+                                    </label>
+                                    <input
+                                        type="date"
+                                        {...register('birthday')}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                    />
+                                    {errors.birthday && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.birthday.message}</p>
+                                    )}
+                                </div>
+
+                                {/* Death Date */}
+                                <div className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        تاريخ الوفاة (إن وجد)
+                                    </label>
+                                    <input
+                                        type="date"
+                                        {...register('deathDate')}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                    />
+                                    {errors.deathDate && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.deathDate.message}</p>
+                                    )}
+                                </div>
+
+                                {/* Image */}
+                                <div className="space-y-1 md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        صورة العضو
+                                    </label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        {...register('image')}
+                                        className="block w-full text-sm text-gray-500 file:mx-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    />
+                                </div>
+
+                                {/* Summary */}
+                                <div className="space-y-1 md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        ملخص عن العضو
+                                    </label>
+                                    <textarea
+                                        {...register('summary')}
+                                        rows={3}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                    />
+                                    {errors.summary && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.summary.message}</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 );
             }}
         </BaseForm>

@@ -163,7 +163,7 @@ const UserForm: React.FC<UserFormProps> = ({
                                 <option value="الفرع الرابع">الفرع الرابع</option>
                                 <option value="الفرع الثالث">الفرع الثالث</option>
                                 <option value="الفرع الثاني">الفرع الثاني</option>
-                                <option value="الفرع الاول">الفرع الأول</option>
+                                <option value="الفرع الاول">الفرع الاول</option>
                             </select>
                             {errors.familyBranch && (
                                 <p className="mt-1 text-sm text-red-600">{errors.familyBranch.message}</p>

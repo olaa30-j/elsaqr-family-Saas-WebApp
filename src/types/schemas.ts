@@ -3,10 +3,10 @@ import * as yup from 'yup';
 export const userSchema = yup.object().shape({
     email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
     phone: yup.string().required('رقم الهاتف مطلوب'),
-    familyBranch: yup.string().optional(), 
-    familyRelationship: yup.string().optional(),  
+    familyBranch: yup.string().optional(),
+    familyRelationship: yup.string().optional(),
     address: yup.string().optional(),
-    role: yup.string().optional(),  
+    role: yup.string().optional(),
     status: yup.string().optional(),
     password: yup
         .string()
@@ -17,8 +17,9 @@ export const userSchema = yup.object().shape({
 export const profileSchema = yup.object().shape({
     email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
     phone: yup.string().required('رقم الهاتف مطلوب'),
-    address: yup.string().required('العنوان مطلوب'), // تغيير من optional إلى required
+    address: yup.string().required('العنوان مطلوب'),
 });
+
 
 
 export const memberSchema = yup.object().shape({
@@ -26,23 +27,34 @@ export const memberSchema = yup.object().shape({
 
     fname: yup
         .string()
-        .min(2, 'الاسم الأول يجب أن يكون على الأقل حرفين')
-        .max(50, 'الاسم الأول لا يمكن أن يتجاوز 50 حرفًا')
-        .required('الاسم الأول مطلوب'),
+        .trim()
+        .min(2, 'الاسم الاول يجب أن يكون على الأقل حرفين')
+        .max(50, 'الاسم الاول لا يمكن أن يتجاوز 50 حرفًا')
+        .matches(/^[\u0600-\u06FF\s]+$/, 'يجب أن يحتوي الاسم الاول على أحرف عربية فقط')
+        .required('الاسم الاول مطلوب'),
 
     lname: yup
         .string()
+        .trim()
         .min(2, 'الاسم الأخير يجب أن يكون على الأقل حرفين')
         .max(50, 'الاسم الأخير لا يمكن أن يتجاوز 50 حرفًا')
+        .matches(/^[\u0600-\u06FF\s]+$/, 'يجب أن يحتوي الاسم الأخير على أحرف عربية فقط')
         .required('الاسم الأخير مطلوب'),
 
     familyBranch: yup
         .string()
+        .oneOf([
+            "الفرع الخامس",
+            "الفرع الرابع",
+            "الفرع الثالث",
+            "الفرع الثاني",
+            "الفرع الاول"
+        ], 'الفرع العائلي غير صالح')
         .required('يجب اختيار الفرع العائلي'),
 
     familyRelationship: yup
         .string()
-        .oneOf(["ابن", "ابنة", "زوجة", "زوج", "حفيد", "أخرى"], 'صلة القرابة غير صالحة')
+        .oneOf(["ابن", "ابنة", "زوجة", "زوج", "حفيد", "حفيدة", "أخرى"], 'صلة القرابة غير صالحة')
         .required('صلة القرابة مطلوبة'),
 
     gender: yup
@@ -50,52 +62,127 @@ export const memberSchema = yup.object().shape({
         .oneOf(['ذكر', 'أنثى'], 'الجنس يجب أن يكون "ذكر" أو "أنثى"')
         .required('يجب اختيار الجنس'),
 
-    // husband: yup
-    //     .string()
-    //     .nullable()
-    //     .optional() 
-    //     .when(['gender', 'familyRelationship'], {
-    //         is: (gender: string, relationship: string) =>
-    //             gender === 'أنثى' && relationship === 'زوجة',
-    //         then: (schema) => schema.required('يجب تحديد الزوج للزوجة'),
-    //         otherwise: (schema) => schema.nullable().optional()
-    //     }),
+    husband: yup
+        .mixed<string | { _id: string }>()
+        .optional()
+        .nullable()
+        .test(
+            'husband-type',
+            'يجب أن يكون الزوج معرفًا صالحًا',
+            function (value) {
+                if (value === null || value === undefined || value === '') return true;
 
-    // wives: yup
-    //     .array()
-    //     .default([])  
-    //     .of(yup.string())
-    //     .max(4, 'لا يمكن للذكر أن يكون له أكثر من 4 زوجات'),
+                if (typeof value === 'string') return true;
+                if (typeof value === 'object' && '_id' in value) return true;
+
+                return false;
+            }
+        )
+        .test(
+            'husband-required',
+            'يجب تحديد الزوج للزوجة',
+            function (value) {
+                const { gender, familyRelationship } = this.parent;
+                if (gender === 'أنثى' && familyRelationship === 'زوجة') {
+                    return !!value;
+                }
+                return true;
+            }
+        ),
+
+    wives: yup
+        .array()
+        .of(yup.mixed<string | { _id: string }>())
+        .optional()
+        .test(
+            'wives-limit',
+            'لا يمكن للذكر أن يكون له أكثر من 4 زوجات',
+            function (value) {
+                const { gender } = this.parent;
+                if (gender === 'ذكر' && value && value.length > 4) {
+                    return false;
+                }
+                return true;
+            }
+        ),
+
+    children: yup
+        .array()
+        .of(yup.mixed<string | { _id: string; birthday?: Date | string }>())
+        .optional()
+        .test(
+            'children-age',
+            'يجب أن يكون تاريخ ميلاد الأبناء بعد تاريخ ميلاد العضو',
+            function (value) {
+                if (!value || !this.parent.birthday) return true;
+
+                const parentBirthday = new Date(this.parent.birthday);
+                return value.every(child => {
+                    if (typeof child === 'object' && 'birthday' in child && child.birthday) {
+                        const childBirthday = new Date(child.birthday);
+                        return childBirthday > parentBirthday;
+                    }
+                    return true;
+                });
+            }
+        ),
 
     birthday: yup
         .date()
         .nullable()
         .max(new Date(), 'تاريخ الميلاد لا يمكن أن يكون في المستقبل')
-        .typeError('يجب أن يكون تاريخًا صالحًا'),
+        .typeError('يجب إدخال تاريخ ميلاد صالح'),
 
     deathDate: yup
         .mixed()
         .nullable()
-        .test(
-            'is-valid-date',
-            'يجب أن يكون تاريخًا صالحًا',
-            (value) => !value || (value instanceof Date && !isNaN(value.getTime()))
-        )
-        .test(
-            'death-after-birth',
-            'تاريخ الوفاة لا يمكن أن يكون قبل تاريخ الميلاد',
-            function (value) {
-                const { birthday } = this.parent;
-                if (!value) return true;
-                return !birthday || value >= birthday;
-            }
-        ),
+        .transform((value, originalValue) => {
+            if (!originalValue || originalValue === '') return null;
 
-    summary: yup.string().max(500, 'الملخص لا يمكن أن يتجاوز 500 حرف').optional(),
+            if (value instanceof Date && !isNaN(value.getTime())) {
+                return value;
+            }
+
+            if (typeof originalValue === 'string') {
+                const date = new Date(originalValue);
+                return isNaN(date.getTime()) ? null : date;
+            }
+
+            return null;
+        })
+        .optional(),
+        
+    summary: yup
+        .string()
+        .optional()
+        .max(500, 'الملخص لا يمكن أن يتجاوز 500 حرف')
+        .nullable(),
 
     image: yup
         .mixed()
+        .nullable(),
+
+    parents: yup
+        .object()
+        .shape({
+            father: yup.mixed<string | { _id: string }>().optional().nullable(),
+            mother: yup.mixed<string | { _id: string }>().optional().nullable()
+        })
         .optional()
+        .nullable()
+        .test(
+            'not-self-parent',
+            'لا يمكن للعضو أن يكون والد نفسه',
+            function (value) {
+                const { _id } = this.parent;
+                if (!value || !_id) return true;
+
+                const fatherId = typeof value.father === 'object' ? value.father?._id : value.father;
+                const motherId = typeof value.mother === 'object' ? value.mother?._id : value.mother;
+
+                return (fatherId !== _id && motherId !== _id);
+            }
+        )
 });
 
 export type UserFormValues = yup.InferType<typeof userSchema>;

@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import { useGetMembersQuery } from '../../../../store/api/memberApi';
 import { DEFAULT_IMAGE } from '../../../auth/RegisterationForm';
 import { Plus, ZoomIn, ZoomOut } from 'lucide-react';
-import type { Member } from '../../../../types/member';
+import type { Gender, FamilyBranch, FamilyRelationship, GetMembers } from '../../../../types/member';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 interface FamilyTreeProps {
-    familyBranch: string;
+    familyBranch: FamilyBranch | string;
 }
 
 const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
@@ -19,20 +19,46 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
     const members = membersData?.data || [];
 
     const familyTree = useMemo(() => {
-        const tree: any = {};
-
-        const husband = members.find((m: any) => m.familyRelationship === 'زوج');
+        // العثور على رب الأسرة (الزوج)
+        const husband = members.find(m => {
+            m.familyRelationship === 'زوج' &&
+                (m.isFamilyHead || !members.some(m2 => m2.parents?.father === m._id))
+                || members.find(m => m.familyRelationship === 'زوج');
+        })
 
         if (!husband) return null;
 
-        tree.husband = husband;
-        tree.wives = members.filter((m: any) => m.familyRelationship === 'زوجة');
-        tree.children = members.filter((m: any) =>
-            m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة'
-        );
-        tree.grandChildren = members.filter((m: any) => m.familyRelationship === 'حفيد');
+        // فرز الأبناء حسب النوع (ذكر أولاً)
+        const sortChildren = (children: GetMembers[]) => {
+            return children.sort((a, b) => {
+                if (a.gender === 'ذكر' && b.gender !== 'ذكر') return -1;
+                if (a.gender !== 'ذكر' && b.gender === 'ذكر') return 1;
+                return 0;
+            });
+        };
 
-        return tree;
+        // العثور على الزوجات والأبناء والأحفاد
+        const wives = members.filter(m =>
+            m.familyRelationship === 'زوجة' &&
+            m.husband === husband._id);
+
+        const children = sortChildren(members.filter(m =>
+            (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') &&
+            m.parents?.father === husband._id));
+
+        // العثور على الأحفاد (أبناء الأبناء)
+        const grandchildren = members.filter(m =>
+            m.familyRelationship === 'حفيد' &&
+            members.some(child =>
+                child._id === m.parents?.father &&
+                child.parents?.father === husband._id));
+
+        return {
+            husband,
+            wives,
+            children,
+            grandchildren
+        };
     }, [members]);
 
     const formatDate = (date: Date | string | undefined) => {
@@ -41,7 +67,17 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         return isNaN(d.getTime()) ? 'غير معروف' : d.toLocaleDateString('ar-EG');
     };
 
-    const renderMemberCard = (member: Member, role: string) => {
+const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
+    let gender: Gender = 'ذكر';  
+    
+    if ('gender' in member && member.gender) {
+        gender = member.gender;
+    } else {
+        gender = (member.familyRelationship === 'ابن' || member.familyRelationship === 'زوج') 
+            ? 'ذكر' 
+            : 'أنثى';
+    }
+
         return (
             <div className="flex flex-col items-center min-w-[120px] max-w-[150px] mx-2">
                 <div className="w-full h-48 bg-gray-200 mb-2 overflow-hidden flex items-center justify-center border border-gray-300">
@@ -53,7 +89,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                         />
                     ) : (
                         <div className="text-gray-400 text-2xl">
-                            {role === 'زوج' || role === 'ابن' ? '👨' : '👩'}
+                            {gender === 'ذكر' ? '👨' : '👩'}
                         </div>
                     )}
                 </div>
@@ -79,9 +115,9 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
 
         return {
             wives: familyTree.wives.length,
-            sons: familyTree.children.filter((c: any) => c.familyRelationship === 'ابن').length,
-            daughters: familyTree.children.filter((c: any) => c.familyRelationship === 'ابنة').length,
-            grandChildren: familyTree.grandChildren.length
+            sons: familyTree.children.filter(c => c.gender === 'ذكر').length,
+            daughters: familyTree.children.filter(c => c.gender === 'أنثى').length,
+            grandChildren: familyTree.grandchildren.length
         };
     }, [familyTree]);
 
@@ -110,14 +146,12 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         return (
             <div className="absolute top-0 left-0 right-0 h-10 flex justify-center pointer-events-none">
                 {/* الخط العمودي الرئيسي */}
-                <div
-                    className={`absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-8`}
-                />
+                <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-8" />
 
                 {/* الخط الأفقي */}
                 {(!isFirstChild || !isLastChild) && (
                     <div
-                        className={`absolute top-0 left-0 right-0 h-0 border-t-2 border-gray-300
+                        className={`absolute top-0 h-0 border-t-2 border-gray-300
                         ${isLastChild ? 'left-1/2 right-0' : ''}
                         ${isFirstChild ? 'left-0 right-1/2' : ''}
                         ${!isFirstChild && !isLastChild ? 'left-0 right-0' : ''}`}
@@ -127,39 +161,25 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         );
     };
 
-    if (!familyTree || !familyStats) {
-        return (
-            <div className="text-center py-4 text-gray-500">
-                <p>لا يوجد بيانات للعائلة في هذا الفرع</p>
-            </div>
-        );
-    }
+    const renderChildren = (parentId: string) => {
+        const children = members.filter(m =>
+            (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') &&
+            m.parents?.father?._id === parentId);
 
-    const renderChildren = (wifeId?: string) => {
-        let children = familyTree.children;
-        if (wifeId) {
-            children = children.filter((child: Member) => child.data?.motherId === wifeId);
-        }
-
-        const sons = children.filter((child: Member) => child.familyRelationship === 'ابن');
-        const daughters = children.filter((child: Member) => child.familyRelationship === 'ابنة');
+        const sons = children.filter(child => child.gender === 'ذكر');
+        const daughters = children.filter(child => child.gender === 'أنثى');
 
         return (
             <div className="relative pt-6">
                 {children.length > 0 && (
                     <div className="absolute top-0 left-0 right-0 h-6 flex justify-center pointer-events-none">
-                        {/* الخط العمودي الرئيسي */}
-                        <div
-                            className={`absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2
-                            ${children.length > 0 ? '' : 'h-5'}`}
-                        />
+                        <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2" />
                     </div>
-                )
-                }
+                )}
 
                 <ul className="flex justify-center">
                     {/* عرض البنات أولاً */}
-                    {daughters.map((daughter: Member, index: number) => (
+                    {daughters.map((daughter, index) => (
                         <motion.li
                             key={daughter._id}
                             initial={{ opacity: 0, y: 20 }}
@@ -183,7 +203,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                     ))}
 
                     {/* عرض الأبناء */}
-                    {sons.map((son: Member, index: number) => (
+                    {sons.map((son, index) => (
                         <motion.li
                             key={son._id}
                             initial={{ opacity: 0, y: 20 }}
@@ -191,10 +211,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                             transition={{ duration: 0.5 }}
                             className="relative px-2"
                         >
-                            {renderConnectionLine(
-                                index === 0 && sons.length === 0,
-                                index === daughters.length - 1
-                            )}
+                            {renderConnectionLine(index === 0 && daughters.length === 0, index === sons.length - 1)}
 
                             <div className="pt-6">
                                 <motion.div
@@ -217,48 +234,35 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                             transition={{ duration: 0.5 }}
                             className="relative px-2"
                         >
-                            {children.length == 0 && (
-                                <div className="absolute -top-10 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
-                                    {/* الخط العمودي الرئيسي */}
-                                    <div
-                                        className={`absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2
-                                        ${children.length > 0 ? '' : 'h-5'}`}
-                                    />
-                                </div>
-                            )
-                            }
+                            <div className="absolute -top-10 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
+                                <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-5" />
+                            </div>
                             <div className="pt-6">
                                 {renderAddButton('إضافة ابن/ابنة')}
                             </div>
                         </motion.li>
                     )}
                 </ul>
-            </div >
+            </div>
         );
     };
 
     const renderGrandChildren = (parentId: string) => {
-        const grandChildren = familyTree.grandChildren.filter((gc: Member) => {
-            gc.husband?._id === parentId
-        }
-        );
-        console.log(grandChildren);
-
+        const grandChildren = members.filter(m =>
+            m.familyRelationship === 'حفيد' &&
+            members.some(child =>
+                child._id === m.parents?.father &&
+                child.parents?.father?._id === parentId));
 
         return (
             <div className="relative pt-6">
                 {grandChildren.length > 0 && (
                     <div className="absolute -top-5 left-0 right-0 h-10 flex justify-center pointer-events-none">
-                        {/* الخط العمودي الرئيسي */}
-                        <div
-                            className={`absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2
-                            ${grandChildren.length > 0 ? '' : 'h-5'}`}
-                        />
+                        <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2" />
                     </div>
-                )
-                }
+                )}
                 <ul className="flex justify-center">
-                    {grandChildren.map((grandChild: Member) => (
+                    {grandChildren.map((grandChild, index) => (
                         <motion.li
                             key={grandChild._id}
                             initial={{ opacity: 0, y: 20 }}
@@ -266,6 +270,8 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                             transition={{ duration: 0.5 }}
                             className="relative px-2"
                         >
+                            {renderConnectionLine(index === 0, index === grandChildren.length - 1)}
+
                             <div className="pt-6">
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
@@ -285,16 +291,9 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                             transition={{ duration: 0.5 }}
                             className="relative px-2"
                         >
-                            {grandChildren.length == 0 && (
-                                <div className="absolute -top-10 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
-                                    {/* الخط العمودي الرئيسي */}
-                                    <div
-                                        className={`absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2
-                            ${grandChildren.length > 0 ? '' : 'h-5'}`}
-                                    />
-                                </div>
-                            )
-                            }
+                            <div className="absolute -top-10 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
+                                <div className="absolute top-0 left-1/2 w-0 h-full border-l-2 border-gray-300 transform -translate-x-1/2 h-5" />
+                            </div>
                             <div className="pt-6">
                                 {renderAddButton('إضافة حفيد')}
                             </div>
@@ -304,6 +303,14 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
             </div>
         );
     };
+
+    if (!familyTree || !familyStats) {
+        return (
+            <div className="text-center py-4 text-gray-500">
+                <p>لا يوجد بيانات للعائلة في هذا الفرع</p>
+            </div>
+        );
+    }
 
     return (
         <div className="mx-auto p-2 sm:p-4 bg-gray-50 rounded-lg">
@@ -414,7 +421,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                             <div className="relative pt-6">
                                                 {familyTree.wives.length > 0 ? (
                                                     <ul className="flex flex-wrap justify-center gap-4">
-                                                        {familyTree.wives.map((wife: any) => (
+                                                        {familyTree.wives.map((wife) => (
                                                             <motion.li key={wife._id} className="relative">
                                                                 <div className="flex flex-col items-center">
                                                                     <motion.div
@@ -425,7 +432,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                                     </motion.div>
                                                                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-6 border-l-2 border-gray-300" />
 
-                                                                    {renderChildren(wife._id)}
+                                                                    {renderChildren(wife._id || '')}
                                                                 </div>
                                                             </motion.li>
                                                         ))}
@@ -436,7 +443,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                     </div>
                                                 )}
 
-                                                {renderChildren()}
+                                                {renderChildren(familyTree.husband._id || '')}
                                             </div>
                                         </motion.li>
                                     </ul>

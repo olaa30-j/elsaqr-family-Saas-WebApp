@@ -9,14 +9,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://sasa-nu.vercel.app',
+        target: 'https://saasz.vercel.app',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api/v1'),
         headers: {
           "Access-Control-Allow-Origin": "http://localhost:5173",
           'Access-Control-Allow-Credentials': 'true',
-          'x-vercel-project-id': 'prj_JlEEV6yueRbWfPacfjbNgjeIIc82'
+          'x-vercel-project-id': 'prj_cfuoIu0xhG8XMD8plwbWq1cS6apR'
         }
       }
     }

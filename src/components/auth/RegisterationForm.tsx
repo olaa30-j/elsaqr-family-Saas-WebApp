@@ -46,7 +46,7 @@ const RegistrationForm: React.FC = () => {
   } = useForm<RegistrationFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
-      familyBranch: 'الفرع الأول'
+      familyBranch: 'الفرع الاول'
     }
   });
 

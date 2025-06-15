@@ -2,39 +2,50 @@ import { useParams } from "react-router-dom";
 import { useGetMemberQuery } from "../../../../store/api/memberApi";
 import LoadingSpinner from "../../../shared/LoadingSpinner";
 import MemberForm from "./MemberForm";
-
+import type { GetMembers } from "../../../../types/member";
 
 const EditMember = () => {
     const { memberId } = useParams<{ memberId: string }>();
 
-    const { data: memberResponse, isLoading, isError } = useGetMemberQuery(memberId || '', {
+    const {
+        data: memberResponse,
+        isLoading,
+    } = useGetMemberQuery(memberId || '', {
         skip: !memberId
     });
 
     if (isLoading) return <LoadingSpinner />;
-    if (isError) return (<p>خطأ مستخدم</p>);
-    if (!memberResponse) return (<p>لا يوجد مستخدم</p>);
 
-    const member = memberResponse!.data || memberResponse;
-    
+    const member: GetMembers = memberResponse?.data;
+
+    const defaultValues = {
+        fname: member.fname ?? '',
+        lname: member.lname ?? '',
+        familyBranch: member.familyBranch ?? 'الفرع الثالث',
+        familyRelationship: member.familyRelationship ?? 'ابن',
+        gender: member.gender ?? 'أنثى',
+        birthday: member.birthday ?? null,
+        deathDate: member.deathDate ?? null,
+        parents: {
+            father: member.parents?.father ?? '',
+            mother: member.parents?.mother ?? ''
+        },
+        husband: member.husband ?? '',
+        wives: member.wives ?? [],
+        children: member.children ?? [],
+        image: member.image ?? null,
+        summary: member.summary ?? ''
+    };
+
     return (
-        <div>
+        <div className="p-4">
+            <h1 className="text-2xl font-bold mb-6">تعديل بيانات العضو</h1>
             <MemberForm
-                defaultValues={{
-                    fname: member.fname || '',
-                    lname: member.lname || '',
-                    familyBranch: member.familyBranch || 'الفرع الثالث',
-                    familyRelationship: member.familyRelationship || 'ابن',
-                    gender: member.gender || 'أنثى',
-                    // father: member.father || '',
-                    // husband: member.husband || '',
-                    // wives: member.wives || [],
-                    // image: member.image || ''
-                }}
+                defaultValues={defaultValues}
                 isEditing={true}
             />
         </div>
     )
 }
 
-export default EditMember
+export default EditMember;

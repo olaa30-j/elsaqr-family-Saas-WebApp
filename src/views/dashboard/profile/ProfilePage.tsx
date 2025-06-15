@@ -92,6 +92,23 @@ const ProfilePage = () => {
     const user = userResponse.data || userResponse as User;
     const member = memberResponse.data || memberResponse as Member;
 
+    const defaultValues = {
+      fname: member.fname ?? '',
+      lname: member.lname ?? '',
+      familyBranch: member.familyBranch ?? 'الفرع الثالث',
+      familyRelationship: member.familyRelationship ?? 'ابن',
+      gender: member.gender ?? 'أنثى',
+      birthday: member.birthday ?? null,
+      deathDate: member.deathDate ?? null,
+      father: member.parents?.father ?? '',
+      mother: member.parents?.mother ?? '',
+      husband: member.husband ?? '',
+      wives: member.wives ?? [],
+      children: member.children ?? [],
+      image: member.image ?? null,
+      summary: member.summary ?? ''
+    };
+
     return [
       {
         id: 'profile',
@@ -106,18 +123,7 @@ const ProfilePage = () => {
 
             <MemberForm
               memberFormId={member._id}
-              defaultValues={{
-                fname: member.fname || '',
-                lname: member.lname || '',
-                familyBranch: member.familyBranch || 'الفرع الاول',
-                familyRelationship: member.familyRelationship || 'ابن',
-                gender: member.gender || 'أنثى',
-                summary: member.summary || '',
-                ...(member?.father && { father: member.father }),
-                ...(member?.husband && { husband: member.husband }),
-                ...(member?.wives && { wives: member.wives }),
-                ...(member?.image && { image: member.image }),
-              }}
+              defaultValues={defaultValues}
               isEditing={true}
             />
           </div>

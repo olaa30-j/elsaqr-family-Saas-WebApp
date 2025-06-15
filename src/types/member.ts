@@ -1,30 +1,131 @@
+export type Gender = "ذكر" | "أنثى";
+export type FamilyBranch =
+    | "الفرع الخامس"
+    | "الفرع الرابع"
+    | "الفرع الثالث"
+    | "الفرع الثاني"
+    | "الفرع الاول";
 
-export type Member = {
+export type FamilyRelationship =
+    | "ابن"
+    | "ابنة"
+    | "زوجة"
+    | "زوج"
+    | "حفيد"
+    | "أخرى";
+
+
+export interface Member {
     data?: any;
     _id?: string;
+    userId?: string;
     fname: string;
     lname: string;
-    familyBranch: string;
-    gender: 'ذكر' | 'أنثى';
-    father?: string;
-    birthday: Date | string;
-    deathDate: Date | string;
-    husband?: {
-        _id: string;
-    };
+    gender: "ذكر" | "أنثى";
+    familyBranch: FamilyBranch;
+    familyRelationship: FamilyRelationship;
+    birthday?: Date | string;
+    deathDate?: Date | string;
     summary?: string;
+    husband?: string;
+    parents?: {
+        father?: string;
+        mother?: string;
+    };
     wives?: string[];
+    children?: string[];
     image?: string;
+    isUser?: boolean;
     createdAt?: string;
     updatedAt?: string;
-    familyRelationship: string;
-};
+    isFamilyHead?: boolean;
+}
+
+
+export interface GetMembers {
+    data?: any;
+    _id?: string;
+    userId?: string;
+    fname: string;
+    lname: string;
+    gender: "ذكر" | "أنثى";
+    familyBranch: FamilyBranch;
+    familyRelationship: FamilyRelationship;
+    birthday?: Date | string;
+    deathDate?: Date | string;
+    summary?: string;
+    parents?: {
+        father?: {
+            _id: string;
+            userId?: string;
+            fname: string;
+            lname: string;
+            gender: "ذكر" | "أنثى";
+            familyBranch: FamilyBranch;
+            familyRelationship: FamilyRelationship;
+        };
+        mother?: {
+            _id: string;
+            userId?: string;
+            fname: string;
+            lname: string;
+            gender: "ذكر" | "أنثى";
+            familyBranch: FamilyBranch;
+            familyRelationship: FamilyRelationship;
+        };
+    };
+    husband?: {
+        _id: string;
+        userId?: string;
+        fname: string;
+        lname: string;
+        gender: "ذكر" | "أنثى";
+        familyBranch: FamilyBranch;
+        familyRelationship: FamilyRelationship;
+    };
+    wives?: {
+        _id: string;
+        userId?: string;
+        fname: string;
+        lname: string;
+        gender: "ذكر" | "أنثى";
+        familyBranch: FamilyBranch;
+        familyRelationship: FamilyRelationship;
+    }[];
+    children?: {
+        _id: string;
+        userId?: string;
+        fname: string;
+        lname: string;
+        gender: "ذكر" | "أنثى";
+        familyBranch: FamilyBranch;
+        familyRelationship: FamilyRelationship;
+    }[];
+    image?: string;
+    isUser?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+    isFamilyHead?: boolean;
+}
+
 
 export interface FamilyTreeData {
     husband: Member | null;
     wives: Member[];
     children: Member[];
-    grandChildren: Member[];
+    grandchildren: Member[];
+}
+
+export interface MemberCardProps {
+    _id: string;
+    title: string;
+    type: "important" | "general";
+    content: string;
+    status: "active" | "inactive" | "deceased";
+    userId: Member | string;
+    image?: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface MemberProps {
@@ -46,10 +147,19 @@ export const genderOptions = [
     { value: 'أنثى', label: 'أنثى' }
 ];
 
-export const familyBranches = [
+export const familyBranches: FamilyBranch[] = [
     "الفرع الخامس",
     "الفرع الرابع",
     "الفرع الثالث",
     "الفرع الثاني",
     "الفرع الاول",
+];
+
+export const familyRelationshipOptions = [
+    { value: "ابن", label: "ابن" },
+    { value: "ابنة", label: "ابنة" },
+    { value: "زوج", label: "زوج" },
+    { value: "زوجة", label: "زوجة" },
+    { value: "حفيد", label: "حفيد" },
+    { value: "أخرى", label: "أخرى" },
 ];

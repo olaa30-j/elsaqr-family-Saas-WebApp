@@ -16,21 +16,22 @@ type FilterOptions = {
 
 interface UsersTableProps {
     currentPage: number;
-    itemsPerPage: number;
+    itemsPerPage: number;   
     usersData: User[];
     pagination?: {
-        totalPages?: number;
-        totalItems?: number;
+        totalUsers: number;
+        totalPages: number;
+        currentPage: number;
+        pageSize: number;
     };
     onPageChange: (page: number) => void;
-    onLimitChange?: (limit: number) => void;
-    isLoading?: boolean;
+    onLimitChange: (limit: number) => void;  
+    isLoading: boolean;
     refetchUsers?: () => void;
 }
 
 const UsersTable: React.FC<UsersTableProps> = ({
     currentPage,
-    itemsPerPage,
     usersData,
     pagination,
     onPageChange,
@@ -48,7 +49,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
     const [filters, setFilters] = useState<FilterOptions>({});
     const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
     const { data: rolesResponse } = useGetAllRolesQuery();
-    
+
     const availableRoles = useMemo(() => {
         return rolesResponse?.data || [];
     }, [rolesResponse]);
@@ -278,7 +279,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
                                 >
                                     <option value="all">الكل</option>
-                                    {availableRoles.map((role:string, index:number) => (
+                                    {availableRoles.map((role: string, index: number) => (
                                         <option key={index} value={role}>
                                             {role}
                                         </option>
@@ -397,8 +398,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex justify-center">
                                                 <span className={`px-2 py-1 text-responsive-sm font-semibold rounded-md ${user.status === 'مقبول' ? 'bg-green-100 text-green-800' :
-                                                        user.status === 'مرفوض' ? 'bg-red-100 text-red-800' :
-                                                            'bg-slate-100 text-primary'
+                                                    user.status === 'مرفوض' ? 'bg-red-100 text-red-800' :
+                                                        'bg-slate-100 text-primary'
                                                     }`}>
                                                     {user.status === 'مقبول' ? 'مقبول' :
                                                         user.status === 'مرفوض' ? 'مرفوض' : 'قيد الانتظار'}
@@ -413,7 +414,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 text-center">
                                             {user.role?.map(r =>
-                                                availableRoles.find((ro:string) => ro === r)?.label || r
+                                                availableRoles.find((ro: string) => ro === r)?.label || r
                                             ).join(', ')}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
@@ -453,49 +454,42 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 </div>
 
                 {/* Pagination */}
-                <div className="flex items-center justify-between mt-4 px-2">
-                    <div className="text-sm text-slate-500">
-                        عرض <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> إلى{' '}
-                        <span className="font-medium">
-                            {Math.min(currentPage * itemsPerPage, pagination?.totalItems || 0)}
-                        </span>{' '}
-                        من <span className="font-medium">{pagination?.totalItems || 0}</span> نتائج
-                    </div>
-                    <div className="flex space-x-2 gap-2">
-                        <button
-                            onClick={() => onPageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className={`px-3 py-1 rounded-md border ${currentPage === 1 ?
-                                'bg-slate-100 text-slate-400 cursor-not-allowed' :
-                                'bg-white text-primary hover:bg-slate-50'
-                                }`}
-                        >
-                            السابق
-                        </button>
-                        {Array.from({ length: pagination?.totalPages || 1 }, (_, i) => i + 1).map((page) => (
+                {pagination && pagination.totalPages > 1 && (
+                    <div className="flex items-center justify-between mt-4 px-2">
+                        <div className="text-sm text-slate-500">
+                            عرض <span className="font-medium">{(pagination.currentPage - 1) * pagination.pageSize + 1}</span> إلى{' '}
+                            <span className="font-medium">
+                                {Math.min(pagination.currentPage * pagination.pageSize, pagination.totalUsers)}
+                            </span>{' '}
+                            من <span className="font-medium">{pagination.totalUsers}</span> نتائج
+                        </div>
+                        <div className="flex space-x-2 gap-2">
                             <button
-                                key={page}
-                                onClick={() => onPageChange(page)}
-                                className={`px-3 py-1 rounded-md ${currentPage === page ?
-                                    'bg-primary text-white' :
-                                    'bg-white text-primary hover:bg-slate-100 border'
-                                    }`}
+                                onClick={() => onPageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className={`px-3 py-1 rounded-md border ${currentPage === 1 ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white text-primary hover:bg-slate-50'}`}
                             >
-                                {page}
+                                السابق
                             </button>
-                        ))}
-                        <button
-                            onClick={() => onPageChange(currentPage + 1)}
-                            disabled={currentPage === (pagination?.totalPages || 1)}
-                            className={`px-3 py-1 rounded-md border ${currentPage === (pagination?.totalPages || 1) ?
-                                'bg-slate-100 text-slate-400 cursor-not-allowed' :
-                                'bg-white text-primary hover:bg-slate-50'
-                                }`}
-                        >
-                            التالي
-                        </button>
+                            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((pageNum) => (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => onPageChange(pageNum)}
+                                    className={`px-3 py-1 rounded-md ${currentPage === pageNum ? 'bg-primary text-white' : 'bg-white text-primary hover:bg-slate-100 border'}`}
+                                >
+                                    {pageNum}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => onPageChange(currentPage + 1)}
+                                disabled={currentPage === pagination.totalPages}
+                                className={`px-3 py-1 rounded-md border ${currentPage === pagination.totalPages ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white text-primary hover:bg-slate-50'}`}
+                            >
+                                التالي
+                            </button>
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Delete Confirmation Modal */}
                 <Modal

@@ -1,10 +1,10 @@
-import type { Member, MemberProps } from '../../types/member';
+import type { Member, MemberProps, GetMembers } from '../../types/member';
 import { baseApi } from './baseApi';
 
 export const memberApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getMembers: build.query<{
-            data: Member[];
+            data: GetMembers[];
             pagination: {
                 totalMembers: number;
                 totalPages: number;
@@ -29,7 +29,7 @@ export const memberApi = baseApi.injectEndpoints({
                 };
             },
             transformResponse: (response: {
-                data: Member[];
+                data: GetMembers[];
                 pagination: {
                     totalMembers: number;
                     totalPages: number;

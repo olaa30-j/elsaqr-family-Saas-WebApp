@@ -3,10 +3,10 @@ import { setCredentials } from '../../features/auth/authSlice';
 import type { User } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl:'https://sasa-nu.vercel.app/api/v1',
+  baseUrl:'https://saasz.vercel.app/api/v1',
   credentials: 'include',
   prepareHeaders: (headers) => {
-    headers.set('x-vercel-project-id', 'prj_JlEEV6yueRbWfPacfjbNgjeIIc82');
+    headers.set('x-vercel-project-id', 'prj_cfuoIu0xhG8XMD8plwbWq1cS6apR');
     return headers;
   },
 });

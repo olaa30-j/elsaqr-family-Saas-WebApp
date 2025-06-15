@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../../ui/Modal";
-import type { Member } from "../../../../types/member";
+import type { GetMembers, Member } from "../../../../types/member";
 import { toast } from "react-toastify";
 import { useDeleteMemberMutation } from "../../../../store/api/memberApi";
 import { genderOptions, familyBranches } from "../../../../types/member";
@@ -10,7 +10,7 @@ import MemberForm from "./MemberForm";
 interface MembersTableProps {
     currentPage: number;
     itemsPerPage?: number;
-    membersData: Member[];
+    membersData: GetMembers[];
     pagination?: {
         totalMembers: number;
         totalPages: number;
@@ -34,11 +34,13 @@ const MembersTable: React.FC<MembersTableProps> = ({
     selectedBranch,
     refetchMembers
 }) => {
+    console.log(membersData);
+    
     const navigate = useNavigate();
     const [sortConfig, setSortConfig] = useState<{ key: keyof Member; direction: 'asc' | 'desc' } | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+    const [memberToDelete, setMemberToDelete] = useState<GetMembers | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [deleteMember, { isLoading: isDeleting }] = useDeleteMemberMutation();
@@ -74,7 +76,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
         navigate(`/admin/members/${memberId}`);
     };
 
-    const handleDeleteClick = (member: Member) => {
+    const handleDeleteClick = (member: GetMembers) => {
         setMemberToDelete(member);
         setIsDeleteModalOpen(true);
     };

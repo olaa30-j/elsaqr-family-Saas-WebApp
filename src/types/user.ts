@@ -1,7 +1,7 @@
 import type { Permission } from "./permissionsStructure";
 
 export const familyBranches = [
-  { value: "الفرع الاول", label: 'الفرع الأول' },
+  { value: "الفرع الاول", label: 'الفرع الاول' },
   { value: "الفرع الثاني", label: 'الفرع الثاني' },
   { value: "الفرع الثالث", label: 'الفرع الثالث' },
   { value: "الفرع الرابع", label: 'الفرع الرابع' },
@@ -39,7 +39,7 @@ export interface User {
   _id?: string;
   tenantId: string;
   email: string;
-  password?: string;  
+  password?: string;
   phone: string;
   image?: string;
   role: string[];
@@ -71,8 +71,8 @@ export interface User {
 
 
 export interface Pagination {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  totalUsers: number,
+  totalPages: number,
+  currentPage: number,
+  pageSize: number,
 }
