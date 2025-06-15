@@ -280,7 +280,6 @@ const MemberForm: React.FC<MemberFormProps> = ({
                             <div className="bg-white p-4 rounded-lg shadow">
                                 <h3 className="text-lg font-medium mb-4 border-b pb-2">العلاقات العائلية</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Husband (for wives) */}
                                     {isFemale && relationship === 'زوجة' && (
                                         <div className="space-y-1">
                                             <label className="block text-sm font-medium text-gray-700">
@@ -289,15 +288,33 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                             <select
                                                 {...register('husband')}
                                                 disabled={maleMembers.length === 0}
-                                                defaultValue={getIdFromValue(defaultValues?.husband)}
+                                                value={getIdFromValue(defaultValues?.husband) || ''}
+                                                onChange={(e) => {
+                                                    register('husband').onChange(e);
+                                                }}
                                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
                                             >
                                                 <option value="">اختر الزوج</option>
-                                                {maleMembers.map(m => (
-                                                    <option key={m._id} value={m._id}>
-                                                        {m.fname} {m.lname}
-                                                    </option>
-                                                ))}
+                                                {maleMembers.map(m => {
+                                                    const currentHusbandId = getIdFromValue(defaultValues?.husband);
+                                                    const isCurrentHusband = currentHusbandId === m._id;
+
+                                                    return (
+                                                        <option
+                                                            key={m._id}
+                                                            value={m._id}
+                                                            selected={isCurrentHusband}
+                                                            className={isCurrentHusband ? "bg-blue-100 font-medium" : ""}
+                                                            style={isCurrentHusband ? {
+                                                                backgroundColor: '#ebf5ff',
+                                                                fontWeight: '500'
+                                                            } : {}}
+                                                        >
+                                                            {m.fname} {m.lname}
+                                                            {isCurrentHusband && " (زوج حالى)"}
+                                                        </option>
+                                                    );
+                                                })}
                                             </select>
                                             {maleMembers.length === 0 && (
                                                 <p className="mt-1 text-sm text-yellow-600">لا يوجد أزواج في هذا الفرع</p>
@@ -307,7 +324,6 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                             )}
                                         </div>
                                     )}
-
                                     {/* Wives (for husbands) */}
                                     {isMale && (relationship === 'ابن' || relationship === 'حفيد' || relationship === 'زوج') && (
                                         <>
@@ -348,11 +364,20 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                         multiple
                                                         {...register('wives')}
                                                         disabled={femaleMembers.length === 0}
-                                                        defaultValue={
+                                                        value={
                                                             Array.isArray(defaultValues?.wives)
                                                                 ? defaultValues.wives.map((w: any) => getIdFromValue(w))
                                                                 : []
                                                         }
+                                                        onChange={(e) => {
+                                                            const selected = Array.from(e.target.selectedOptions).map(option => option.value);
+                                                            register('wives').onChange({
+                                                                target: {
+                                                                    value: selected,
+                                                                    name: 'wives'
+                                                                }
+                                                            });
+                                                        }}
                                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
                                                     >
                                                         {femaleMembers.map(m => {
@@ -369,7 +394,10 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                                     key={m._id}
                                                                     value={m._id}
                                                                     className={isCurrentWife ? "bg-blue-100 font-medium" : ""}
-                                                                    style={isCurrentWife ? { backgroundColor: '#ebf5ff' } : {}}
+                                                                    style={isCurrentWife ? {
+                                                                        backgroundColor: '#ebf5ff',
+                                                                        fontWeight: '500'
+                                                                    } : {}}
                                                                 >
                                                                     {m.fname} {m.lname}
                                                                     {isCurrentWife && " (زوجة حالية)"}
@@ -384,7 +412,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                         <p className="mt-1 text-sm text-red-600">{errors.wives.message}</p>
                                                     )}
                                                 </div>
-                                            )}                
+                                            )}
                                         </>
                                     )}
 
@@ -397,15 +425,30 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                 </label>
                                                 <select
                                                     {...register('parents.father')}
-                                                    defaultValue={getIdFromValue(defaultValues?.parents?.father)}
+                                                    defaultValue={getIdFromValue(defaultValues?.parents?.father) || ''}
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                                                 >
                                                     <option value="">اختر الأب</option>
-                                                    {maleMembers.map(m => (
-                                                        <option key={m._id} value={m._id}>
-                                                            {m.fname} {m.lname}
-                                                        </option>
-                                                    ))}
+                                                    {maleMembers.map(m => {
+                                                        const currentFatherId = getIdFromValue(defaultValues?.parents?.father);
+                                                        const isCurrentFather = currentFatherId === m._id;
+
+                                                        return (
+                                                            <option
+                                                                key={m._id}
+                                                                value={m._id}
+                                                                selected={isCurrentFather}
+                                                                className={isCurrentFather ? "bg-blue-100 font-medium" : ""}
+                                                                style={isCurrentFather ? {
+                                                                    backgroundColor: '#ebf5ff',
+                                                                    fontWeight: '500'
+                                                                } : {}}
+                                                            >
+                                                                {m.fname} {m.lname}
+                                                                {isCurrentFather && " (أب حالى)"}
+                                                            </option>
+                                                        );
+                                                    })}
                                                 </select>
                                             </div>
 
@@ -415,15 +458,31 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                 </label>
                                                 <select
                                                     {...register('parents.mother')}
-                                                    defaultValue={getIdFromValue(defaultValues?.parents?.mother)}
+                                                    defaultValue={
+                                                        defaultValues?.parents?.mother?._id ||
+                                                        defaultValues?.parents?.mother ||
+                                                        ''
+                                                    }
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                                                 >
                                                     <option value="">اختر الأم</option>
-                                                    {femaleMembers.map(m => (
-                                                        <option key={m._id} value={m._id}>
-                                                            {m.fname} {m.lname}
-                                                        </option>
-                                                    ))}
+                                                    {femaleMembers.map(m => {
+                                                        const currentMotherId = defaultValues?.parents?.mother?._id || defaultValues?.parents?.mother;
+                                                        const isCurrentMother = currentMotherId === m._id;
+
+                                                        return (
+                                                            <option
+                                                                key={m._id}
+                                                                value={m._id}
+                                                                selected={isCurrentMother}
+                                                                className={isCurrentMother ? "bg-blue-100 font-medium" : ""}
+                                                                style={isCurrentMother ? { backgroundColor: '#ebf5ff' } : {}}
+                                                            >
+                                                                {m.fname} {m.lname}
+                                                                {isCurrentMother && " (أم حالية)"}
+                                                            </option>
+                                                        );
+                                                    })}
                                                 </select>
                                             </div>
                                         </>
