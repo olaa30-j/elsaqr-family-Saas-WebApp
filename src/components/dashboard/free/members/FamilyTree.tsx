@@ -34,7 +34,6 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
             });
         };
 
-        // الزوجات المرتبطة بهذا الزوج
         const wives = members.filter(m =>
             m.familyRelationship === 'زوجة' &&
             m.husband?._id === husband._id);
@@ -145,7 +144,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
 
         if (type === 'spouse') {
             return (
-                <div className={`${baseClass} bottom-0 left-1/2 w-0 h-6 border-l-2 border-dashed transform -translate-x-1/2`} />
+                <div className={`${baseClass} bottom-0 left-1/2 w-0 h-10 border-l-2 border-dashed transform -translate-x-1/2`} />
             );
         }
 
@@ -190,7 +189,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                     {renderConnectionLine('parent')}
                 </div>
 
-                <ul className="flex justify-center">
+                <ul className="flex justify-center ">
                     {daughters.map((daughter, index) => (
                         <motion.li
                             key={daughter._id}
@@ -203,14 +202,14 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                 {renderConnectionLine('sibling',
                                     index === 0 && sons.length === 0 ? 'first' :
                                         index === daughters.length - 1 && sons.length === 0 ? 'last' :
-                                            'middle'
+                                            'first'
                                 )}
                             </div>
 
                             <div className="pt-6">
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
-                                    className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50"
+                                    className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50 w-fit mx-auto"
                                 >
                                     {renderMemberCard(daughter, 'ابنة')}
                                 </motion.div>
@@ -240,7 +239,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                             <div className="pt-6">
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
-                                    className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-primary/10"
+                                    className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-primary/10 w-fit mx-auto"
                                 >
                                     {renderMemberCard(son, 'ابن')}
                                 </motion.div>
@@ -264,11 +263,11 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
 
         return (
             <div className="relative pt-6">
-                {/* <div className="absolute top-0 left-0 right-0 h-6 flex justify-center">
+                <div className="absolute top-0 left-0 right-0 h-6 flex justify-center">
                     {renderConnectionLine('parent')}
-                </div> */}
+                </div>
 
-                {/* <ul className="flex justify-center flex-wrap gap-2">
+                <ul className="flex justify-center flex-wrap gap-2">
                     {grandChildren.map((grandChild, index) => (
                         <motion.li
                             key={grandChild._id}
@@ -290,12 +289,12 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-2 py-1 bg-white rounded-md transition-all duration-300 hover:bg-green-50"
                                 >
-                                    {renderMemberCard(grandChild, grandChild.familyRelationship === 'ابن' ? 'حفيد' : 'حفيدة')}
+                                    {renderMemberCard(grandChild, grandChild.familyRelationship === 'ابن' ? 'ابن' : 'ابنة')}
                                 </motion.div>
                             </div>
                         </motion.li>
                     ))}
-                </ul> */}
+                </ul>
             </div>
         );
     };
@@ -409,7 +408,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                 className="border border-gray-300 bg-white rounded-md mx-auto w-fit p-4 relative"
                                             >
                                                 {renderMemberCard(familyTree.husband, 'زوج')}
-                                                <div className="absolute -bottom-3 left-0 right-0 h-20 flex justify-center pointer-events-none z-[-1]">
+                                                <div className="absolute -bottom-7 left-0 right-2 h-24 flex justify-center pointer-events-none z-[-1]">
                                                     {renderConnectionLine('spouse')}
                                                 </div>
                                             </motion.div>
@@ -421,21 +420,38 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                         {familyTree.wives.map((wife, index) => (
                                                             <motion.li
                                                                 key={wife._id}
-                                                                className="relative family-connector wife-to-children"
+                                                                className="relative"
                                                                 initial={{ opacity: 0, x: -20 }}
                                                                 animate={{ opacity: 1, x: 0 }}
                                                                 transition={{ duration: 0.3, delay: index * 0.1 }}
                                                             >
-                                                                <div className="flex flex-col items-center wives-connector">
+                                                                <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
+                                                                    {renderConnectionLine('sibling',
+                                                                        index === 0 && familyTree.wives.length === 1 ? 'first' :
+                                                                            index === familyTree.wives.length - 1 ? 'last' :
+                                                                                'first'
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="pt-6">
+                                                                    <motion.div
+                                                                        whileHover={{ scale: 1.05 }}
+                                                                        className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50 w-fit mx-auto"
+                                                                    >
+                                                                        {renderMemberCard(wife, 'زوجة')}
+                                                                    </motion.div>
+                                                                    {/* عرض أبناء هذه الزوجة مع الزوج */}
+                                                                    {familyTree.husband._id && wife._id && renderChildren(familyTree.husband._id, wife._id)}
+
+                                                                </div>
+                                                                {/* <div className="flex flex-col items-center wives-connector">
                                                                     <motion.div
                                                                         whileHover={{ scale: 1.05 }}
                                                                         className="border border-gray-300 bg-white rounded-md p-4"
                                                                     >
                                                                         {renderMemberCard(wife, 'زوجة')}
                                                                     </motion.div>
-                                                                    {/* عرض أبناء هذه الزوجة مع الزوج */}
-                                                                    {familyTree.husband._id && wife._id && renderChildren(familyTree.husband._id, wife._id)}
-                                                                </div>
+                                                                </div> */}
                                                             </motion.li>
                                                         ))}
                                                     </ul>
