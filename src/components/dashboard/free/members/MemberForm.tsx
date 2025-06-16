@@ -121,13 +121,11 @@ const MemberForm: React.FC<MemberFormProps> = ({
                 }
             };
 
-            // معالجة حقل parents بشكل خاص
             if (data.parents) {
                 prepareData('parents[father]', data.parents.father);
                 prepareData('parents[mother]', data.parents.mother);
             }
 
-            // معالجة بقية الحقول
             Object.entries(data).forEach(([key, value]) => {
                 if (key !== 'parents' && key !== 'image') {
                     prepareData(key, value);
@@ -288,10 +286,11 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                             <select
                                                 {...register('husband')}
                                                 disabled={maleMembers.length === 0}
-                                                value={getIdFromValue(defaultValues?.husband) || ''}
-                                                onChange={(e) => {
-                                                    register('husband').onChange(e);
-                                                }}
+                                                defaultValue={
+                                                    defaultValues?.husband._id ||
+                                                    defaultValues?.husband ||
+                                                    ''
+                                                }
                                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
                                             >
                                                 <option value="">اختر الزوج</option>

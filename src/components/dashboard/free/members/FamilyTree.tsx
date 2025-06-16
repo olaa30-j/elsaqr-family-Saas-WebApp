@@ -200,9 +200,9 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                         >
                             <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
                                 {renderConnectionLine('sibling',
-                                    index === 0 && sons.length === 0 ? 'first' :
-                                        index === daughters.length - 1 && sons.length === 0 ? 'last' :
-                                            'first'
+                                    index === 0 && daughters.length === 0 ? 'last' :
+                                        index === sons.length - 1 ? 'first' :
+                                            'middle'
                                 )}
                             </div>
 
@@ -311,10 +311,11 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
     return (
         <div className="mx-auto p-2 sm:p-4 bg-gray-50 rounded-lg">
             <TransformWrapper
-                initialScale={1}
-                minScale={0.5}
-                maxScale={3}
+                initialScale={0.7}
+                minScale={0.2}
+                maxScale={2}
                 initialPositionY={0}
+                initialPositionX={250}
                 wheel={{ step: 0.1 }}
                 doubleClick={{ disabled: true }}
                 limitToBounds={false}
@@ -401,14 +402,14 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                         {/* Husband */}
                                         <motion.li
                                             key={familyTree.husband._id}
-                                            className="text-center list-none relative family-connector"
+                                            className="text-center list-none mx-auto"
                                         >
                                             <motion.div
                                                 whileHover={{ scale: 1.05 }}
                                                 className="border border-gray-300 bg-white rounded-md mx-auto w-fit p-4 relative"
                                             >
                                                 {renderMemberCard(familyTree.husband, 'زوج')}
-                                                <div className="absolute -bottom-7 left-0 right-2 h-24 flex justify-center pointer-events-none z-[-1]">
+                                                <div className="absolute -bottom-6 left-0 right-2 h-24 flex justify-center pointer-events-none z-[-1]">
                                                     {renderConnectionLine('spouse')}
                                                 </div>
                                             </motion.div>
@@ -421,15 +422,15 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                             <motion.li
                                                                 key={wife._id}
                                                                 className="relative"
-                                                                initial={{ opacity: 0, x: -20 }}
+                                                                initial={{ opacity: 0, x: -10 }}
                                                                 animate={{ opacity: 1, x: 0 }}
                                                                 transition={{ duration: 0.3, delay: index * 0.1 }}
                                                             >
-                                                                <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
+                                                                <div className="absolute top-0 left-0 -right-4 h-10 flex justify-center">
                                                                     {renderConnectionLine('sibling',
-                                                                        index === 0 && familyTree.wives.length === 1 ? 'first' :
+                                                                        index === 0 ? 'first' :
                                                                             index === familyTree.wives.length - 1 ? 'last' :
-                                                                                'first'
+                                                                                'middle'
                                                                     )}
                                                                 </div>
 
@@ -444,14 +445,6 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                                     {familyTree.husband._id && wife._id && renderChildren(familyTree.husband._id, wife._id)}
 
                                                                 </div>
-                                                                {/* <div className="flex flex-col items-center wives-connector">
-                                                                    <motion.div
-                                                                        whileHover={{ scale: 1.05 }}
-                                                                        className="border border-gray-300 bg-white rounded-md p-4"
-                                                                    >
-                                                                        {renderMemberCard(wife, 'زوجة')}
-                                                                    </motion.div>
-                                                                </div> */}
                                                             </motion.li>
                                                         ))}
                                                     </ul>
