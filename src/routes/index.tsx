@@ -21,6 +21,7 @@ const LoginPage = lazy(() => import('../views/auth/LoginPage'));
 const RegisterPage = lazy(() => import('../views/auth/RegisterationPage'));
 const ForgetPasswordPage = lazy(() => import('../components/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../components/auth/ResetPasswordPage'));
+const ContactUsPage = lazy(() => import('../views/contactus/ContactUs'));
 
 // المسارات المحمية
 const DashboardPage = lazy(() => import('../views/dashboard/Dashboard'));
@@ -154,6 +155,14 @@ const routes: RouteObject[] = [
         element: (
           <SuspenseLoader>
             <Home />
+          </SuspenseLoader>
+        ),
+      },
+      {
+        path: 'contact-us',
+        element: (
+          <SuspenseLoader>
+            <ContactUsPage />
           </SuspenseLoader>
         ),
       },
@@ -298,7 +307,7 @@ const routes: RouteObject[] = [
                 <AdminPage />
               </SuspenseLoader>
             ),
-            handle: { 
+            handle: {
               permissions: [{ entity: 'مستخدم', action: 'view' }],
               description: 'لوحة الإدارة'
             },

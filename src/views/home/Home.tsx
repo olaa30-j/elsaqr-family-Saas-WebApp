@@ -4,7 +4,7 @@ import ExploreFeaturesSection from "../../components/home/ExploreFeaturesSection
 import FamilyReviewsSection from "../../components/home/FamilyReviewsSection";
 import JoinFamilySection from "../../components/home/JoinFamilySection";
 import MainHeroSection from "../../components/home/MainSection";
-import Footer from "../../components/shared/Footer";
+import ContactUs from "../contactus/ContactUs";
 
 const Home = () => {
 
@@ -16,7 +16,7 @@ const Home = () => {
       <ExploreFeaturesSection />
       <FamilyReviewsSection />
       <JoinFamilySection />
-      <Footer/>
+      <ContactUs/>
     </div>
   )
 }
