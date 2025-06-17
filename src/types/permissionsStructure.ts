@@ -19,8 +19,8 @@ export interface User {
   image?: string;
   role: string[];
   permissions: Permission[];
-  familyBranch: 'الفرع الخامس' | 'الفرع الرابع' | 'الفرع الثالث' | 'الفرع الثاني' | 'الفرع الاول';
-  familyRelationship: 'ابن' | 'ابنة' | 'زوجة' | 'زوج' | 'حفيد' | 'أخرى';
+  familyBranch: 'الفرع الثاني' | 'الفرع الاول';
+  familyRelationship: 'ابن' | 'ابنة' | 'زوجة' | 'زوج' | 'أخرى';
   status?: 'قيد الانتظار' | 'مرفوض' | 'مقبول';
   address?: string;
   createdAt?: string;

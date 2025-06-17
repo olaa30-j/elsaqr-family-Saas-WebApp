@@ -1,8 +1,5 @@
 export type Gender = "ذكر" | "أنثى";
 export type FamilyBranch =
-    | "الفرع الخامس"
-    | "الفرع الرابع"
-    | "الفرع الثالث"
     | "الفرع الثاني"
     | "الفرع الاول";
 
@@ -11,8 +8,6 @@ export type FamilyRelationship =
     | "ابنة"
     | "زوجة"
     | "زوج"
-    | "حفيد"
-    | "حفيدة"
     | "أخرى";
 
 
@@ -153,9 +148,6 @@ export const genderOptions = [
 ];
 
 export const familyBranches: FamilyBranch[] = [
-    "الفرع الخامس",
-    "الفرع الرابع",
-    "الفرع الثالث",
     "الفرع الثاني",
     "الفرع الاول",
 ];
@@ -165,7 +157,5 @@ export const familyRelationshipOptions = [
     { value: "ابنة", label: "ابنة" },
     { value: "زوج", label: "زوج" },
     { value: "زوجة", label: "زوجة" },
-    { value: "حفيد", label: "حفيد" },
-    { value: "حفيدة", label: "حفيدة" },
     { value: "أخرى", label: "أخرى" },
 ];

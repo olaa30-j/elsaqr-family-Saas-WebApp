@@ -44,9 +44,6 @@ export const memberSchema = yup.object().shape({
     familyBranch: yup
         .string()
         .oneOf([
-            "الفرع الخامس",
-            "الفرع الرابع",
-            "الفرع الثالث",
             "الفرع الثاني",
             "الفرع الاول"
         ], 'الفرع العائلي غير صالح')

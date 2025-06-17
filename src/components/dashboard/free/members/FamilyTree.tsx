@@ -406,14 +406,14 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                     minWidth: 'fit-content',
                                     display: 'flex',
                                     justifyContent: 'center',
-                                    alignItems: 'flex-start',
+                                    alignItems: 'center',
                                     padding: '20px'
                                 }}
                             >
                                 <div className="relative mx-auto scrollbar-hide" style={{
                                     minWidth: 'max-content',
                                     maxWidth: '100%',
-                                    transformOrigin: 'center top',
+                                    transformOrigin: 'center center',
                                 }}>
                                     <ul className="flex flex-col items-center justify-center mx-auto space-y-4 scrollbar-hide">
                                         {/* Husband */}

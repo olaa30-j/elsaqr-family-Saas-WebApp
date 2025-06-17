@@ -2,7 +2,7 @@ import { useGetMembersQuery } from "../../../../store/api/memberApi";
 import BranchCard from "./BranchCard";
 
 const BranchesList = () => {
-    const branches = ['الفرع الاول', 'الفرع الثاني', 'الفرع الثالث', 'الفرع الرابع', 'الفرع الخامس'];
+    const branches = ['الفرع الاول', 'الفرع الثاني'];
 
     const { data: allMembers, isLoading, error } = useGetMembersQuery({
         page: 1,

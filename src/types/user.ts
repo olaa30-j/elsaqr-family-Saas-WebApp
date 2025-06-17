@@ -3,9 +3,6 @@ import type { Permission } from "./permissionsStructure";
 export const familyBranches = [
   { value: "الفرع الاول", label: 'الفرع الاول' },
   { value: "الفرع الثاني", label: 'الفرع الثاني' },
-  { value: "الفرع الثالث", label: 'الفرع الثالث' },
-  { value: "الفرع الرابع", label: 'الفرع الرابع' },
-  { value: "الفرع الخامس", label: 'الفرع الخامس' },
 ];
 
 export const familyRelationships = [
@@ -13,7 +10,6 @@ export const familyRelationships = [
   { value: "ابنة", label: 'ابنة' },
   { value: "زوجة", label: 'زوجة' },
   { value: "زوج", label: 'زوج' },
-  { value: "حفيد", label: 'حفيد' },
   { value: "أخرى", label: 'أخرى' },
 ];
 
@@ -43,8 +39,8 @@ export interface User {
   phone: string;
   image?: string;
   role: string[];
-  familyBranch: 'الفرع الخامس' | 'الفرع الرابع' | 'الفرع الثالث' | 'الفرع الثاني' | 'الفرع الاول';
-  familyRelationship: 'ابن' | 'ابنة' | 'زوجة' | 'زوج' | 'حفيد' | 'أخرى';
+  familyBranch:  'الفرع الثاني' | 'الفرع الاول';
+  familyRelationship: 'ابن' | 'ابنة' | 'زوجة' | 'زوج' | 'أخرى';
   status?: 'قيد الانتظار' | 'مرفوض' | 'مقبول';
   address?: string;
   permissions: Permission[];
