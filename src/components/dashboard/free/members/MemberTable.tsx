@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useDeleteMemberMutation } from "../../../../store/api/memberApi";
 import { genderOptions, familyBranches } from "../../../../types/member";
 import MemberForm from "./MemberForm";
+import { CheckIcon, XIcon } from "lucide-react";
 
 interface MembersTableProps {
     currentPage: number;
@@ -35,7 +36,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
     refetchMembers
 }) => {
     console.log(membersData);
-    
+
     const navigate = useNavigate();
     const [sortConfig, setSortConfig] = useState<{ key: keyof Member; direction: 'asc' | 'desc' } | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -255,6 +256,10 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                     </div>
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
+                                    لديه حساب
+                                </th>
+
+                                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     الإجراءات
                                 </th>
                             </tr>
@@ -299,6 +304,17 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                                 </span>
                                             </div>
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-center">
+                                                <div className="font-medium text-slate-900">
+                                                    {member.isUser ? (
+                                                        <CheckIcon className="h-5 w-5 text-green-500 inline" />
+                                                    ) : (
+                                                        <XIcon className="h-5 w-5 text-red-500 inline" />
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                                             <div className="flex justify-center space-x-2 gap-2">
                                                 <button
@@ -337,7 +353,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
 
                 {/* Pagination */}
                 {pagination && pagination.totalPages > 1 && (
-                    <div className="flex items-center justify-between mt-4 px-2">
+                    <div className="flex items-center justify-between flex-col-reverse gap-4 md:flex-row mt-4 px-2">
                         <div className="text-sm text-slate-500">
                             عرض <span className="font-medium">{(pagination.currentPage - 1) * pagination.pageSize + 1}</span> إلى{' '}
                             <span className="font-medium">
