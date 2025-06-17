@@ -332,7 +332,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                 minScale={0.2}
                 maxScale={2}
                 initialPositionY={0}
-                initialPositionX={window.innerWidth > 789 ? window.innerWidth / 2 : window.innerWidth / 0.35}
+                initialPositionX={ window.innerWidth / 2}
                 wheel={{ step: 0.1 }}
                 doubleClick={{ disabled: true }}
                 limitToBounds={false}
