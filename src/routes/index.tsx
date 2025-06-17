@@ -52,6 +52,7 @@ const RolesPage = lazy(() => import('../components/dashboard/free/roles/Roles'))
 const RolesPermissionsPage = lazy(() => import('../components/dashboard/free/roles/RolePermissions'));
 
 const FamilyTreePage = lazy(() => import('../views/dashboard/familyTree/FamilyTreePage'));
+const NestedTreePage = lazy(() => import('../components/dashboard/free/members/ChildFamilyTree'));
 
 const NotificationSettingsPage = lazy(() => import('../views/dashboard/admin/NotificationSettingsPage'));
 
@@ -85,6 +86,10 @@ const routePermissions = {
     description: 'تفاصيل المعاملة المالية'
   },
   'family-tree/:branch': {
+    permissions: [{ entity: 'عضو', action: 'view' }],
+    description: 'شجرة العائلة'
+  },
+  'nested-tree/:memberId': {
     permissions: [{ entity: 'عضو', action: 'view' }],
     description: 'شجرة العائلة'
   },
@@ -272,6 +277,15 @@ const routes: RouteObject[] = [
               </SuspenseLoader>
             ),
             handle: routePermissions['family-tree/:branch']
+          },
+          {
+            path: 'nested-tree/:memberId',
+            element: (
+              <SuspenseLoader>
+                <NestedTreePage />
+              </SuspenseLoader>
+            ),
+            handle: routePermissions['nested-tree/:memberId']
           },
           {
             path: 'albums',

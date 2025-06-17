@@ -128,10 +128,19 @@ export const memberSchema = yup.object().shape({
         ),
 
     birthday: yup
-        .date()
+        .mixed()
         .nullable()
-        .max(new Date(), 'تاريخ الميلاد لا يمكن أن يكون في المستقبل')
+        .test(
+            'not-future',
+            'تاريخ الميلاد لا يمكن أن يكون في المستقبل',
+            (value:any) => {
+                if (!value) return true;
+                const date = new Date(value);
+                return date <= new Date();
+            }
+        )
         .typeError('يجب إدخال تاريخ ميلاد صالح'),
+
 
     deathDate: yup
         .mixed()
@@ -151,7 +160,7 @@ export const memberSchema = yup.object().shape({
             return null;
         })
         .optional(),
-        
+
     summary: yup
         .string()
         .optional()

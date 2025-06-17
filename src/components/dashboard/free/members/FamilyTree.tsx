@@ -5,6 +5,7 @@ import { DEFAULT_IMAGE } from '../../../auth/RegisterationForm';
 import { Plus, ZoomIn, ZoomOut } from 'lucide-react';
 import type { Gender, FamilyBranch, FamilyRelationship, GetMembers } from '../../../../types/member';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import { Link } from 'react-router-dom';
 
 interface FamilyTreeProps {
     familyBranch: FamilyBranch | string;
@@ -236,14 +237,14 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                 )}
                             </div>
 
-                            <div className="pt-6">
+                            <Link to={`/nested-tree/${son._id}`} className="pt-6">
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-primary/10 w-fit mx-auto"
                                 >
                                     {renderMemberCard(son, 'ابن')}
                                 </motion.div>
-                            </div>
+                            </Link>
 
                             {/* عرض أحفاد الابن إذا كان لديه أبناء */}
                             {son._id && renderGrandChildren(son._id)}

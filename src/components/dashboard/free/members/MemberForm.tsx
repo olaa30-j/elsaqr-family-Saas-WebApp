@@ -10,7 +10,6 @@ import {
 } from '../../../../store/api/memberApi';
 import type { GetMembers } from '../../../../types/member';
 
-// تعريف نوع للفرع العائلي
 type FamilyBranchType = "الفرع الخامس" | "الفرع الرابع" | "الفرع الثالث" | "الفرع الثاني" | "الفرع الاول";
 
 interface MemberFormProps {
@@ -28,8 +27,6 @@ const MemberForm: React.FC<MemberFormProps> = ({
     onCancel,
     isEditing = false,
 }) => {
-    console.log(defaultValues);
-
     const [familyBranch, setFamilyBranch] = useState<FamilyBranchType | ''>(defaultValues?.familyBranch || "");
     const [filteredMembers, setFilteredMembers] = useState<GetMembers[]>([]);
     const [maleMembers, setMaleMembers] = useState<GetMembers[]>([]);
@@ -37,6 +34,13 @@ const MemberForm: React.FC<MemberFormProps> = ({
     const [parentOptions, setParentOptions] = useState<GetMembers[]>([]);
     const [hasSpouse, setHasSpouse] = useState<boolean>(false);
     const [hasChildren, setHasChildren] = useState<boolean>(false);
+    const [selectedWives, setSelectedWives] = useState<string[]>([]);
+    const [selectedChildren, setSelectedChildren] = useState<string[]>([]);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [selectedImage, setSelectedImage] = useState<any>();
+    const [birthdayInput, setBirthdayInput] = useState('');
+    const [deathDateInput, setDeathDateInput] = useState('');
+
 
     const { data: membersData } = useGetMembersQuery({
         page: 1,
@@ -63,12 +67,12 @@ const MemberForm: React.FC<MemberFormProps> = ({
 
             const males = filtered.filter(m =>
                 m.gender === 'ذكر' &&
-                ['زوج', 'ابن', 'حفيد', 'أب'].includes(m.familyRelationship)
+                ['زوج', 'ابن', 'أخرى'].includes(m.familyRelationship)
             );
 
             const females = filtered.filter(m =>
                 m.gender === 'أنثى' &&
-                ['زوجة', 'ابنة', 'أم'].includes(m.familyRelationship)
+                ['زوجة', 'ابنة', 'أخرى'].includes(m.familyRelationship)
             );
 
             const parents = filtered.filter(m => {
@@ -91,6 +95,36 @@ const MemberForm: React.FC<MemberFormProps> = ({
                 setHasSpouse(spouseExists);
                 setHasChildren(childrenExist);
             }
+
+            if (defaultValues?.wives) {
+                const initialWives = Array.isArray(defaultValues.wives)
+                    ? defaultValues.wives.map((w: any) => getIdFromValue(w))
+                    : [];
+                setSelectedWives(initialWives);
+            }
+
+            if (defaultValues?.children) {
+                const initialChildren = Array.isArray(defaultValues.children)
+                    ? defaultValues.children.map((c: any) => getIdFromValue(c))
+                    : [];
+                setSelectedChildren(initialChildren);
+            }
+
+            if (defaultValues?.image) {
+                setImagePreview(defaultValues.image);
+            }
+
+            if (defaultValues?.birthday) {
+                const date = new Date(defaultValues.birthday);
+                setBirthdayInput(date.toISOString().split('T')[0]);
+            }
+
+            if (defaultValues?.deathDate) {
+                const date = new Date(defaultValues.deathDate);
+                setDeathDateInput(date.toISOString().split('T')[0]);
+            }
+
+
         }
     }, [membersData, familyBranch, defaultValues, isEditing]);
 
@@ -101,19 +135,16 @@ const MemberForm: React.FC<MemberFormProps> = ({
             const prepareData = (key: string, value: any) => {
                 if (value === null || value === undefined || value === '') return;
 
-                if (key === 'image' && value instanceof File) {
-                    formData.append(key, value);
-                }
-                else if (Array.isArray(value)) {
-                    value.forEach((item, i) => {
-                        if (typeof item === 'object' && item._id) {
-                            formData.append(`${key}[${i}]`, item._id);
-                        } else {
-                            formData.append(`${key}[${i}]`, item);
-                        }
+                else if (key === 'wives') {
+                    selectedWives.forEach((wifeId, i) => {
+                        formData.append(`wives[${i}]`, wifeId);
                     });
                 }
-                else if (typeof value === 'object' && value._id) {
+                else if (key === 'children') {
+                    selectedChildren.forEach((childrenId, i) => {
+                        formData.append(`children[${i}]`, childrenId);
+                    });
+                } else if (typeof value === 'object' && value._id) {
                     formData.append(key, value._id);
                 }
                 else {
@@ -127,7 +158,11 @@ const MemberForm: React.FC<MemberFormProps> = ({
             }
 
             Object.entries(data).forEach(([key, value]) => {
-                if (key !== 'parents' && key !== 'image') {
+
+                if (selectedImage && key === 'image') {
+                    formData.append('image', selectedImage);
+                }
+                else if (key !== 'parents' && key !== 'image') {
                     prepareData(key, value);
                 }
             });
@@ -156,6 +191,17 @@ const MemberForm: React.FC<MemberFormProps> = ({
         setFamilyBranch(value);
     };
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setSelectedImage(file);
+
+            const previewUrl = URL.createObjectURL(file);
+            setImagePreview(previewUrl);
+
+        }
+    };
+
 
     return (
         <BaseForm
@@ -172,13 +218,34 @@ const MemberForm: React.FC<MemberFormProps> = ({
                 const isMale = gender === 'ذكر';
                 const isFemale = gender === 'أنثى';
                 const isChild = ['ابن', 'ابنة'].includes(relationship);
-                const isGrandChild = ['حفيد', 'حفيدة'].includes(relationship);
 
                 return (
                     <div className="space-y-6">
                         {/* Basic Information Section */}
                         <div className="bg-white p-4 rounded-lg shadow">
                             <h3 className="text-lg font-medium mb-4 border-b pb-2">المعلومات الأساسية</h3>
+                            {/* Image */}
+                            <div className="space-y-1 md:col-span-2 flex items-end gap-6">
+                                {/* معاينة الصورة */}
+                                {imagePreview && (
+                                    <div className="mb-3">
+                                        <img
+                                            src={imagePreview}
+                                            alt="معاينة الصورة"
+                                            className="h-32 w-32 object-cover rounded-md border"
+                                        />
+                                    </div>
+                                )}
+
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    {...register('image')}
+                                    onChange={handleImageChange}
+                                    className="block w-full  text-sm text-gray-500 file:ml-4 file:py-2 file:my-4 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/5 file:text-primary hover:file:text-white hover:file:bg-primary "
+                                />
+                            </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* First Name */}
                                 <div className="space-y-1">
@@ -242,8 +309,6 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                         <option value="زوجة">زوجة</option>
                                         <option value="ابن">ابن</option>
                                         <option value="ابنة">ابنة</option>
-                                        <option value="حفيد">حفيد</option>
-                                        <option value="حفيدة">حفيدة</option>
                                         <option value="أخرى">أخرى</option>
                                     </select>
                                     {errors.familyRelationship && (
@@ -273,8 +338,8 @@ const MemberForm: React.FC<MemberFormProps> = ({
 
                         {/* Family Relationships Section */}
                         {(isFemale && relationship === 'زوجة') ||
-                            (isMale && (relationship === 'زوج' || relationship === 'ابن' || relationship === 'حفيد')) ||
-                            (isChild || isGrandChild) ? (
+                            (isMale && (relationship === 'زوج' || relationship === 'ابن')) ||
+                            (isChild) ? (
                             <div className="bg-white p-4 rounded-lg shadow">
                                 <h3 className="text-lg font-medium mb-4 border-b pb-2">العلاقات العائلية</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -324,7 +389,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                         </div>
                                     )}
                                     {/* Wives (for husbands) */}
-                                    {isMale && (relationship === 'ابن' || relationship === 'حفيد' || relationship === 'زوج') && (
+                                    {isMale && (relationship === 'ابن' || relationship === 'زوج') && (
                                         <>
                                             <div className="space-y-1">
                                                 <label className="block text-sm font-medium text-gray-700">
@@ -361,66 +426,42 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                     </label>
                                                     <select
                                                         multiple
-                                                        {...register('wives')}
                                                         disabled={femaleMembers.length === 0}
-                                                        value={
-                                                            Array.isArray(defaultValues?.wives)
-                                                                ? defaultValues.wives
-                                                                    .map((w: any) => getIdFromValue(w))
-                                                                    .filter((id: string | undefined): id is string => !!id)
-                                                                : []
-                                                        }
-                                                        onChange={(e) => {
-                                                            const selected = Array.from(e.target.selectedOptions, option => option.value);
-                                                            setValue('wives', selected);
-                                                        }}
                                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
+                                                        value={selectedWives}
+                                                        onChange={(e) => {
+                                                            const options = e.target.options;
+                                                            const newSelectedWives: string[] = [];
+                                                            for (let i = 0; i < options.length; i++) {
+                                                                if (options[i].selected) {
+                                                                    newSelectedWives.push(options[i].value);
+                                                                }
+                                                            }
+                                                            setSelectedWives(newSelectedWives);
+                                                        }}
                                                     >
-                                                        {femaleMembers.map(m => {
-                                                            const currentWives = Array.isArray(defaultValues?.wives)
-                                                                ? defaultValues.wives
-                                                                    .map((w: any) => getIdFromValue(w))
-                                                                    .filter((id: string | undefined): id is string => !!id)
-                                                                : [];
-
-                                                            const isCurrentWife = currentWives.includes(m._id);
-
-                                                            return (
-                                                                <option
-                                                                    key={m._id}
-                                                                    value={m._id}
-                                                                    className={isCurrentWife ? "bg-blue-100 font-medium" : ""}
-                                                                    style={isCurrentWife ? {
-                                                                        backgroundColor: '#ebf5ff',
-                                                                        fontWeight: '500'
-                                                                    } : {}}
-                                                                >
-                                                                    {m.fname} {m.lname}
-                                                                    {isCurrentWife && " (زوجة حالية)"}
-                                                                </option>
-                                                            );
-                                                        })}
+                                                        {femaleMembers.map(m => (
+                                                            <option key={m._id} value={m._id}>
+                                                                {m.fname} {m.lname}
+                                                            </option>
+                                                        ))}
                                                     </select>
+
 
                                                     {/* عرض الزوجات المختارة */}
                                                     <div className="flex flex-wrap gap-2 mt-2">
-                                                        {(Array.isArray(defaultValues?.wives)
-                                                            ? defaultValues.wives
-                                                                .map((w: any) => {
-                                                                    const id = getIdFromValue(w);
-                                                                    const wife = femaleMembers.find(m => m._id === id);
-                                                                    return wife ? { id, name: `${wife.fname} ${wife.lname}` } : null;
-                                                                })
-                                                                .filter(Boolean)
-                                                            : []).map((wife: { id: string; name: string }) => (
-                                                                <div key={wife.id} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm flex items-center">
-                                                                    {wife.name}
+                                                        {selectedWives.map((wifeId: any) => {
+                                                            const wife = femaleMembers.find(m => m._id === wifeId);
+                                                            if (!wife) return null;
+
+                                                            return (
+                                                                <div key={wife._id} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm flex items-center">
+                                                                    {wife.fname} {wife.lname}
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => {
-                                                                            const newWives = (Array.isArray(defaultValues?.wives)
-                                                                                ? defaultValues.wives.filter((w: any) => getIdFromValue(w) !== wife.id)
-                                                                                : []);
+                                                                            const currentWives = watch('wives') || [];
+                                                                            const newWives = currentWives.filter((id: any) => id !== wife._id);
                                                                             setValue('wives', newWives);
                                                                         }}
                                                                         className="mr-1 text-blue-600 hover:text-blue-800"
@@ -428,7 +469,8 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                                         &times;
                                                                     </button>
                                                                 </div>
-                                                            ))}
+                                                            );
+                                                        })}
                                                     </div>
 
                                                     <p className="mt-1 text-xs text-gray-500">
@@ -437,12 +479,11 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                     {errors.wives && (
                                                         <p className="mt-1 text-sm text-red-600">{errors.wives.message}</p>
                                                     )}
-                                                </div>
-                                            )}
+                                                </div>)}
                                         </>
                                     )}
                                     {/* Parents (for children) */}
-                                    {(isChild || isGrandChild) && (
+                                    {(isChild) && (
                                         <>
                                             <div className="space-y-1">
                                                 <label className="block text-sm font-medium text-gray-700">
@@ -517,7 +558,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                         ) : null}
 
                         {/* Children Section */}
-                        {(isMale || isFemale) && (relationship === 'زوج' || relationship === 'زوجة' || isChild || isGrandChild) && (
+                        {(isMale || isFemale) && (relationship === 'زوج' || relationship === 'زوجة' || isChild) && (
                             <div className="bg-white p-4 rounded-lg shadow">
                                 <h3 className="text-lg font-medium mb-4 border-b pb-2">الأبناء</h3>
                                 <div className="grid grid-cols-1 gap-4">
@@ -554,27 +595,57 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                             <label className="block text-sm font-medium text-gray-700">
                                                 الأبناء
                                             </label>
+
                                             <select
                                                 multiple
-                                                {...register('children')}
                                                 disabled={filteredMembers.length === 0}
-                                                defaultValue={
-                                                    Array.isArray(defaultValues?.children)
-                                                        ? defaultValues.children.map((c: any) => getIdFromValue(c))
-                                                        : []
-                                                }
                                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
+                                                value={selectedChildren}
+                                                onChange={(e) => {
+                                                    const options = e.target.options;
+                                                    const newSelectedChildren: string[] = [];
+                                                    for (let i = 0; i < options.length; i++) {
+                                                        if (options[i].selected) {
+                                                            newSelectedChildren.push(options[i].value);
+                                                        }
+                                                    }
+                                                    setSelectedChildren(newSelectedChildren);
+                                                    setValue('children', newSelectedChildren);
+                                                }}
                                             >
                                                 {filteredMembers
-                                                    .filter(m =>
-                                                        ['ابن', 'ابنة', 'حفيد', 'حفيدة'].includes(m.familyRelationship)
-                                                    )
+                                                    .filter(m => ['ابن', 'ابنة'].includes(m.familyRelationship))
                                                     .map(m => (
                                                         <option key={m._id} value={m._id}>
                                                             {m.fname} {m.lname} ({m.familyRelationship})
                                                         </option>
                                                     ))}
                                             </select>
+
+                                            {/* عرض الأبناء المختارين */}
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {selectedChildren.map(childId => {
+                                                    const child = filteredMembers.find(m => m._id === childId);
+                                                    if (!child) return null;
+
+                                                    return (
+                                                        <div key={child._id} className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm flex items-center">
+                                                            {child.fname} {child.lname} ({child.familyRelationship})
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const updatedChildren = selectedChildren.filter(id => id !== child._id);
+                                                                    setSelectedChildren(updatedChildren);
+                                                                }}
+                                                                className="ml-1 text-green-600 hover:text-green-800"
+                                                            >
+                                                                &times;
+                                                            </button>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+
                                             <p className="mt-1 text-xs text-gray-500">يمكن اختيار أكثر من ابن</p>
                                             {errors.children && (
                                                 <p className="mt-1 text-sm text-red-600">{errors.children.message}</p>
@@ -597,6 +668,8 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                     <input
                                         type="date"
                                         {...register('birthday')}
+                                        value={birthdayInput}
+                                        onChange={(e) => setBirthdayInput(e.target.value)}
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                                     />
                                     {errors.birthday && (
@@ -612,24 +685,13 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                     <input
                                         type="date"
                                         {...register('deathDate')}
+                                        value={deathDateInput}
+                                        onChange={(e) => setDeathDateInput(e.target.value)}
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                                     />
                                     {errors.deathDate && (
                                         <p className="mt-1 text-sm text-red-600">{errors.deathDate.message}</p>
                                     )}
-                                </div>
-
-                                {/* Image */}
-                                <div className="space-y-1 md:col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        صورة العضو
-                                    </label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        {...register('image')}
-                                        className="block w-full text-sm text-gray-500 file:mx-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                    />
                                 </div>
 
                                 {/* Summary */}
