@@ -78,7 +78,7 @@ const EditMember = () => {
                 isEditing={true}
             />
 
-            <>
+            <div className="mt-10">
                 <div className="bg-white p-6 rounded-lg shadow">
                     <h3 className="text-lg font-medium mb-4">ربط عضو بالمستخدم</h3>
 
@@ -116,7 +116,7 @@ const EditMember = () => {
                         </div>
                     </form>
                 </div>
-            </>
+            </div>
         </div>
     )
 }
