@@ -4,13 +4,12 @@ import Modal from "../../../ui/Modal";
 import type { User } from "../../../../types/user";
 import { toast } from "react-toastify";
 import { useDeleteUserMutation } from "../../../../store/api/usersApi";
-import { statusOptions, familyRelationships } from "../../../../types/user";
+import { statusOptions } from "../../../../types/user";
 import UserForm from "./UserForm";
 import { useGetAllRolesQuery } from '../../../../store/api/roleApi';
 
 type FilterOptions = {
     status?: User['status'];
-    familyRelationship?: User['familyRelationship'];
     role?: string;
 };
 
@@ -84,12 +83,10 @@ const UsersTable: React.FC<UsersTableProps> = ({
             phone.includes(searchTerm);
 
         const matchesStatus = !filters.status || user.status === filters.status;
-        const matchesRelationship = !filters.familyRelationship ||
-            user.familyRelationship === filters.familyRelationship;
         const matchesRole = !filters.role ||
             (user.role && user.role.includes(filters.role));
 
-        return matchesSearch && matchesStatus && matchesRelationship && matchesRole;
+        return matchesSearch && matchesStatus  && matchesRole;
     });
 
     const sortedUsers = [...filteredUsers].sort((a, b) => {
@@ -249,24 +246,6 @@ const UsersTable: React.FC<UsersTableProps> = ({
                                 </select>
                             </div>
 
-                            {/* Relationship Filter */}
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
-                                    صلة القرابة
-                                </label>
-                                <select
-                                    value={filters.familyRelationship || 'all'}
-                                    onChange={(e) => handleFilterChange('familyRelationship', e.target.value)}
-                                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
-                                >
-                                    <option value="all">الكل</option>
-                                    {familyRelationships.map(({ value, label }) => (
-                                        <option key={value} value={value}>
-                                            {label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
 
                             {/* Role Filter */}
                             <div>
@@ -318,16 +297,6 @@ const UsersTable: React.FC<UsersTableProps> = ({
                                 <th
                                     scope="col"
                                     className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
-                                    onClick={() => handleSort('familyBranch')}
-                                >
-                                    <div className="flex items-center justify-center gap-1">
-                                        الفرع العائلي
-                                        {getSortIcon('familyBranch')}
-                                    </div>
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
                                     onClick={() => handleSort('status')}
                                 >
                                     <div className="flex items-center justify-center gap-1">
@@ -343,16 +312,6 @@ const UsersTable: React.FC<UsersTableProps> = ({
                                     <div className="flex items-center justify-center gap-1">
                                         رقم الجوال
                                         {getSortIcon('phone')}
-                                    </div>
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
-                                    onClick={() => handleSort('familyRelationship')}
-                                >
-                                    <div className="flex items-center justify-center gap-1">
-                                        صلة القرابة
-                                        {getSortIcon('familyRelationship')}
                                     </div>
                                 </th>
                                 <th
@@ -389,13 +348,6 @@ const UsersTable: React.FC<UsersTableProps> = ({
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-center">
-                                                <div className="font-medium text-slate-900">
-                                                    {user.familyBranch}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex justify-center">
                                                 <span className={`px-2 py-1 text-responsive-sm font-semibold rounded-md ${user.status === 'مقبول' ? 'bg-green-100 text-green-800' :
                                                     user.status === 'مرفوض' ? 'bg-red-100 text-red-800' :
@@ -408,9 +360,6 @@ const UsersTable: React.FC<UsersTableProps> = ({
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 text-center">
                                             {user.phone}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 text-center">
-                                            {familyRelationships.find(r => r.value === user.familyRelationship)?.label || user.familyRelationship}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 text-center">
                                             {user.role?.map(r =>

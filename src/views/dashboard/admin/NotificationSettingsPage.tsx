@@ -50,6 +50,7 @@ const NotificationSettingsPage = () => {
         
         entityTypes.forEach(({ value }) => {
             if (allQueries[value]?.data?.data) {
+                console.log(allQueries[value]?.data);
                 newToggleStates[value] = allQueries[value].data.data.show;
             }
         });
@@ -75,8 +76,7 @@ const NotificationSettingsPage = () => {
 
     const handleSaveChanges = useCallback(async () => {
         try {
-            setLoadingStates(prev => ({ ...prev, global: true }));
-
+            setLoadingStates(prev => ({ ...prev, global: true }));            
             const changes = entityTypes
                 .filter(({ value }) => {
                     const serverState = allQueries[value]?.data?.data?.show;
@@ -99,7 +99,7 @@ const NotificationSettingsPage = () => {
                     allQueries[entityType].refetch();
                 });
             } else {
-                toast.info('لا يوجد تغييرات لحفظها');
+                toast.info('لا يوجد إشعارات لتفعيل الخاصية من المستخدم');
             }
         } catch (err) {
             toast.error('حدث خطأ أثناء حفظ التغييرات');

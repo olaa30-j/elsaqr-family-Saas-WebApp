@@ -7,7 +7,7 @@ const AlbumsList = () => {
     const user = useAppSelector((state) => state.auth.user);
     const { data: albumsData, isLoading, isError } = useGetAlbumsQuery({ page: 1, limit: 10 });
     const filteredAlbums = user?.role[0] === "مستخدم"
-        ? albumsData?.data?.filter((album: any) => album.createdBy?.familyBranch === user.familyBranch)
+        ? albumsData?.data?.filter((album: any) => album.createdBy?.memberId.familyBranch === user.memberId.familyBranch)
         : albumsData?.data;
 
     return (
@@ -17,7 +17,7 @@ const AlbumsList = () => {
                     <Album className="w-5 h-5 mx-2 text-primary" />
                     ألبومات الصور
                     {user?.role[0] === "مستخدم" && (
-                        <span className="text-sm text-gray-500 mr-2">({user.familyBranch})</span>
+                        <span className="text-sm text-gray-500 mr-2">({user.memberId.familyBranch})</span>
                     )}
                 </h2>
             </div>
@@ -30,7 +30,7 @@ const AlbumsList = () => {
                 <div className="p-4 overflow-y-auto flex-grow">
                     {filteredAlbums?.length ? (
                         <div className="md:grid md:grid-cols-2 lg:grid-cols-3 flex overflow-x-auto gap-4">
-                            {filteredAlbums.map((album, index) => (
+                            {filteredAlbums?.map((album, index) => (
                                 <Link to={`/albums/${album._id}`} key={index} >
                                     <div className="border rounded-lg p-3 hover:shadow-md transition-shadow flex justify-between">
                                         <div className="flex-1">
@@ -41,9 +41,9 @@ const AlbumsList = () => {
                                                     {album.createdBy?.email || "مستخدم غير معروف"}
                                                 </span>
                                             </p>
-                                            {album.createdBy?.familyBranch && (
+                                            {album.createdBy?.memberId.familyBranch && (
                                                 <p className="text-gray-500 text-xs mt-1">
-                                                    الفرع العائلي: {album.createdBy.familyBranch || "غير محدد"}    
+                                                    الفرع العائلي: {album.createdBy.memberId.familyBranch || "غير محدد"}    
                                                 </p>
                                             )}
                                             <div className="mt-2 text-sm text-primary">

@@ -19,13 +19,11 @@ export interface User {
   image?: string;
   role: string[];
   permissions: Permission[];
-  familyBranch: 'الفرع الثاني' | 'الفرع الاول';
-  familyRelationship: 'ابن' | 'ابنة' | 'زوجة' | 'زوج' | 'أخرى';
   status?: 'قيد الانتظار' | 'مرفوض' | 'مقبول';
   address?: string;
   createdAt?: string;
   updatedAt?: string;
-  memberId?: {
+  memberId: {
     _id: string;
     fname: string;
     lname: string;

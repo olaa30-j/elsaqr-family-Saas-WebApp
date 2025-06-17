@@ -20,8 +20,6 @@ export interface UserId {
   address: string;
   birthday: string;
   image: string;
-  familyBranch: string;
-  familyRelationship: string;
   role: string[]; 
   status: 'مقبول' | 'معلق' | 'مرفوض'; 
   tenantId: string;

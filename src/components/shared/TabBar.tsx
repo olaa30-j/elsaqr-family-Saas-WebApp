@@ -2,12 +2,14 @@ import React from "react";
 import type { TabBarProps } from "../../types/home";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from "../../store/store";
-import { isActive } from "../../App";
 import { toast } from "react-toastify";
 import { usePermission } from "../../hooks/usePermission";
+import { useGetAuthUserQuery } from "../../store/api/baseApi";
 
 const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
   const { isAuthenticated, user } = useAppSelector(state => state.auth);
+  const { isSuccess } = useGetAuthUserQuery();
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -19,12 +21,16 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
   const { hasPermission: canViewFamily } = usePermission('MEMBER_VIEW');
 
   const handleNavigation = (path: string) => {
-    if (!isAuthenticated && path !== '/') {
+    if (!isAuthenticated && !isSuccess && path !== '/') {
       toast.warn("يرجى تسجيل الدخول");
       navigate('/login', { state: { from: path } });
       return;
     }
     navigate(path);
+  };
+
+  const isTabActive = (path: string) => {
+    return location.pathname.startsWith(path);
   };
 
   return (
@@ -33,14 +39,12 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
         {/* Home - Always visible */}
         <button
           onClick={() => handleNavigation(homeButton)}
-          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/') ? 'text-primary' : 'text-color-2/60 hover:text-primary'
-            }`}
+          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isTabActive(homeButton) ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
         >
           <div className="flex h-8 w-8 items-center justify-center">
             <svg
               aria-hidden="true"
-              className={`h-5 w-5 ${isActive(homeButton) ? 'text-primary' : 'text-color-2/60 hover:text-primary'
-                }`}
+              className={`h-5 w-5 ${isTabActive(homeButton) ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
               viewBox="0 0 576 512"
             >
               <path
@@ -49,21 +53,19 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
               />
             </svg>
           </div>
-          <span className="mt-1">الرئيسية</span>
+          <span className={`mt-1 ${isTabActive(homeButton) ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}>الرئيسية</span>
         </button>
 
         {/* Family Tree - Conditional */}
         {(canViewFamily || !isAuthenticated) && (
           <button
-            onClick={() => handleNavigation(`/family-tree/${user?.familyBranch}`)}
-            className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/family-tree') ? 'text-primary' : 'text-color-2 hover:text-foreground'
-              }`}
+            onClick={() => handleNavigation(`/family-tree/${user?.memberId.familyBranch}`)}
+            className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isTabActive('/family-tree') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
           >
             <div className="flex h-8 w-8 items-center justify-center">
               <svg
                 aria-hidden="true"
-                className={`h-5 w-5 ${isActive(`/family-tree/${user?.familyBranch}`) ? 'text-primary' : 'text-color-2/60 hover:text-primary'
-                  }`}
+                className={`h-5 w-5 ${isTabActive('/family-tree') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
                 viewBox="0 0 640 512"
               >
                 <path
@@ -72,7 +74,7 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
                 />
               </svg>
             </div>
-            <span className="mt-1">العائلة</span>
+            <span className={`mt-1 ${isTabActive('/family-tree') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}>العائلة</span>
           </button>
         )}
 
@@ -80,13 +82,12 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
         {(canViewAds || !isAuthenticated) && (
           <button
             onClick={() => handleNavigation('/advertisement')}
-            className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/advertisements') ? 'text-primary' : 'text-color-2 hover:text-foreground'
-              }`}
+            className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isTabActive('/advertisement') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
           >
             <div className="flex h-8 w-8 items-center justify-center">
               <svg
                 aria-hidden="true"
-                className={`h-5 w-5 ${isActive('/advertisement') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
+                className={`h-5 w-5 ${isTabActive('/advertisement') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
                 viewBox="0 0 448 512"
               >
                 <path
@@ -95,7 +96,7 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
                 />
               </svg>
             </div>
-            <span className="mt-1">الإعلانات</span>
+            <span className={`mt-1 ${isTabActive('/advertisement') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}>الإعلانات</span>
           </button>
         )}
 
@@ -103,41 +104,37 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
         {(canViewGallery || !isAuthenticated) && (
           <button
             onClick={() => handleNavigation('/albums')}
-            className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive('/albums') ? 'text-primary' : 'text-color-2 hover:text-foreground'
-              }`}
+            className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isTabActive('/albums') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
           >
             <div className="flex h-8 w-8 items-center justify-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className={`h-5 w-5 ${isActive('/albums') ? 'text-primary' : 'text-color-2/60 hover:text-primary'
-                  }`}
+                className={`h-5 w-5 ${isTabActive('/albums') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
                 viewBox="0 0 24 24"
                 fill="currentColor"
               >
                 <path d="M21 19V5a2 2 0 0 0-2-2H5c-1.1 0-2 .9-2 2v14h18zm-2-2H5V5h14v12zm-5.5-4.5l-2.5 3.01L10 13l-3 4h10l-3.5-4.5z" />
               </svg>
             </div>
-            <span className="mt-1">المعرض</span>
+            <span className={`mt-1 ${isTabActive('/albums') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}>المعرض</span>
           </button>
         )}
 
         {/* More - Always visible */}
         <button
           onClick={() => {
-            if (!isAuthenticated) {
+            if (!isSuccess) {
               navigate('/login');
               return;
             }
             setShowMoreOptions();
           }}
-          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${location.pathname.startsWith('/more') ? 'text-primary' : 'text-color-2 hover:text-foreground'
-            }`}
+          className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${location.pathname.startsWith('/more') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
         >
           <div className="flex h-8 w-8 items-center justify-center">
             <svg
               aria-hidden="true"
-              className={`h-5 w-5 ${location.pathname.startsWith('/more') ? 'text-primary' : 'text-color-2/60 hover:text-primary'
-                }`}
+              className={`h-5 w-5 ${location.pathname.startsWith('/more') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
               viewBox="0 0 448 512"
             >
               <path
@@ -146,7 +143,7 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
               />
             </svg>
           </div>
-          <span className="mt-1">المزيد</span>
+          <span className={`mt-1 ${location.pathname.startsWith('/more') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}>المزيد</span>
         </button>
       </div>
     </nav>

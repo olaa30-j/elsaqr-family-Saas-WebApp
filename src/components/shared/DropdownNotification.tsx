@@ -6,7 +6,6 @@ import {
   useMarkAllAsReadMutation
 } from '../../store/api/notificationApi';
 import { Link } from 'react-router-dom';
-// import type { INotification } from '../../types/notifications';
 
 const DropdownNotification = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +13,7 @@ const DropdownNotification = () => {
   
   const { data: notificationsData, refetch: refetchNotifications } = useGetNotificationsQuery({ 
     page: 1, 
-    limit: 10 
+    limit: 20  
   });
   
   const { data: unreadCountData, refetch: refetchUnreadCount } = useGetUnreadCountQuery();
@@ -78,9 +77,10 @@ const DropdownNotification = () => {
         onClick={toggleDropdown}
         className="p-2 rounded-full hover:bg-gray-200 relative"
       >
+        {/* تغيير لون الأيقونة عند وجود إشعارات غير مقروءة */}
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
-          className="h-6 w-6 text-gray-600" 
+          className={`h-6 w-6 ${unreadCount > 0 ? 'text-primary animate-bell' : 'text-gray-600'}`} 
           fill="none" 
           viewBox="0 0 24 24" 
           stroke="currentColor"
@@ -91,11 +91,21 @@ const DropdownNotification = () => {
             strokeWidth={2} 
             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" 
           />
+          {/* إضافة نقطة حمراء صغيرة داخل الأيقونة */}
+          {unreadCount > 0 && (
+            <circle 
+              cx="18" 
+              cy="6" 
+              r="3" 
+              fill="#EF4444" 
+              className="animate-pulse"
+            />
+          )}
         </svg>
         
         {/* Unread count badge */}
         {unreadCount > 0 && (
-          <span className="absolute -left-6 md:left-0 top-12  inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+          <span className="absolute -left-6 md:left-0 top-12 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -103,8 +113,8 @@ const DropdownNotification = () => {
       
       {/* Dropdown Content */}
       {isOpen && (
-        <div className="absolute -left-6 md:left-0 top-16 w-80 bg-white rounded-md shadow-lg overflow-hidden z-[1000]">
-          <div className="">
+        <div className="absolute -left-6 md:left-0 top-16 w-80 bg-white rounded-md shadow-lg overflow-hidden z-[1000]  min-h-[40vh] max-h-[70vh]">
+          <div className="flex flex-col h-[500px]">
             {/* Header */}
             <div className="px-4 py-4 flex justify-between items-center border-b bg-gray-100">
               <h3 className="font-semibold text-primary">الإشعارات</h3>
@@ -117,7 +127,7 @@ const DropdownNotification = () => {
             </div>
             
             {/* Notifications List */}
-            <div className="max-h-96 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">  
               {notifications.length === 0 ? (
                 <div className="px-4 py-3 text-center text-gray-500">
                   لا توجد إشعارات جديدة
@@ -126,7 +136,7 @@ const DropdownNotification = () => {
                 notifications.map((notification: any) => (
                   <div 
                     key={notification._id}
-                    className={`px-4 py-3 hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}`}
+                    className={`px-4 py-3 hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-primary/5' : ''}`}
                     onClick={() => handleMarkAsRead(notification._id)}
                   >
                     <div className="flex items-start">
@@ -139,7 +149,7 @@ const DropdownNotification = () => {
                         </p>
                       </div>
                       {!notification.read && (
-                        <div className="ml-auto h-2 w-2 rounded-full bg-blue-500"></div>
+                        <div className="ml-auto h-2 w-2 rounded-full bg-primary/50"></div>
                       )}
                     </div>
                   </div>
@@ -152,6 +162,7 @@ const DropdownNotification = () => {
               <Link
                 to={`/profile?tab=activities`}
                 className="text-sm font-medium text-primary hover:text-primary/90"
+                onClick={() => setIsOpen(false)}
               >
                 عرض جميع الإشعارات
               </Link>
@@ -159,8 +170,9 @@ const DropdownNotification = () => {
           </div>
         </div>
       )}
+
     </div>
-  );
+  ); 
 };
 
 export default DropdownNotification;

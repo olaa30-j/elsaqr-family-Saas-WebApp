@@ -19,7 +19,9 @@ export interface Album {
     lname: string;
     email?: string;
     image?: string;
-    familyBranch?:string;
+    memberId:{
+      familyBranch:string;
+    }
   };
   createdAt: string | Date;
   updatedAt: string | Date;

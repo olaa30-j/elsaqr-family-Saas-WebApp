@@ -39,14 +39,12 @@ export interface User {
   phone: string;
   image?: string;
   role: string[];
-  familyBranch:  'الفرع الثاني' | 'الفرع الاول';
-  familyRelationship: 'ابن' | 'ابنة' | 'زوجة' | 'زوج' | 'أخرى';
   status?: 'قيد الانتظار' | 'مرفوض' | 'مقبول';
   address?: string;
   permissions: Permission[];
   createdAt?: string;
   updatedAt?: string;
-  memberId?: {
+  memberId: {
     _id: string;
     fname: string;
     lname: string;

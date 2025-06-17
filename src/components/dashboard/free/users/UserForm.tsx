@@ -147,52 +147,6 @@ const UserForm: React.FC<UserFormProps> = ({
                             )}
                         </div>
 
-                        {/* Family Branch Field */}
-                        <div className="space-y-2">
-                            <label htmlFor="familyBranch" className="block text-sm font-medium text-gray-700">
-                                فرع العائلة
-                            </label>
-                            <select
-                                id="familyBranch"
-                                {...register('familyBranch')}
-                                className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                disabled={isUpdating || isCreating}
-                            >
-                                <option value="">اختر فرع العائلة</option>
-                                <option value="الفرع الخامس">الفرع الخامس</option>
-                                <option value="الفرع الرابع">الفرع الرابع</option>
-                                <option value="الفرع الثالث">الفرع الثالث</option>
-                                <option value="الفرع الثاني">الفرع الثاني</option>
-                                <option value="الفرع الاول">الفرع الاول</option>
-                            </select>
-                            {errors.familyBranch && (
-                                <p className="mt-1 text-sm text-red-600">{errors.familyBranch.message}</p>
-                            )}
-                        </div>
-
-                        {/* Family Relationship Field */}
-                        <div className="space-y-2">
-                            <label htmlFor="familyRelationship" className="block text-sm font-medium text-gray-700">
-                                صلة القرابة
-                            </label>
-                            <select
-                                id="familyRelationship"
-                                {...register('familyRelationship')}
-                                className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                disabled={isUpdating || isCreating}
-                            >
-                                <option value="">اختر صلة القرابة</option>
-                                <option value="ابن">ابن</option>
-                                <option value="ابنة">ابنة</option>
-                                <option value="زوج">زوج</option>
-                                <option value="زوجة">زوجة</option>
-                                <option value="حفيد">حفيد</option>
-                                <option value="أخرى">أخرى</option>
-                            </select>
-                            {errors.familyRelationship && (
-                                <p className="mt-1 text-sm text-red-600">{errors.familyRelationship.message}</p>
-                            )}
-                        </div>
 
                         {/* Address Field */}
                         <div className="space-y-2">

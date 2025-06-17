@@ -1,11 +1,11 @@
 import { useSearchParams } from 'react-router-dom';
 import {
     useGetNotificationsQuery,
-    useDeleteNotificationMutation,
+    // useDeleteNotificationMutation,
     useMarkAsReadMutation
 } from '../../../../store/api/notificationApi';
-import { Trash2 } from 'lucide-react';
-import { toast } from 'react-toastify';
+// import { Trash2 } from 'lucide-react';
+// import { toast } from 'react-toastify';
 
 const ActivitiesSettings = () => {
     const [searchParams] = useSearchParams();
@@ -16,17 +16,17 @@ const ActivitiesSettings = () => {
         limit: 10
     });
 
-    const [deleteNotification] = useDeleteNotificationMutation();
+    // const [deleteNotification] = useDeleteNotificationMutation();
     const [markAsRead] = useMarkAsReadMutation();
 
-    const handleDelete = async (id: string) => {
-        try {
-            await deleteNotification(id).unwrap();
-            toast.error("تم حذف الإشعار بنجاح")
-        } catch (error) {
-            console.error('Failed to delete notification:', error);
-        }
-    };
+    // const handleDelete = async (id: string) => {
+    //     try {
+    //         await deleteNotification(id).unwrap();
+    //         toast.error("تم حذف الإشعار بنجاح")
+    //     } catch (error) {
+    //         console.error('Failed to delete notification:', error);
+    //     }
+    // };
 
     const handleMarkAsRead = async (id: string) => {
         try {
@@ -109,13 +109,13 @@ const ActivitiesSettings = () => {
                                                 وضع مقروء
                                             </button>
                                         )}
-                                        <button
+                                        {/* <button
                                             onClick={() => handleDelete(notification._id)}
                                             className="p-1 hover:bg-red-50 rounded-full transition-colors"
                                             title="حذف الإشعار"
                                         >
                                             <Trash2 className='w-5 h-5 text-red-500' />
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                             </div>

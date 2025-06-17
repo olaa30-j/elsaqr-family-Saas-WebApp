@@ -3,8 +3,6 @@ import * as yup from 'yup';
 export const userSchema = yup.object().shape({
     email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
     phone: yup.string().required('رقم الهاتف مطلوب'),
-    familyBranch: yup.string().optional(),
-    familyRelationship: yup.string().optional(),
     address: yup.string().optional(),
     role: yup.string().optional(),
     status: yup.string().optional(),
