@@ -1,4 +1,4 @@
-import { Calendar1Icon, Skull } from 'lucide-react';
+import { Calendar1Icon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DEFAULT_IMAGE } from '../../../auth/RegisterationForm';
 
@@ -54,7 +54,7 @@ const BranchCard = ({ familyBranch, mainHusband }: BranchCardProps) => {
                                 {mainHusband.deathDate && (
                                     <div className="flex justify-between items-center text-red-600">
                                         <span className="flex items-center gap-1">
-                                            <Skull className="w-4 h-4" />
+                                            <Calendar1Icon className="w-4 h-4" />
                                             <span>الوفاة:</span>
                                         </span>
                                         <span>{new Date(mainHusband.deathDate).toLocaleDateString('ar-EG')}</span>

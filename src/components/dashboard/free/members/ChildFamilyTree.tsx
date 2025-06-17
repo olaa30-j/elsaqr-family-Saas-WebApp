@@ -252,8 +252,8 @@ const ChildFamilyTree = () => {
                                     </div>
                                 )
                             }
-                            
-                            <div className={`${children.length > 1? 'pt-6': 'pt-0'}`}>
+
+                            <div className={`${children.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50 w-fit mx-auto"
@@ -288,7 +288,7 @@ const ChildFamilyTree = () => {
                                 )
                             }
 
-                            <div className={`${children.length > 1? 'pt-6': 'pt-0'}`}>
+                            <div className={`${children.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-primary/10 w-fit mx-auto"
@@ -377,7 +377,7 @@ const ChildFamilyTree = () => {
                         <div className="flex flex-col items-center gap-4 mb-4 bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
                             <div className='flex flex-col md:flex-row justify-between w-full gap-3'>
                                 <div className="text-right">
-                                    <Link to = {`/family-tree/${familyTree.member.familyBranch}`}
+                                    <Link to={`/family-tree/${familyTree.member.familyBranch}`}
                                         className="text-sm text-primary hover:underline mb-2"
                                     >
                                         ← العودة إلى الشجرة الرئيسية
@@ -500,7 +500,7 @@ const ChildFamilyTree = () => {
 
                                                                             )
                                                                         }
-                                                                        <div className={`${familyTree.wives.length > 1? 'pt-6': 'pt-0'}`}>
+                                                                        <div className={`${familyTree.wives.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                                                             <motion.div
                                                                                 whileHover={{ scale: 1.05 }}
                                                                                 className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50 w-fit mx-auto"
@@ -553,7 +553,7 @@ const ChildFamilyTree = () => {
                                                                             )}
                                                                         </div>
 
-                                                                        <div className={`${familyTree.wives.length > 1? 'pt-6': 'pt-0'}`}>
+                                                                        <div className={`${familyTree.wives.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                                                             <motion.div
                                                                                 whileHover={{ scale: 1.05 }}
                                                                                 className={`border border-gray-300 px-3 py-2 rounded-md transition-all duration-300 w-fit mx-auto ${wife._id === familyTree.member._id ? 'bg-purple-100 hover:bg-purple-200' : 'bg-white hover:bg-purple-50'}`}

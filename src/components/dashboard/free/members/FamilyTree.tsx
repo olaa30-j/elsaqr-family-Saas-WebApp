@@ -87,10 +87,10 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                         {member.fname} {member.lname}
                     </p>
                     <p className="text-xs text-gray-400">({role})</p>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-gray-500 mt-1 flex gap-1 justify-center">
                         <p>{formatDate(member.birthday)}</p>
                         {member.deathDate && (
-                            <p>{formatDate(member.deathDate)}</p>
+                            <p> - {formatDate(member.deathDate)}</p>
                         )}
                     </div>
                 </div>
@@ -199,15 +199,20 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                             transition={{ duration: 0.5 }}
                             className="relative px-2"
                         >
-                            <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
-                                {renderConnectionLine('sibling',
-                                    index === 0 && daughters.length === 0 ? 'last' :
-                                        index === sons.length - 1 ? 'first' :
-                                            'middle'
-                                )}
-                            </div>
+                            {
+                                (children.length > 1) && (
+                                    <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
+                                        {renderConnectionLine('sibling',
+                                            index === 0 && daughters.length === 0 ? 'last' :
+                                                index === sons.length - 1 ? 'first' :
+                                                    'middle'
+                                        )}
+                                    </div>
+                                )
 
-                            <div className="pt-6">
+                            }
+
+                            <div className={`${children.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50 w-fit mx-auto"
@@ -229,15 +234,20 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                             transition={{ duration: 0.5 }}
                             className="relative px-2"
                         >
-                            <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
-                                {renderConnectionLine('sibling',
-                                    index === 0 && daughters.length === 0 ? 'first' :
-                                        index === sons.length - 1 ? 'last' :
-                                            'middle'
-                                )}
-                            </div>
+                            {
+                                (children.length > 1) && (
+                                    <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
+                                        {renderConnectionLine('sibling',
+                                            index === 0 && daughters.length === 0 ? 'first' :
+                                                index === sons.length - 1 ? 'last' :
+                                                    'middle'
+                                        )}
+                                    </div>
+                                )
 
-                            <Link to={`/nested-tree/${son._id}`} className="pt-6">
+                            }
+
+                            <Link to={`/nested-tree/${son._id}`} className={`${children.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-primary/10 w-fit mx-auto"
@@ -277,15 +287,21 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                             transition={{ duration: 0.5, delay: index * 0.1 }}
                             className="relative px-1"
                         >
-                            <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
-                                {renderConnectionLine('sibling',
-                                    index === 0 ? 'first' :
-                                        index === grandChildren.length - 1 ? 'last' :
-                                            'middle'
-                                )}
-                            </div>
 
-                            <div className="pt-6">
+                            {
+                                (grandChildren.length > 1) && (
+                                    <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
+                                        {renderConnectionLine('sibling',
+                                            index === 0 ? 'first' :
+                                                index === grandChildren.length - 1 ? 'last' :
+                                                    'middle'
+                                        )}
+                                    </div>
+                                )
+
+                            }
+
+                            <div className={`${grandChildren.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-2 py-1 bg-white rounded-md transition-all duration-300 hover:bg-green-50"
@@ -312,11 +328,11 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
     return (
         <div className="mx-auto p-2 sm:p-4 bg-gray-50 rounded-lg">
             <TransformWrapper
-                initialScale={0.7}
+                initialScale={ 0.7 }
                 minScale={0.2}
                 maxScale={2}
                 initialPositionY={0}
-                initialPositionX={250}
+                initialPositionX={window.innerWidth > 789 ? window.innerWidth / 2 : window.innerWidth / 0.35}
                 wheel={{ step: 0.1 }}
                 doubleClick={{ disabled: true }}
                 limitToBounds={false}
@@ -389,7 +405,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                     width: '100%',
                                     minWidth: 'fit-content',
                                     display: 'flex',
-                                    justifyContent: 'center',
+                                    justifyContent: 'center', 
                                     alignItems: 'flex-start',
                                     padding: '20px'
                                 }}
@@ -397,9 +413,9 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                 <div className="relative mx-auto scrollbar-hide" style={{
                                     minWidth: 'max-content',
                                     maxWidth: '100%',
-                                    transformOrigin: 'center top'
+                                    transformOrigin: 'center top',
                                 }}>
-                                    <ul className="flex flex-col items-center space-y-4 scrollbar-hide">
+                                    <ul className="flex flex-col items-center justify-center mx-auto space-y-4 scrollbar-hide">
                                         {/* Husband */}
                                         <motion.li
                                             key={familyTree.husband._id}
