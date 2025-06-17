@@ -93,20 +93,22 @@ const ProfilePage = () => {
     const member = memberResponse.data || memberResponse as Member;
 
     const defaultValues = {
-      fname: member.fname ?? '',
-      lname: member.lname ?? '',
-      familyBranch: member.familyBranch ?? 'الفرع الاول',
-      familyRelationship: member.familyRelationship ?? 'ابن',
-      gender: member.gender ?? 'أنثى',
-      birthday: member.birthday ?? null,
-      deathDate: member.deathDate ?? null,
-      father: member.parents?.father ?? '',
-      mother: member.parents?.mother ?? '',
-      husband: member.husband ?? '',
-      wives: member.wives ?? [],
-      children: member.children ?? [],
-      image: member.image ?? null,
-      summary: member.summary ?? ''
+        fname: member.fname ?? '',
+        lname: member.lname ?? '',
+        familyBranch: member.familyBranch ?? 'الفرع الاول',
+        familyRelationship: member.familyRelationship ?? 'ابن',
+        gender: member.gender ?? 'أنثى',
+        birthday: member.birthday ?? null,
+        deathDate: member.deathDate ?? null,
+        parents: {
+            father: member.parents?.father ?? '',
+            mother: member.parents?.mother ?? ''
+        },
+        husband: member.husband?._id ?? '',
+        wives: member.wives ?? [],
+        children: member.children ?? [],
+        image: member.image ?? null,
+        summary: member.summary ?? ''
     };
 
     return [

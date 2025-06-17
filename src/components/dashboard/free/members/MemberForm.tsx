@@ -360,7 +360,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                             >
                                                 <option value="">اختر الزوج</option>
                                                 {maleMembers.map(m => {
-                                                    const currentHusbandId = getIdFromValue(defaultValues?.husband);
+                                                    const currentHusbandId = getIdFromValue(defaultValues?.husband._id || defaultValues?.husband);
                                                     const isCurrentHusband = currentHusbandId === m._id;
 
                                                     return (
@@ -496,7 +496,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                                 >
                                                     <option value="">اختر الأب</option>
                                                     {maleMembers.map(m => {
-                                                        const currentFatherId = getIdFromValue(defaultValues?.parents?.father);
+                                                        const currentFatherId = getIdFromValue(defaultValues?.parents?.father._id);
                                                         const isCurrentFather = currentFatherId === m._id;
 
                                                         return (

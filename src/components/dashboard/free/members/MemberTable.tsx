@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../../ui/Modal";
-import type { GetMembers, Member } from "../../../../types/member";
+import type { FamilyBranch, GetMembers } from "../../../../types/member";
 import { toast } from "react-toastify";
 import { useDeleteMemberMutation } from "../../../../store/api/memberApi";
 import { genderOptions, familyBranches } from "../../../../types/member";
 import MemberForm from "./MemberForm";
-import { CheckIcon, XIcon } from "lucide-react";
+import { CheckIcon, XIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 interface MembersTableProps {
     currentPage: number;
@@ -35,10 +35,8 @@ const MembersTable: React.FC<MembersTableProps> = ({
     selectedBranch,
     refetchMembers
 }) => {
-    console.log(membersData);
-
     const navigate = useNavigate();
-    const [sortConfig, setSortConfig] = useState<{ key: keyof Member; direction: 'asc' | 'desc' } | null>(null);
+    const [sortConfig, setSortConfig] = useState<{ key: keyof GetMembers | 'parents'; direction: 'asc' | 'desc' } | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [memberToDelete, setMemberToDelete] = useState<GetMembers | null>(null);
@@ -46,7 +44,13 @@ const MembersTable: React.FC<MembersTableProps> = ({
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [deleteMember, { isLoading: isDeleting }] = useDeleteMemberMutation();
 
-    const handleSort = (key: keyof Member) => {
+    // Advanced filters state
+    const [fatherFilter, setFatherFilter] = useState("");
+    const [motherFilter, setMotherFilter] = useState("");
+    const [hasAccountFilter, setHasAccountFilter] = useState<boolean | null>(null);
+    const [genderFilter, setGenderFilter] = useState("");
+
+    const handleSort = (key: keyof GetMembers | 'parents') => {
         let direction: 'asc' | 'desc' = 'asc';
         if (sortConfig?.key === key && sortConfig.direction === 'asc') {
             direction = 'desc';
@@ -54,24 +58,87 @@ const MembersTable: React.FC<MembersTableProps> = ({
         setSortConfig({ key, direction });
     };
 
-    const filteredMembers = membersData.filter(member => {
-        const fullName = `${member.fname} ${member.lname}`.toLowerCase();
-        return searchTerm === "" || fullName.includes(searchTerm.toLowerCase());
-    });
+    const allFathers = useMemo(() => {
+        const fathers = new Set<string>();
+        membersData.forEach((member: GetMembers) => {
+            if (member.parents && typeof member.parents.father !== 'string' && member.parents.father?.fname && member.parents.father?.lname) {
+                fathers.add(`${member.parents.father.fname} ${member.parents.father.lname}`);
+            }
+        });
+        return Array.from(fathers).sort((a, b) => a.localeCompare(b, 'ar'));
+    }, [membersData]);
 
-    const sortedMembers = [...filteredMembers].sort((a, b) => {
-        if (!sortConfig) return 0;
+    const allMothers = useMemo(() => {
+        const mothers = new Set<string>();
+        membersData.forEach((member: GetMembers) => {
+            if (member.parents && typeof member.parents.mother !== 'string' && member.parents.mother?.fname && member.parents.mother?.lname) {
+                mothers.add(`${member.parents.mother.fname} ${member.parents.mother.lname}`);
+            }
+        });
+        return Array.from(mothers).sort((a, b) => a.localeCompare(b, 'ar'));
+    }, [membersData]);
 
-        const aValue = a[sortConfig.key];
-        const bValue = b[sortConfig.key];
+    const filteredMembers = useMemo(() => {
+        return membersData.filter(member => {
+            // Name search
+            const fullName = `${member.fname} ${member.lname}`.toLowerCase();
+            const nameMatch = searchTerm === "" || fullName.includes(searchTerm.toLowerCase());
 
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-            return sortConfig.direction === 'asc'
-                ? aValue.localeCompare(bValue, 'ar')
-                : bValue.localeCompare(aValue, 'ar');
-        }
-        return 0;
-    });
+            // Branch filter
+            const branchMatch = selectedBranch === "" || member.familyBranch === selectedBranch;
+
+            // Parent filters
+            const fatherMatch = fatherFilter === "" ||
+                (member.parents?.father &&
+                    (typeof member.parents.father === 'string' ?
+                        member.parents.father.includes(fatherFilter) :
+                        member.parents.father.fname.includes(fatherFilter)));
+
+            const motherMatch = motherFilter === "" ||
+                (member.parents?.mother &&
+                    (typeof member.parents.mother === 'string' ?
+                        member.parents.mother.includes(motherFilter) :
+                        member.parents.mother.fname.includes(motherFilter)));
+
+            // Account filter
+            const accountMatch = hasAccountFilter === null || member.isUser === hasAccountFilter;
+
+            // Gender filter
+            const genderMatch = genderFilter === "" || member.gender === genderFilter;
+
+            return nameMatch && branchMatch && fatherMatch && motherMatch && accountMatch && genderMatch;
+        });
+    }, [membersData, searchTerm, selectedBranch, fatherFilter, motherFilter, hasAccountFilter, genderFilter]);
+
+    const sortedMembers = useMemo(() => {
+        return [...filteredMembers].sort((a, b) => {
+            if (!sortConfig) return 0;
+
+            // Handle parent sorting
+            if (sortConfig.key === 'parents') {
+                const aFather = (a.parents?.father && typeof a.parents.father !== 'string') ? a.parents.father.fname : '';
+                const bFather = (b.parents?.father && typeof b.parents.father !== 'string') ? b.parents.father.fname : '';
+                const aMother = (a.parents?.mother && typeof a.parents.mother !== 'string') ? a.parents.mother.fname : '';
+                const bMother = (b.parents?.mother && typeof b.parents.mother !== 'string') ? b.parents.mother.fname : '';
+
+                if (sortConfig.direction === 'asc') {
+                    return aFather.localeCompare(bFather, 'ar') || aMother.localeCompare(bMother, 'ar');
+                } else {
+                    return bFather.localeCompare(aFather, 'ar') || bMother.localeCompare(aMother, 'ar');
+                }
+            }
+
+            const aValue = a[sortConfig.key as keyof GetMembers];
+            const bValue = b[sortConfig.key as keyof GetMembers];
+
+            if (typeof aValue === 'string' && typeof bValue === 'string') {
+                return sortConfig.direction === 'asc'
+                    ? aValue.localeCompare(bValue, 'ar')
+                    : bValue.localeCompare(aValue, 'ar');
+            }
+            return 0;
+        });
+    }, [filteredMembers, sortConfig]);
 
     const handleEdit = (memberId: string) => {
         navigate(`/admin/members/${memberId}`);
@@ -101,34 +168,26 @@ const MembersTable: React.FC<MembersTableProps> = ({
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleBranchFilter = (branch: string) => {
+    const handleBranchFilter = (branch: FamilyBranch | "") => {
         onBranchChange(branch);
     };
 
     const clearFilters = () => {
         onBranchChange("");
         setSearchTerm("");
+        setFatherFilter("");
+        setMotherFilter("");
+        setHasAccountFilter(null);
+        setGenderFilter("");
     };
 
-    const getSortIcon = (key: keyof Member) => {
+    const getSortIcon = (key: keyof GetMembers | 'parents') => {
         if (!sortConfig || sortConfig.key !== key) {
-            return (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2"
-                    stroke="currentColor" className="w-4 h-4 opacity-50">
-                    <path strokeLinecap="round" strokeLinejoin="round"
-                        d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"></path>
-                </svg>
-            );
+            return <ChevronDownIcon className="w-4 h-4 opacity-50" />;
         }
-        return (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2"
-                stroke="currentColor" className="w-4 h-4">
-                <path strokeLinecap="round" strokeLinejoin="round"
-                    d={sortConfig.direction === 'asc' ?
-                        "M19.5 8.25l-7.5 7.5-7.5-7.5" :
-                        "M4.5 15.75l7.5-7.5 7.5 7.5"}></path>
-            </svg>
-        );
+        return sortConfig.direction === 'asc'
+            ? <ChevronUpIcon className="w-4 h-4" />
+            : <ChevronDownIcon className="w-4 h-4" />;
     };
 
     if (isLoading) {
@@ -191,20 +250,83 @@ const MembersTable: React.FC<MembersTableProps> = ({
                 {/* Filter Panel */}
                 {isFilterOpen && (
                     <div className="bg-white p-4 shadow-sm rounded-lg border border-slate-200 mb-4">
-                        <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">
                                     الفرع العائلي
                                 </label>
                                 <select
                                     value={selectedBranch}
-                                    onChange={(e) => handleBranchFilter(e.target.value)}
+                                    onChange={(e) => handleBranchFilter(e.target.value as FamilyBranch || "")}
                                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
                                 >
                                     <option value="">كل الفروع</option>
                                     {familyBranches.map((branch) => (
                                         <option key={branch} value={branch}>{branch}</option>
                                     ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                    الأب
+                                </label>
+                                <select
+                                    value={fatherFilter}
+                                    onChange={(e) => setFatherFilter(e.target.value)}
+                                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
+                                >
+                                    <option value="">كل الآباء</option>
+                                    {allFathers.map((father) => (
+                                        <option key={father} value={father}>{father}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                    الأم
+                                </label>
+                                <select
+                                    value={motherFilter}
+                                    onChange={(e) => setMotherFilter(e.target.value)}
+                                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
+                                >
+                                    <option value="">كل الأمهات</option>
+                                    {allMothers.map((mother) => (
+                                        <option key={mother} value={mother}>{mother}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                    الجنس
+                                </label>
+                                <select
+                                    value={genderFilter}
+                                    onChange={(e) => setGenderFilter(e.target.value)}
+                                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
+                                >
+                                    <option value="">كل الأجناس</option>
+                                    {genderOptions.map((gender) => (
+                                        <option key={gender.value} value={gender.value}>{gender.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                    لديه حساب
+                                </label>
+                                <select
+                                    value={hasAccountFilter === null ? '' : hasAccountFilter ? 'true' : 'false'}
+                                    onChange={(e) => setHasAccountFilter(e.target.value === '' ? null : e.target.value === 'true')}
+                                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
+                                >
+                                    <option value="">الكل</option>
+                                    <option value="true">لديه حساب</option>
+                                    <option value="false">ليس لديه حساب</option>
                                 </select>
                             </div>
                         </div>
@@ -243,6 +365,26 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                     <div className="flex items-center justify-center gap-1">
                                         الفرع العائلي
                                         {getSortIcon('familyBranch')}
+                                    </div>
+                                </th>
+                                <th
+                                    scope="col"
+                                    className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
+                                    onClick={() => handleSort('parents')}
+                                >
+                                    <div className="flex items-center justify-center gap-1">
+                                        الأب
+                                        {getSortIcon('parents')}
+                                    </div>
+                                </th>
+                                <th
+                                    scope="col"
+                                    className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
+                                    onClick={() => handleSort('parents')}
+                                >
+                                    <div className="flex items-center justify-center gap-1">
+                                        الأم
+                                        {getSortIcon('parents')}
                                     </div>
                                 </th>
                                 <th
@@ -288,12 +430,31 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                                 <div className="font-medium text-slate-900">
                                                     {member.fname} {member.lname}
                                                 </div>
+                                                <div className="text-sm text-slate-500">
+                                                    {member.birthday ? new Date(member.birthday).toLocaleDateString('ar-EG') : '-'}
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-center">
                                                 <div className="font-medium text-slate-900">
                                                     {member.familyBranch}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-center">
+                                                <div className="font-medium text-slate-900">
+                                                    {member.parents?.father && typeof member.parents.father !== 'string' ?
+                                                        `${member.parents.father.fname} ${member.parents.father.lname}` : '-'}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-center">
+                                                <div className="font-medium text-slate-900">
+                                                    {member.parents?.mother && typeof member.parents.mother !== 'string' ?
+                                                       `${member.parents.mother.fname} ${member.parents.mother.lname}` : '-'}
                                                 </div>
                                             </div>
                                         </td>
@@ -342,7 +503,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-4 text-center text-slate-500">
+                                    <td colSpan={8} className="px-6 py-4 text-center text-slate-500">
                                         لا توجد بيانات متاحة
                                     </td>
                                 </tr>
@@ -411,7 +572,6 @@ const MembersTable: React.FC<MembersTableProps> = ({
 
                 {/* Add Member Modal */}
                 {isAddModalOpen && (
-
                     <Modal
                         isOpen={isAddModalOpen}
                         onClose={() => setIsAddModalOpen(false)}

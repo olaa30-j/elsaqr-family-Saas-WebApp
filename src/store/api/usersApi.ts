@@ -85,6 +85,19 @@ export const userApi = baseApi.injectEndpoints({
                 { type: 'Users' as const, id: 'LIST' },
             ],
         }),
+
+        swapMember: build.mutation<User, { userId: string; newMemberId: string }>({
+            query: ({ userId, newMemberId }) => ({
+                url: `/user/swap-member/${userId}`,
+                method: 'PATCH',
+                body: { newMemberId },
+                credentials: 'include'
+            }),
+            invalidatesTags: (_result, _error, { userId }) => [
+                { type: 'Users' as const, id: userId },
+                { type: 'Users' as const, id: 'LIST' },
+            ],
+        }),
     }),
 });
 
@@ -95,4 +108,5 @@ export const {
     useUpdateUserMutation,
     useDeleteUserMutation,
     useUpdatePermissionsMutation,
+    useSwapMemberMutation,
 } = userApi;

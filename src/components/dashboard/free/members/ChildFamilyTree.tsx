@@ -28,8 +28,6 @@ const ChildFamilyTree = () => {
                 (m.familyRelationship === 'زوجة' || 'أخرى') &&
                 m.husband?._id === selectedMember._id);
 
-            console.log(wives, selectedMember);
-
             const children = sortChildren(
                 members.filter(m =>
                     (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') &&
