@@ -56,8 +56,6 @@ const MembersTable: React.FC<MembersTableProps> = ({
         }
         setSortConfig({ key, direction });
     };
-
-    console.log(membersData);
     
     const allFathers = useMemo(() => {
         const fathers = new Set<string>();
