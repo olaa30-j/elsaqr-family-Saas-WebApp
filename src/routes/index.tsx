@@ -57,6 +57,7 @@ const NestedTreePage = lazy(() => import('../components/dashboard/free/members/C
 const NotificationSettingsPage = lazy(() => import('../views/dashboard/admin/NotificationSettingsPage'));
 
 const AdDetailsPage = lazy(() => import('../components/dashboard/free/advertisement/AdDetails'));
+const EditAdPage = lazy(() => import('../components/dashboard/free/advertisement/EditAd'));
 
 const NotFoundPage = lazy(() => import('../views/errors/NotFoundPage'));
 
@@ -74,6 +75,10 @@ const routePermissions = {
   },
   'advertisement-details/:id': {
     permissions: [{ entity: 'اعلان', action: 'view' }],
+    description: 'إدارة الإعلانات'
+  },
+  'advertisement-edit/:id': {
+    permissions: [{ entity: 'اعلان', action: 'update' }],
     description: 'إدارة الإعلانات'
   },
   financial: {
@@ -250,6 +255,15 @@ const routes: RouteObject[] = [
               </SuspenseLoader>
             ),
             handle: routePermissions['advertisement-details/:id']
+          },
+                    {
+            path: 'advertisement-edit/:id',
+            element: (
+              <SuspenseLoader>
+                <EditAdPage />
+              </SuspenseLoader>
+            ),
+            handle: routePermissions['advertisement-edit/:id']
           },
           {
             path: 'financial',

@@ -95,6 +95,8 @@ export const advertisementApi = baseApi.injectEndpoints({
         { type: 'Advertisements' as const, id: 'LIST' },
       ],
     }),
+
+    
     // Delete advertisement
     deleteAdvertisement: build.mutation<{ message: string }, string>({
       query: (id) => ({

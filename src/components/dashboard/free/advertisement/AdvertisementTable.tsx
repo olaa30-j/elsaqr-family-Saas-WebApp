@@ -15,13 +15,14 @@ import {
 } from 'lucide-react';
 import type { IAdvertisement, IAdvertisementForm, AdvertisementType, AdvertisementStatus } from '../../../../types/advertisement';
 import Modal from '../../../ui/Modal';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { usePermission } from '../../../../hooks/usePermission';
 import AdvertisementForm from './AdvertisementForm';
 import AdvertisementTypeBadge from './AdvertisementTypeBadge';
 import AdvertisementStatusBadge from './AdvertisementStatusBadge';
+import RichTextRenderer from '../../../shared/RichTextRenderer';
 
 type SortField = keyof IAdvertisement;
 type SortDirection = 'asc' | 'desc';
@@ -44,6 +45,7 @@ const AdvertisementTable = () => {
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [currentAd, setCurrentAd] = useState<IAdvertisement | null>(null);
+    const divRef = useRef<HTMLDivElement>(null);
 
     const { data, isLoading, isError, error, refetch } = useGetAdvertisementsQuery({
         page: currentPage,
@@ -51,6 +53,14 @@ const AdvertisementTable = () => {
     }, {
         refetchOnMountOrArgChange: true
     });
+
+    useEffect(() => {
+        if (divRef.current) {
+            const fullText = divRef.current.textContent || divRef.current.innerText;
+            const truncated = fullText.slice(0, 16);
+            divRef.current.textContent = truncated + (fullText.length > 16 ? "..." : "");
+        }
+    }, [data]);
 
     const [deleteAd] = useDeleteAdvertisementMutation();
     const [createAd, { isLoading: isCreating }] = useCreateAdvertisementMutation();
@@ -379,8 +389,8 @@ const AdvertisementTable = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="text-center text-sm text-slate-500 line-clamp-2">
-                                                {ad.content.substring(0, 60)}...
+                                            <div className="text-center text-sm text-slate-500 line-clamp-2" ref={divRef}>
+                                                <RichTextRenderer content={ad.content} /> 
                                             </div>
                                         </td>
                                         {(canEditAD || canDeleteAD) && (

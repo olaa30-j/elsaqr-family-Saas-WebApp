@@ -1,13 +1,14 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { Loader2, Image as ImageIcon, X, SaveIcon } from 'lucide-react';
 import type { IAdvertisement, IAdvertisementForm } from '../../../../types/advertisement';
+import RichTextEditor from '../../../shared/RichTextEditor';
 
 type AdvertisementFormProps = {
     currentAd: IAdvertisement | null;
     onSubmit: (formData: IAdvertisementForm) => Promise<void>;
     onCancel: () => void;
     isLoading: boolean;
-    baseUrl?: string;  
+    baseUrl?: string;
 };
 
 const AdvertisementForm = ({
@@ -15,7 +16,7 @@ const AdvertisementForm = ({
     onSubmit,
     onCancel,
     isLoading,
-    baseUrl = ''  
+    baseUrl = ''
 }: AdvertisementFormProps) => {
     const [formData, setFormData] = useState<IAdvertisementForm>({
         title: '',
@@ -36,7 +37,7 @@ const AdvertisementForm = ({
                 status: currentAd.status,
                 image: null
             });
-            
+
             if (currentAd.image) {
                 setImagePreview(`${baseUrl}${currentAd.image}`);
             }
@@ -52,7 +53,7 @@ const AdvertisementForm = ({
         if (e.target.files?.[0]) {
             const file = e.target.files[0];
             setFormData(prev => ({ ...prev, image: file }));
-            
+
             // Create preview URL
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -120,19 +121,17 @@ const AdvertisementForm = ({
 
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">المحتوى</label>
-                <textarea
-                    name="content"
+                <RichTextEditor
                     value={formData.content}
-                    onChange={handleInputChange}
-                    rows={4}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
+                    onChange={(content:any) => setFormData({ ...formData, content })}
+                    placeholder="اكتب محتوى المقال هنا..."
+                    className="border rounded-md focus-within:ring-2 focus-within:ring-blue-500"
                 />
             </div>
 
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">الصورة</label>
-                
+
                 {/* Image upload input */}
                 <div className="flex items-center gap-4 mb-2">
                     <label className="flex-1">
@@ -151,7 +150,7 @@ const AdvertisementForm = ({
                             />
                         </div>
                     </label>
-                    
+
                     {imagePreview && (
                         <div className="relative flex-shrink-0 w-24 h-24">
                             <img
@@ -169,13 +168,13 @@ const AdvertisementForm = ({
                         </div>
                     )}
                 </div>
-                
+
                 {currentAd?.image && !formData.image && !imagePreview && (
                     <div className="mt-2 text-sm text-gray-500 flex items-center gap-2">
                         <span>الصورة الحالية:</span>
-                        <a 
-                            href={`${baseUrl}${currentAd.image}`} 
-                            target="_blank" 
+                        <a
+                            href={`${baseUrl}${currentAd.image}`}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
                         >
