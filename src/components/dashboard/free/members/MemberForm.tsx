@@ -9,6 +9,7 @@ import {
     useGetMembersQuery
 } from '../../../../store/api/memberApi';
 import type { GetMembers } from '../../../../types/member';
+import { familyRelationships } from '../../../../types/user';
 
 type FamilyBranchType = "الفرع الخامس" | "الفرع الرابع" | "الفرع الثالث" | "الفرع الثاني" | "الفرع الاول";
 
@@ -305,11 +306,11 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                                     >
                                         <option value="">اختر الصلة</option>
-                                        <option value="زوج">زوج (رأس الأسرة)</option>
-                                        <option value="زوجة">زوجة</option>
-                                        <option value="ابن">ابن</option>
-                                        <option value="ابنة">ابنة</option>
-                                        <option value="أخرى">أخرى</option>
+                                        {familyRelationships.map((relation) => (
+                                            <option key={relation.value} value={relation.value}>
+                                                {relation.label === "الجد الأعلى" ? `${relation.label} (رأس الأسرة)` : relation.label}
+                                            </option>
+                                        ))}                
                                     </select>
                                     {errors.familyRelationship && (
                                         <p className="mt-1 text-sm text-red-600">{errors.familyRelationship.message}</p>
