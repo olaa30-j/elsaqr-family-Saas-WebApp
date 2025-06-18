@@ -4,6 +4,7 @@ import { useGetTransactionsQuery } from "../../../../store/api/financialApi";
 import { Link } from "react-router-dom";
 import { DashboardCharts } from "./DashboardCharts";
 import { useGetAlbumStatsQuery, useGetEventOverviewQuery, useGetUsersStatsQuery, useGetAdvertisementStatsQuery } from "../../../../store/api/chartsApi";
+import RichTextRenderer from "../../../../components/shared/RichTextRenderer";
 
 const AdminDashoard = () => {
   const { data: allTransactionsData } = useGetTransactionsQuery({
@@ -75,9 +76,9 @@ const AdminDashoard = () => {
               stats.announcements.data.map((item, index) => (
                 <div key={index} className="flex p-3 ">
                   <div className="hover:bg-gray-50 rounded-lg">
-                    <h3 className="text-md font-medium">{item.title || 'No title'}</h3>
+                    <h3 className="text-md font-medium">{item.title || 'لا يوجد عنوان'}</h3>
                     <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                      {item.content || 'No description available'}
+                      <RichTextRenderer content={item.content} />
                     </p>
                   </div>
                 </div>
