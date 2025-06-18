@@ -4,12 +4,14 @@ export type FamilyBranch =
     | "الفرع الاول";
 
 export type FamilyRelationship =
-    | "ابن"
-    | "ابنة"
-    | "زوجة"
-    | "زوج"
-    | "أخرى";
-
+  | "ابن"
+  | "ابنة"
+  | "زوجة"
+  | "زوج"
+  | "حفيد"
+  | "حفيدة"
+  | "أخرى"
+  | "الجد الأعلى"; 
 
 export interface Member {
     data?: any;

@@ -6,11 +6,14 @@ export const familyBranches = [
 ];
 
 export const familyRelationships = [
-  { value: "ابن", label: 'ابن' },
-  { value: "ابنة", label: 'ابنة' },
-  { value: "زوجة", label: 'زوجة' },
-  { value: "زوج", label: 'زوج' },
-  { value: "أخرى", label: 'أخرى' },
+  { value: "ابن", label: "ابن" },
+  { value: "ابنة", label: "ابنة" },
+  { value: "زوجة", label: "زوجة" },
+  { value: "زوج", label: "زوج" },
+  { value: "حفيد", label: "حفيد" },
+  { value: "حفيدة", label: "حفيدة" },
+  { value: "أخرى", label: "أخرى" },
+  { value: "الجد الأعلى", label: "الجد الأعلى" }, 
 ];
 
 export const statusOptions = [
