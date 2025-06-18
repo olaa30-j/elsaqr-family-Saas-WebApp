@@ -44,7 +44,6 @@ const MembersTable: React.FC<MembersTableProps> = ({
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [deleteMember, { isLoading: isDeleting }] = useDeleteMemberMutation();
 
-    // Advanced filters state
     const [fatherFilter, setFatherFilter] = useState("");
     const [motherFilter, setMotherFilter] = useState("");
     const [hasAccountFilter, setHasAccountFilter] = useState<boolean | null>(null);
@@ -58,6 +57,8 @@ const MembersTable: React.FC<MembersTableProps> = ({
         setSortConfig({ key, direction });
     };
 
+    console.log(membersData);
+    
     const allFathers = useMemo(() => {
         const fathers = new Set<string>();
         membersData.forEach((member: GetMembers) => {
@@ -80,14 +81,11 @@ const MembersTable: React.FC<MembersTableProps> = ({
 
     const filteredMembers = useMemo(() => {
         return membersData.filter(member => {
-            // Name search
             const fullName = `${member.fname} ${member.lname}`.toLowerCase();
             const nameMatch = searchTerm === "" || fullName.includes(searchTerm.toLowerCase());
 
-            // Branch filter
             const branchMatch = selectedBranch === "" || member.familyBranch === selectedBranch;
 
-            // Parent filters
             const fatherMatch = fatherFilter === "" ||
                 (member.parents?.father &&
                     (typeof member.parents.father === 'string' ?

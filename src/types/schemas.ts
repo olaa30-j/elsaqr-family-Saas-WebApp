@@ -3,6 +3,14 @@ import * as yup from 'yup';
 export const userSchema = yup.object().shape({
     email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
     phone: yup.string().required('رقم الهاتف مطلوب'),
+    familyBranch: yup.string().optional(),
+    familyRelationship: yup
+        .string()
+        .oneOf(
+            ["ابن", "ابنة", "زوجة", "زوج", "حفيد", "حفيدة", "أخرى", "الجد الأعلى"],
+            "صلة القرابة غير صالحة"
+        )
+        .required('صلة القرابة مطلوبة'),
     address: yup.string().optional(),
     role: yup.string().optional(),
     status: yup.string().optional(),
@@ -11,6 +19,7 @@ export const userSchema = yup.object().shape({
         .optional()
         .min(6, 'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل'),
 });
+
 
 export const profileSchema = yup.object().shape({
     email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),

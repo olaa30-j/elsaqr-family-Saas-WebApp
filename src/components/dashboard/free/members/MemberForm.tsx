@@ -68,7 +68,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
 
             const males = filtered.filter(m =>
                 m.gender === 'ذكر' &&
-                ['زوج', 'ابن', 'أخرى'].includes(m.familyRelationship)
+                ['زوج', 'ابن', 'أخرى', 'الجد الأعلى'].includes(m.familyRelationship)
             );
 
             const females = filtered.filter(m =>
@@ -265,7 +265,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                 {/* Last Name */}
                                 <div className="space-y-1">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        الاسم الأخير <span className="text-red-500">*</span>
+                                        اسم الاب والجد<span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         {...register('lname')}
