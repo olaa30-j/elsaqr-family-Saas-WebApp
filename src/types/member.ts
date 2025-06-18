@@ -43,7 +43,10 @@ export interface Member {
 export interface GetMembers {
     data?: any;
     _id?: string;
-    userId?: string;
+    userId?: {
+        _id: string;
+        email:string;
+    };
     fname: string;
     lname: string;
     gender: "ذكر" | "أنثى";

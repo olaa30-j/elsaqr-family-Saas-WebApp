@@ -23,7 +23,7 @@ const EditMember = () => {
     
     useEffect(() => {
         if (memberResponse?.data?.userId) {
-            setSelectedUserId(memberResponse.data.userId);
+            setSelectedUserId(memberResponse.data.userId._id);
         }
     }, [memberResponse]);
 
