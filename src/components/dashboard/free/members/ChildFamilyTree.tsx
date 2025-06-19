@@ -304,14 +304,14 @@ const ChildFamilyTree = () => {
                                 )
                             }
 
-                            <div className={`${children.length > 1 ? 'pt-6' : 'pt-0'}`}>
+                            <Link to={`/nested-tree/${son._id}`} className={`${children.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-primary/10 w-fit mx-auto"
                                 >
                                     {renderMemberCard(son, 'ابن')}
                                 </motion.div>
-                            </div>
+                            </Link>
 
                             {/* Render grandchildren for sons if they have children */}
                             {son._id && renderGrandChildren(son._id)}
