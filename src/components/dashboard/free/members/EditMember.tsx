@@ -55,7 +55,7 @@ const EditMember = () => {
     const defaultValues = {
         fname: member.fname ?? '',
         lname: member.lname ?? '',
-        familyBranch: member.familyBranch.name ?? '',
+        familyBranch: member.familyBranch._id ?? '',
         familyRelationship: member.familyRelationship ?? 'ابن',
         gender: member.gender ?? 'أنثى',
         birthday: member.birthday ?? null,

@@ -27,7 +27,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
     onCancel,
     isEditing = false,
 }) => {
-const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBranch.name || "");
+    const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBranch._id || "");
     const [filteredMembers, setFilteredMembers] = useState<GetMembers[]>([]);
     const [maleMembers, setMaleMembers] = useState<GetMembers[]>([]);
     const [femaleMembers, setFemaleMembers] = useState<GetMembers[]>([]);
@@ -62,7 +62,7 @@ const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBr
     useEffect(() => {
         if (membersData?.data) {
             const filtered = familyBranch
-                ? membersData.data.filter(m => m.familyBranch.name === familyBranch)
+                ? membersData.data.filter(m => m.familyBranch._id === familyBranch)
                 : membersData.data;
 
             setFilteredMembers(filtered);
@@ -131,6 +131,8 @@ const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBr
     }, [membersData, familyBranch, defaultValues, isEditing]);
 
     const handleSubmit = async (data: any) => {
+        console.log(data);
+        
         parentOptions
         try {
             const formData = new FormData();
@@ -340,7 +342,7 @@ const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBr
 
                         {/* Family Relationships Section */}
                         {(isFemale && relationship === 'زوجة') ||
-                            (isMale && (relationship === 'زوج' || relationship === 'ابن')) ||
+                            (isMale && (relationship === 'زوج' || relationship === 'ابن' || relationship === 'الجد الأعلى')) ||
                             (isChild) ? (
                             <div className="bg-white p-4 rounded-lg shadow">
                                 <h3 className="text-lg font-medium mb-4 border-b pb-2">العلاقات العائلية</h3>
@@ -391,7 +393,7 @@ const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBr
                                         </div>
                                     )}
                                     {/* Wives (for husbands) */}
-                                    {isMale && (relationship === 'ابن' || relationship === 'زوج') && (
+                                    {isMale && (relationship === 'ابن' || relationship === 'زوج' || relationship === 'الجد الأعلى') && (
                                         <>
                                             <div className="space-y-1">
                                                 <label className="block text-sm font-medium text-gray-700">
@@ -560,7 +562,7 @@ const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBr
                         ) : null}
 
                         {/* Children Section */}
-                        {(isMale || isFemale) && (relationship === 'زوج' || relationship === 'زوجة' || isChild) && (
+                        {(isMale || isFemale) && (relationship === 'زوج' || relationship === 'زوجة' || isChild || relationship === 'الجد الأعلى') && (
                             <div className="bg-white p-4 rounded-lg shadow">
                                 <h3 className="text-lg font-medium mb-4 border-b pb-2">الأبناء</h3>
                                 <div className="grid grid-cols-1 gap-4">

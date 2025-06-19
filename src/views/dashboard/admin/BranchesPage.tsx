@@ -27,11 +27,13 @@ const BranchesPage = () => {
 
     const [deleteBranch, { isLoading: isDeleting }] = useDeleteBranchMutation();
 
+    // تطبيق الفرز والبحث والتصفية على البيانات
     const filteredBranches = useMemo(() => {
         if (!branchesData?.data) return [];
 
         let filtered = [...branchesData.data];
 
+        // تطبيق البحث
         if (searchTerm) {
             filtered = filtered.filter(branch =>
                 branch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -80,8 +82,6 @@ const BranchesPage = () => {
 
     const confirmDelete = async () => {
         if (!branchToDelete?._id) return;
-        console.log(branchToDelete?._id);
-        
 
         try {
             await deleteBranch({ id: branchToDelete._id }).unwrap();
@@ -302,9 +302,9 @@ const BranchesPage = () => {
                                                         title={branch.show ? 'إخفاء' : 'إظهار'}
                                                     >
                                                         {branch.show ? (
-                                                            <Eye className="h-5 w-5" />
-                                                        ) : (
                                                             <EyeOff className="h-5 w-5" />
+                                                        ) : (
+                                                            <Eye className="h-5 w-5" />
                                                         )}
                                                     </button>
                                                     <button
