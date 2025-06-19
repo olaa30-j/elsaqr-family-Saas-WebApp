@@ -111,12 +111,22 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         if (!familyTree) return null;
 
         const grandChildren = familyTree.children.reduce((acc, child) => {
-            const childrenOfChild = members.filter(m =>
-                (m.parents?.father === child._id || m.parents?.mother === child._id)
-            );
+            const childrenOfChild = members.filter(m => {
+                const fatherMatch = m.parents?.father &&
+                    (typeof m.parents.father === 'object'
+                        ? m.parents.father._id === child._id
+                        : m.parents.father === child._id);
+
+                const motherMatch = m.parents?.mother &&
+                    (typeof m.parents.mother === 'object'
+                        ? m.parents.mother._id === child._id
+                        : m.parents.mother === child._id);
+
+                return (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') &&
+                    (fatherMatch || motherMatch);
+            });
             return acc + childrenOfChild.length;
         }, 0);
-
 
         return {
             wives: familyTree.wives.length,
@@ -293,7 +303,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
 
             return isChild && (fatherMatch || motherMatch);
         });
-        
+
         if (grandChildren.length === 0) return null;
 
         return (

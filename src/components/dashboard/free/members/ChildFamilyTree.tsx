@@ -29,10 +29,17 @@ const ChildFamilyTree = () => {
                 m.husband?._id === selectedMember._id);
 
             const children = sortChildren(
-                members.filter(m =>
-                    (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') &&
-                    m.parents?.father === selectedMember._id
-                ));
+                members.filter(m => {
+                    const isChild = m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة';
+
+                    const fatherMatch = m.parents?.father &&
+                        (typeof m.parents.father === 'object'
+                            ? m.parents.father._id === selectedMember._id
+                            : m.parents.father === selectedMember._id);
+
+                    return isChild && fatherMatch;
+                })
+            );
 
             return {
                 member: selectedMember,
@@ -48,10 +55,18 @@ const ChildFamilyTree = () => {
 
             if (!husband) {
                 const children = sortChildren(
-                    members.filter(m =>
-                        (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') &&
-                        m.parents?.mother === selectedMember._id
-                    ));
+                    members.filter(m => {
+                        const isChild = m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة';
+
+                        const motherMatch = m.parents?.mother &&
+                            (typeof m.parents.mother === 'object'
+                                ? m.parents.mother._id === selectedMember._id
+                                : m.parents.mother === selectedMember._id);
+
+                        return isChild && motherMatch;
+                    })
+                );
+
 
                 return {
                     member: selectedMember,
@@ -100,14 +115,26 @@ const ChildFamilyTree = () => {
         if (!familyTree) return null;
 
         const grandChildren = familyTree.children.reduce((acc, child) => {
-            const childrenOfChild = members.filter(m =>
-                (m.parents?.father === child._id || m.parents?.mother === child._id)
-            );
+            const childrenOfChild = members.filter(m => {
+                const fatherMatch = m.parents?.father &&
+                    (typeof m.parents.father === 'object'
+                        ? m.parents.father._id === child._id
+                        : m.parents.father === child._id);
+
+
+                const motherMatch = m.parents?.mother &&
+                    (typeof m.parents.mother === 'object'
+                        ? m.parents.mother._id === child._id
+                        : m.parents.mother === child._id);
+                console.log(motherMatch);
+
+                return (fatherMatch || motherMatch);
+            });
             return acc + childrenOfChild.length;
         }, 0);
 
         return {
-            wives: familyTree.isMale ? familyTree.wives?.length || 0 : 0,
+            wives: familyTree.wives?.length || 0,
             sons: familyTree.children.filter(c => c.gender === 'ذكر').length,
             daughters: familyTree.children.filter(c => c.gender === 'أنثى').length,
             grandChildren
