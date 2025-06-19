@@ -149,50 +149,55 @@ const UserForm: React.FC<UserFormProps> = ({
                             )}
                         </div>
 
-                        {/* Family Branch Field */}
-                        <div className="space-y-2">
-                            <label htmlFor="familyBranch" className="block text-sm font-medium text-gray-700">
-                                فرع العائلة
-                            </label>
-                            <select
-                                id="familyBranch"
-                                {...register('familyBranch')}
-                                className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                disabled={isUpdating || isCreating}
-                            >
-                                <option value="">اختر فرع العائلة</option>
-                                {familyBranches.map((branch: any, index: any) => (
-                                    <option key={index} value={branch.value}>{branch.label}</option>
-                                ))}
-                            </select>
-                            {errors.familyBranch && (
-                                <p className="mt-1 text-sm text-red-600">{errors.familyBranch.message}</p>
-                            )}
-                        </div>
+                        {!isEditing && (
+                            <>
+                                {/* Family Branch Field */}
+                                < div className="space-y-2">
+                                    <label htmlFor="familyBranch" className="block text-sm font-medium text-gray-700">
+                                        فرع العائلة
+                                    </label>
+                                    <select
+                                        id="familyBranch"
+                                        {...register('familyBranch')}
+                                        className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        disabled={isUpdating || isCreating}
+                                    >
+                                        <option value="">اختر فرع العائلة</option>
+                                        {familyBranches.map((branch: any, index: any) => (
+                                            <option key={index} value={branch.value}>{branch.label}</option>
+                                        ))}
+                                    </select>
+                                    {errors.familyBranch && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.familyBranch.message}</p>
+                                    )}
+                                </div>
 
-                        {/* Family Relationship Field */}
-                        <div className="space-y-2">
-                            <label htmlFor="familyRelationship" className="block text-sm font-medium text-gray-700">
-                                صلة القرابة
-                            </label>
-                            <select
-                                id="familyRelationship"
-                                {...register('familyRelationship')}
-                                className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                disabled={isUpdating || isCreating}
-                            >
-                                <option value="">اختر الصلة</option>
-                                {familyRelationships.map((relation) => (
-                                    <option key={relation.value} value={relation.value}>
-                                        {relation.label === "الجد الأعلى" ? `${relation.label} (رأس الأسرة)` : relation.label}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.familyRelationship && (
-                                <p className="mt-1 text-sm text-red-600">{errors.familyRelationship.message}</p>
-                            )}
-                        </div>
+                                {/* Family Relationship Field */}
+                                <div className="space-y-2">
+                                    <label htmlFor="familyRelationship" className="block text-sm font-medium text-gray-700">
+                                        صلة القرابة
+                                    </label>
+                                    <select
+                                        id="familyRelationship"
+                                        {...register('familyRelationship')}
+                                        className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        disabled={isUpdating || isCreating}
+                                    >
+                                        <option value="">اختر الصلة</option>
+                                        {familyRelationships.map((relation) => (
+                                            <option key={relation.value} value={relation.value}>
+                                                {relation.label === "الجد الأعلى" ? `${relation.label} (رأس الأسرة)` : relation.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.familyRelationship && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.familyRelationship.message}</p>
+                                    )}
+                                </div>
 
+                            </>
+                        )
+                        }
                         {/* Address Field */}
                         <div className="space-y-2">
                             <label htmlFor="address" className="block text-sm font-medium text-gray-700">
@@ -258,8 +263,9 @@ const UserForm: React.FC<UserFormProps> = ({
                         </div>
                     </div>
                 </>
-            )}
-        </BaseForm>
+            )
+            }
+        </BaseForm >
     );
 };
 

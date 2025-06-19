@@ -58,13 +58,17 @@ const ProfilePage = () => {
     setSelectedImage(null);
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setSelectedImage(file);
 
+      let branchId = typeof member.familyBranch === 'string' 
+        ? member.familyBranch  
+        : member.familyBranch?._id ?? ''
+      
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('image', file); 
+      formData.append('familyBranch', branchId); 
 
       try {
         await updateMember({
@@ -77,6 +81,8 @@ const ProfilePage = () => {
       } catch (error) {
         toast.error("فشل في تحديث الصورة");
         console.error(error);
+      } finally {
+        setSelectedImage(null);
       }
     }
   };
@@ -95,7 +101,7 @@ const ProfilePage = () => {
     const defaultValues = {
       fname: member.fname ?? '',
       lname: member.lname ?? '',
-      familyBranch: member.familyBranch.name ?? '',
+      familyBranch: member.familyBranch._id ?? '',
       familyRelationship: member.familyRelationship ?? 'ابن',
       gender: member.gender ?? 'أنثى',
       birthday: member.birthday ?? null,
@@ -135,14 +141,7 @@ const ProfilePage = () => {
         id: 'security',
         label: 'الأمان',
         content: <SecuritySettings />,
-      }
-      // ,
-      // {
-      //   id: 'notifications',
-      //   label: 'الإشعارات',
-      //   content: <NotificationsSettings />,
-      // }
-      ,
+      },
       {
         id: 'activities',
         label: 'النشاطات',
@@ -260,7 +259,7 @@ const ProfilePage = () => {
                       <span className="font-medium">الفرع:</span>
                       {typeof member.familyBranch === 'string'
                         ? member.familyBranch
-                        : member.familyBranch?.name || "غير محدد"}
+                        : member.familyBranch?._id || "غير محدد"}
 
                     </p>
                   </div>

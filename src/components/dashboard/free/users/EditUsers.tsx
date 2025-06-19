@@ -23,8 +23,6 @@ const EditUsers = () => {
                 defaultValues={{
                     email: user.email || '',
                     phone: user.phone || '',
-                    familyBranch: user.memberId.familyBranch.name || 'الفرع الثالث',
-                    familyRelationship: user.familyRelationship || 'ابن',
                     address: user.address || '',
                     status: user.status || 'قيد الانتظار',
                     role: user.role[0] || ['مستخدم'],
