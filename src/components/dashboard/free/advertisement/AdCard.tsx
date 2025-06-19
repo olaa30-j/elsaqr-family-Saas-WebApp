@@ -9,7 +9,6 @@ interface IAdsCard {
 }
 
 const AdCard = ({ ad, size = 'small' }: IAdsCard) => {
-
   if (size === 'large') {
     return (
       <Link to={`/advertisement-details/${ad._id}`} className="block w-full h-full relative z-[10]">
@@ -52,9 +51,6 @@ const AdCard = ({ ad, size = 'small' }: IAdsCard) => {
         <div className="absolute bottom-0 h-full left-0 right-0 p-4 bg-black bg-opacity-50 text-white rounded-b-lg">
         </div>
         <div className='absolute bottom-0 left-0 right-0 z-5 text-white rounded-b-lg p-4'>
-          <div className="w-10 h-10 mb-3 flex items-center justify-center bg-white rounded-lg">
-            <BellRingIcon className="text-primary" />
-          </div>
           <h5 className="text-sm font-medium text-right">{ad.title}</h5>
           <div className='flex gap-2 mt-3 items-center'>
             <img src={ad.userId.memberId.image} alt="مدير الاعلانات" className='w-8 h-8 rounded-md' />
