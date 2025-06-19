@@ -32,11 +32,7 @@ const schema = yup.object().shape({
   confirmPassword: yup.string()
     .oneOf([yup.ref('password')], 'كلمات المرور غير متطابقة')
     .required('تأكيد كلمة المرور مطلوب'),
-  familyBranch: yup.object().shape({
-    name: yup.string().required('اسم الفرع مطلوب'),
-    show: yup.boolean().optional(),
-    branchOwner: yup.string().optional()
-  }).required('فرع العائلة مطلوب'),
+  familyBranch: yup.mixed().required('فرع العائلة مطلوب'),
   familyRelationship: yup.string().required('صلة القرابة مطلوبة'),
 });
 
@@ -56,6 +52,7 @@ const RegistrationForm: React.FC = () => {
 
 
   const onSubmit = async (data: RegistrationFormData) => {
+  const branchId = typeof data.familyBranch === 'object' ? data.familyBranch._id : data.familyBranch;
     try {
       const formData = new FormData();
 
@@ -64,7 +61,7 @@ const RegistrationForm: React.FC = () => {
       formData.append('email', data.email);
       formData.append('phone', data.phone);
       formData.append('password', data.password);
-      formData.append('familyBranch', data.familyBranch._id || '');
+      formData.append('familyBranch', branchId || '');
       formData.append('familyRelationship', data.familyRelationship);
 
       formData.append('image', data.image || DEFAULT_IMAGE);

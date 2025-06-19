@@ -2,13 +2,13 @@ export interface IBranchForm {
   _id?: string;
   name: string;
   show?: boolean;  
-  branchOwner?: string; 
+  branchOwner: string; 
 }
 
 export interface Branch {
   _id: string;
   name: string;
-  branchOwner?: string;
+  branchOwner: string;
   show: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -17,7 +17,7 @@ export interface Branch {
 
 export interface CreateBranchRequest {
   name: string;
-  branchOwner?: string;
+  branchOwner: string;
   show?: boolean;
 }
 

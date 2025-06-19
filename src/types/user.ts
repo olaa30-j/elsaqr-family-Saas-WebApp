@@ -1,4 +1,3 @@
-import type { IBranchForm } from "./branch";
 import type { Permission } from "./permissionsStructure";
 
 
@@ -48,7 +47,7 @@ export interface User {
     _id: string;
     fname: string;
     lname: string;
-    familyBranch: IBranchForm;
+    familyBranch: any;
     gender: 'ذكر' | 'أنثى';
     father?: string;
     birthday: Date | string;

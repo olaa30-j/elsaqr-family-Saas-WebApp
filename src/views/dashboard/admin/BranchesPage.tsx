@@ -6,6 +6,7 @@ import type { Branch } from "../../../types/branch";
 import { useGetAllBranchesQuery, useDeleteBranchMutation } from "../../../store/api/branchApi";
 import Modal from "../../../components/ui/Modal";
 import BranchForm from "../../../components/dashboard/free/admin/BranchForm";
+import { useGetMemberQuery } from "../../../store/api/memberApi";
 
 const BranchesPage = () => {
     const [page, setPage] = useState(1);
@@ -25,15 +26,25 @@ const BranchesPage = () => {
         limit,
     });
 
+
     const [deleteBranch, { isLoading: isDeleting }] = useDeleteBranchMutation();
 
-    // تطبيق الفرز والبحث والتصفية على البيانات
+    const getBranchOwnerName = (ownerId: string) => {
+        const { data: memberData } = useGetMemberQuery(ownerId, {
+            skip: !ownerId
+        });
+
+        if (!ownerId || !memberData?.data) return 'غير محدد';
+
+        const owner = memberData.data.find((member: any) => member._id === ownerId);
+        return owner ? owner.name : 'غير محدد';
+    };
+
     const filteredBranches = useMemo(() => {
         if (!branchesData?.data) return [];
 
         let filtered = [...branchesData.data];
 
-        // تطبيق البحث
         if (searchTerm) {
             filtered = filtered.filter(branch =>
                 branch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -41,14 +52,12 @@ const BranchesPage = () => {
             );
         }
 
-        // تطبيق التصفية حسب الحالة
         if (statusFilter !== "all") {
             filtered = filtered.filter(branch =>
                 statusFilter === "active" ? branch.show : !branch.show
             );
         }
 
-        // تطبيق الفرز
         if (sortConfig) {
             filtered.sort((a: any, b: any) => {
                 const aValue = a[sortConfig.key];
@@ -278,7 +287,7 @@ const BranchesPage = () => {
                                                 {branch.name}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                                {branch.branchOwner || 'غير محدد'}
+                                                {getBranchOwnerName(branch.branchOwner)}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${branch.show ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -408,7 +417,7 @@ const BranchesPage = () => {
                     extraStyle="max-w-2xl"
                 >
                     {branchToEdit && (
-                        <BranchForm 
+                        <BranchForm
                             onSuccess={handleSuccess}
                             defaultValues={{
                                 name: branchToEdit.name,
