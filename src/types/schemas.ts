@@ -10,7 +10,7 @@ export const userSchema = yup.object().shape({
             ["ابن", "ابنة", "زوجة", "زوج", "حفيد", "حفيدة", "أخرى", "الجد الأعلى"],
             "صلة القرابة غير صالحة"
         )
-        .required('صلة القرابة مطلوبة'),
+        .optional(),
     address: yup.string().optional(),
     role: yup.string().optional(),
     status: yup.string().optional(),
