@@ -6,7 +6,7 @@ import type { Branch } from "../../../types/branch";
 import { useGetAllBranchesQuery, useDeleteBranchMutation } from "../../../store/api/branchApi";
 import Modal from "../../../components/ui/Modal";
 import BranchForm from "../../../components/dashboard/free/admin/BranchForm";
-import { useGetMemberQuery } from "../../../store/api/memberApi";
+import BranchOwnerName from "./BranchOwnerName";
 
 const BranchesPage = () => {
     const [page, setPage] = useState(1);
@@ -28,17 +28,6 @@ const BranchesPage = () => {
 
 
     const [deleteBranch, { isLoading: isDeleting }] = useDeleteBranchMutation();
-
-    const getBranchOwnerName = (ownerId: string) => {
-        const { data: memberData } = useGetMemberQuery(ownerId, {
-            skip: !ownerId
-        });
-
-        if (!ownerId || !memberData?.data) return 'غير محدد';
-
-        const owner = memberData.data.find((member: any) => member._id === ownerId);
-        return owner ? owner.name : 'غير محدد';
-    };
 
     const filteredBranches = useMemo(() => {
         if (!branchesData?.data) return [];
@@ -287,7 +276,7 @@ const BranchesPage = () => {
                                                 {branch.name}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                                {getBranchOwnerName(branch.branchOwner)}
+                                                <BranchOwnerName ownerId={branch.branchOwner} />
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${branch.show ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

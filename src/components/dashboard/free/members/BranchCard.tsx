@@ -8,7 +8,7 @@ interface BranchCardProps {
     mainHusband?: any;
 }
 
-const BranchCard = ({ familyBranch, mainHusband }: BranchCardProps) => {
+const BranchCard = ({ familyBranch, mainHusband }: BranchCardProps) => {    
     return (
         <Link to={`/family-tree/${encodeURIComponent(familyBranch)}`}>
             <div className="w-72 bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
@@ -38,7 +38,7 @@ const BranchCard = ({ familyBranch, mainHusband }: BranchCardProps) => {
                     <div className="space-y-2">
                         <div className="flex justify-between items-center border-b pb-2">
                             <span className="font-medium">الفرع:</span>
-                            <span>{familyBranch}</span>
+                            <span>{mainHusband?.familyBranch?.name}</span>
                         </div>
 
                         {mainHusband ? (

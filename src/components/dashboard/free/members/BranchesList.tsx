@@ -6,7 +6,7 @@ const BranchesList = () => {
     const { data: getAllBranches } = useGetAllBranchesQuery({ page: 1, limit: 30 });
 
     const visibleBranches = getAllBranches?.data.filter((branch: any) => branch.show === true);
-    const branches = visibleBranches?.map((branch: any) => branch.name);
+    const branches = visibleBranches?.map((branch: any) => branch._id);
 
     const { data: allMembers, isLoading, error } = useGetMembersQuery({
         page: 1,
@@ -42,7 +42,7 @@ const BranchesList = () => {
 
     const branchMembers = branches?.map(branch => {
         const members = allMembers?.data?.filter((member: any) =>
-            member.familyBranch.name === branch
+            member.familyBranch._id === branch
         ) || [];
 
         const husbands = members.filter((member: any) =>

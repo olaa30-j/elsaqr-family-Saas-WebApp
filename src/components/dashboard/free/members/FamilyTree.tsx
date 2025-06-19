@@ -13,7 +13,6 @@ interface FamilyTreeProps {
 
 const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
     const { data: membersData } = useGetMembersQuery({
-        familyBranch,
         limit: 1000
     });
 
@@ -21,7 +20,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
 
     const familyTree = useMemo(() => {
         const husband = members.find(m =>
-            m.familyRelationship === 'زوج' &&
+            (m.familyRelationship === 'الجد الأعلى' || m.familyRelationship === 'ابن') &&
             (!m.parents?.father && !m.parents?.mother)
         );
 
@@ -40,7 +39,17 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
             m.husband?._id === husband._id);
 
         const children = sortChildren(
-            members.filter(m => (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') && m.parents?.father === husband._id));
+            members.filter(m => {
+                const isChild = m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة';
+
+                const fatherMatch = m.parents?.father &&
+                    (typeof m.parents.father === 'object'
+                        ? m.parents.father._id === husband._id
+                        : m.parents.father === husband._id);
+
+                return isChild && fatherMatch;
+            })
+        );
 
         return {
             husband,
@@ -165,10 +174,22 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
     };
 
     const renderChildren = (parentId: string, motherId?: string) => {
-        const children = members.filter(m =>
-            (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') &&
-            m.parents?.father === parentId &&
-            (!motherId || m.parents?.mother === motherId));
+        const children = members.filter(member => {
+            const isChild = member.familyRelationship === 'ابن' || member.familyRelationship === 'ابنة';
+
+            const fatherMatch = member.parents?.father &&
+                (typeof member.parents.father === 'string'
+                    ? member.parents.father === parentId
+                    : member.parents.father._id === parentId);
+
+            const motherMatch = !motherId ||
+                (member.parents?.mother &&
+                    (typeof member.parents.mother === 'string'
+                        ? member.parents.mother === motherId
+                        : member.parents.mother._id === motherId));
+
+            return isChild && fatherMatch && motherMatch;
+        });
 
         const sons = children.filter(child => child.gender === 'ذكر');
         const daughters = children.filter(child => child.gender === 'أنثى');
@@ -190,42 +211,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                     {renderConnectionLine('parent')}
                 </div>
 
-                <ul className="flex justify-center ">
-                    {daughters.map((daughter, index) => (
-                        <motion.li
-                            key={daughter._id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="relative px-2"
-                        >
-                            {
-                                (children.length > 1) && (
-                                    <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
-                                        {renderConnectionLine('sibling',
-                                            index === 0 && daughters.length === 0 ? 'last' :
-                                                index === sons.length - 1 ? 'first' :
-                                                    'middle'
-                                        )}
-                                    </div>
-                                )
-
-                            }
-
-                            <div className={`${children.length > 1 ? 'pt-6' : 'pt-0'}`}>
-                                <motion.div
-                                    whileHover={{ scale: 1.05 }}
-                                    className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50 w-fit mx-auto"
-                                >
-                                    {renderMemberCard(daughter, 'ابنة')}
-                                </motion.div>
-                            </div>
-
-                            {/* عرض أحفاد الابنة إذا كان لديها أبناء */}
-                            {daughter._id && renderGrandChildren(daughter._id)}
-                        </motion.li>
-                    ))}
-
+                <ul className="flex justify-center flex-wrap">
                     {sons.map((son, index) => (
                         <motion.li
                             key={son._id}
@@ -234,18 +220,15 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                             transition={{ duration: 0.5 }}
                             className="relative px-2"
                         >
-                            {
-                                (children.length > 1) && (
-                                    <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
-                                        {renderConnectionLine('sibling',
-                                            index === 0 && daughters.length === 0 ? 'first' :
-                                                index === sons.length - 1 ? 'last' :
-                                                    'middle'
-                                        )}
-                                    </div>
-                                )
-
-                            }
+                            {(children.length > 1) && (
+                                <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
+                                    {renderConnectionLine('sibling',
+                                        index === 0 && daughters.length === 0 ? 'first' :
+                                            index === sons.length - 1 ? 'last' :
+                                                'middle'
+                                    )}
+                                </div>
+                            )}
 
                             <Link to={`/nested-tree/${son._id}`} className={`${children.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                 <motion.div
@@ -256,20 +239,61 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                 </motion.div>
                             </Link>
 
-                            {/* عرض أحفاد الابن إذا كان لديه أبناء */}
-                            {son._id && renderGrandChildren(son._id)}
+                            {son._id && renderGrandChildren(son?._id)}
+                        </motion.li>
+                    ))}
+
+                    {daughters.map((daughter, index) => (
+                        <motion.li
+                            key={daughter._id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="relative px-2"
+                        >
+                            {(children.length > 1) && (
+                                <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
+                                    {renderConnectionLine('sibling',
+                                        index === 0 && sons.length === 0 ? 'first' :
+                                            index === daughters.length - 1 ? 'last' :
+                                                'middle'
+                                    )}
+                                </div>
+                            )}
+
+                            <div className={`${children.length > 1 ? 'pt-6' : 'pt-0'}`}>
+                                <motion.div
+                                    whileHover={{ scale: 1.05 }}
+                                    className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50 w-fit mx-auto"
+                                >
+                                    {renderMemberCard(daughter, 'ابنة')}
+                                </motion.div>
+                            </div>
+
+                            {daughter._id && renderGrandChildren(daughter?._id)}
                         </motion.li>
                     ))}
                 </ul>
             </div>
         );
     };
-
     const renderGrandChildren = (parentId: string) => {
-        const grandChildren = members.filter(m =>
-            (m.familyRelationship === 'ابن' || m.familyRelationship === 'ابنة') &&
-            (m.parents?.father === parentId || m.parents?.mother === parentId));
+        const grandChildren = members.filter(member => {
+            const isChild = member.familyRelationship === 'ابن' || member.familyRelationship === 'ابنة';
 
+            const fatherMatch = member.parents?.father &&
+                (typeof member.parents.father === 'object'
+                    ? member.parents.father._id === parentId
+                    : member.parents.father === parentId);
+
+            const motherMatch = member.parents?.mother &&
+                (typeof member.parents.mother === 'object'
+                    ? member.parents.mother._id === parentId
+                    : member.parents.mother === parentId);
+
+            return isChild && (fatherMatch || motherMatch);
+        });
+        
         if (grandChildren.length === 0) return null;
 
         return (
@@ -332,7 +356,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                 minScale={0.2}
                 maxScale={2}
                 initialPositionY={0}
-                initialPositionX={ window.innerWidth / 2}
+                initialPositionX={window.innerWidth / 2}
                 wheel={{ step: 0.1 }}
                 doubleClick={{ disabled: true }}
                 limitToBounds={false}

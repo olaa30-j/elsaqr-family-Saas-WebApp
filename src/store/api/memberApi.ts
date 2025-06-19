@@ -52,7 +52,7 @@ export const memberApi = baseApi.injectEndpoints({
                     : [{ type: 'Members' as const, id: 'LIST' }],
         }),
 
-        getMember: build.query<GetMembers, string>({
+        getMember: build.query<GetMembers, any>({
             query: (id) => ({
                 url: `/member/${id}`,
                 method: 'GET',
