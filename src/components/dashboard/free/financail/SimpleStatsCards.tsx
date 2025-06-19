@@ -78,8 +78,8 @@ const SimpleStatsCards = ({ transactions }: TransactionStatsCardsProps) => {
                             </svg>
                         </div>
                     </div>
-                    <p className="mt-2 text-3xl font-bold text-slate-800">
-                        {currentBalance.toLocaleString('ar-SA')} <span className="text-lg">ر.س</span>
+                    <p className="mt-2 text-3xl font-bold text-slate-800 flex items-center gap-2">
+                        {currentBalance.toLocaleString('ar-SA')} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="" className='w-5 h-5' />
                     </p>
                     <div className="mt-2 text-sm text-slate-500">
                         الرصيد الحالي بعد خصم المصروفات
@@ -96,8 +96,8 @@ const SimpleStatsCards = ({ transactions }: TransactionStatsCardsProps) => {
                             </svg>
                         </div>
                     </div>
-                    <p className="mt-2 text-3xl font-bold text-green-600">
-                        {totalDonations.toLocaleString('ar-SA')} <span className="text-lg">ر.س</span>
+                    <p className="mt-2 text-3xl font-bold text-slate-800 flex items-center gap-2">
+                        {totalDonations.toLocaleString('ar-SA')} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="" className='w-5 h-5' />
                     </p>
                     <div className="mt-2 text-sm text-slate-500">
                         تبرعات السنة الماضية فقط
@@ -114,8 +114,8 @@ const SimpleStatsCards = ({ transactions }: TransactionStatsCardsProps) => {
                             </svg>
                         </div>
                     </div>
-                    <p className="mt-2 text-3xl font-bold text-red-600">
-                        {totalExpenses.toLocaleString('ar-SA')} <span className="text-lg">ر.س</span>
+                    <p className="mt-2 text-3xl font-bold text-slate-800 flex items-center gap-2">
+                        {totalExpenses.toLocaleString('ar-SA')} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="" className='w-5 h-5' />
                     </p>
                     <div className="mt-2 text-sm text-slate-500">
                         مصروفات السنة الماضية فقط

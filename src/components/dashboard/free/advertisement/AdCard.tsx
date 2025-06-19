@@ -25,9 +25,9 @@ const AdCard = ({ ad, size = 'small' }: IAdsCard) => {
               <BellRingIcon className="text-primary" />
             </div>
             <h5 className="text-lg font-bold text-white text-right">{ad.title}</h5>
-            <p className="text-sm opacity-80 text-right mt-2">
+            <div className="text-sm opacity-80 text-right mt-2">
               <RichTextRenderer content={ad.content} />
-            </p>
+            </div>
             <div className="text-md text-left mt-3 opacity-70">
               {new Date(ad.createdAt).toLocaleDateString('ar-EG')}
             </div>

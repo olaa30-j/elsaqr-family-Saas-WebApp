@@ -137,8 +137,8 @@ const TransactionStatsCards = ({ transactions }: TransactionStatsCardsProps) => 
             </svg>
           </div>
         </div>
-        <p className="mt-2 text-3xl font-bold text-slate-800">
-          {total.toLocaleString('ar-SA')} <span className="text-lg">ر.س</span>
+        <p className="mt-2 text-3xl font-bold text-slate-800 flex items-center gap-2">
+          {total.toLocaleString('ar-SA')} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="" className='w-5 h-5' />
         </p>
 
         <div className="mt-4 h-64">
@@ -163,8 +163,8 @@ const TransactionStatsCards = ({ transactions }: TransactionStatsCardsProps) => 
             </svg>
           </div>
         </div>
-        <p className="mt-2 text-3xl font-bold text-green-600">
-          {income.toLocaleString('ar-SA')} <span className="text-lg">ر.س</span>
+        <p className="mt-2 text-3xl font-bold text-slate-800 flex items-center gap-2">
+          {income.toLocaleString('ar-SA')} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="" className='w-5 h-5' />
         </p>
 
         <div className="mt-4 h-64">
@@ -190,8 +190,8 @@ const TransactionStatsCards = ({ transactions }: TransactionStatsCardsProps) => 
             </svg>
           </div>
         </div>
-        <p className="mt-2 text-3xl font-bold text-red-600">
-          {expense.toLocaleString('ar-SA')} <span className="text-lg">ر.س</span>
+        <p className="mt-2 text-3xl font-bold text-slate-800 flex items-center gap-2">
+          {expense.toLocaleString('ar-SA')} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="" className='w-5 h-5' />
         </p>
 
         <div className="mt-4 h-64">

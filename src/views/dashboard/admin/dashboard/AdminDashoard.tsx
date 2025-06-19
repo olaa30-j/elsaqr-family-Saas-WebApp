@@ -77,9 +77,9 @@ const AdminDashoard = () => {
                 <div key={index} className="flex p-3 ">
                   <div className="hover:bg-gray-50 rounded-lg">
                     <h3 className="text-md font-medium">{item.title || 'لا يوجد عنوان'}</h3>
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                    <div className="text-xs text-gray-500 mt-1 line-clamp-2">
                       <RichTextRenderer content={item.content} />
-                    </p>
+                    </div>
                   </div>
                 </div>
               ))
