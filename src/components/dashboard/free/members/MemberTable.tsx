@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../../ui/Modal";
-import type { FamilyBranch, GetMembers } from "../../../../types/member";
+import type { GetMembers } from "../../../../types/member";
 import { toast } from "react-toastify";
 import { useDeleteMemberMutation } from "../../../../store/api/memberApi";
-import { genderOptions, familyBranches } from "../../../../types/member";
+import { genderOptions } from "../../../../types/member";
 import MemberForm from "./MemberForm";
 import { CheckIcon, XIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { useFamilyBranches } from "../../../../hooks/useFamilyBranches";
 
 interface MembersTableProps {
     currentPage: number;
@@ -49,6 +50,8 @@ const MembersTable: React.FC<MembersTableProps> = ({
     const [hasAccountFilter, setHasAccountFilter] = useState<boolean | null>(null);
     const [genderFilter, setGenderFilter] = useState("");
 
+    const { familyBranches } = useFamilyBranches();
+
     const handleSort = (key: keyof GetMembers | 'parents') => {
         let direction: 'asc' | 'desc' = 'asc';
         if (sortConfig?.key === key && sortConfig.direction === 'asc') {
@@ -56,7 +59,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
         }
         setSortConfig({ key, direction });
     };
-    
+
     const allFathers = useMemo(() => {
         const fathers = new Set<string>();
         membersData.forEach((member: GetMembers) => {
@@ -82,7 +85,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
             const fullName = `${member.fname} ${member.lname}`.toLowerCase();
             const nameMatch = searchTerm === "" || fullName.includes(searchTerm.toLowerCase());
 
-            const branchMatch = selectedBranch === "" || member.familyBranch === selectedBranch;
+            const branchMatch = selectedBranch === "" || member.familyBranch.name === selectedBranch;
 
             const fatherMatch = fatherFilter === "" ||
                 (member.parents?.father &&
@@ -164,7 +167,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleBranchFilter = (branch: FamilyBranch | "") => {
+    const handleBranchFilter = (branch: any | "") => {
         onBranchChange(branch);
     };
 
@@ -253,12 +256,12 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                 </label>
                                 <select
                                     value={selectedBranch}
-                                    onChange={(e) => handleBranchFilter(e.target.value as FamilyBranch || "")}
+                                    onChange={(e) => handleBranchFilter(e.target.value as any || "")}
                                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary"
                                 >
                                     <option value="">كل الفروع</option>
-                                    {familyBranches.map((branch) => (
-                                        <option key={branch} value={branch}>{branch}</option>
+                                    {familyBranches.map((branch: any, index: any) => (
+                                        <option key={index} value={branch.value}>{branch.label}</option>
                                     ))}
                                 </select>
                             </div>
@@ -434,7 +437,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-center">
                                                 <div className="font-medium text-slate-900">
-                                                    {member.familyBranch}
+                                                    {member.familyBranch.name}
                                                 </div>
                                             </div>
                                         </td>
@@ -450,7 +453,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                             <div className="text-center">
                                                 <div className="font-medium text-slate-900">
                                                     {member.parents?.mother && typeof member.parents.mother !== 'string' ?
-                                                       `${member.parents.mother.fname} ${member.parents.mother.lname}` : '-'}
+                                                        `${member.parents.mother.fname} ${member.parents.mother.lname}` : '-'}
                                                 </div>
                                             </div>
                                         </td>

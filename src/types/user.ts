@@ -1,9 +1,6 @@
+import type { IBranchForm } from "./branch";
 import type { Permission } from "./permissionsStructure";
 
-export const familyBranches = [
-  { value: "الفرع الاول", label: 'الفرع الاول' },
-  { value: "الفرع الثاني", label: 'الفرع الثاني' },
-];
 
 export const familyRelationships = [
   { value: "ابن", label: "ابن" },
@@ -51,7 +48,7 @@ export interface User {
     _id: string;
     fname: string;
     lname: string;
-    familyBranch: string;
+    familyBranch: IBranchForm;
     gender: 'ذكر' | 'أنثى';
     father?: string;
     birthday: Date | string;

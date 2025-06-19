@@ -9,8 +9,9 @@ import SelectField from '../ui/SelectField';
 import PhoneInput from '../ui/PhoneInput';
 import type { RegistrationFormData } from '../../types/authTypes';
 import { useRegistrationMutation } from '../../store/api/authApi';
-import { familyBranches, familyRelationships } from '../../types/user';
+import { familyRelationships } from '../../types/user';
 import { Link } from 'react-router-dom';
+import { useFamilyBranches } from '../../hooks/useFamilyBranches';
 
 export const DEFAULT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSsuWiNNpEjZxIi0uQPyEq6qecEqY0XaI27Q&s';
 const DEFAULT_LNAME = 'الدهمش';
@@ -31,12 +32,17 @@ const schema = yup.object().shape({
   confirmPassword: yup.string()
     .oneOf([yup.ref('password')], 'كلمات المرور غير متطابقة')
     .required('تأكيد كلمة المرور مطلوب'),
-  familyBranch: yup.string().required('فرع العائلة مطلوب'),
+  familyBranch: yup.object().shape({
+    name: yup.string().required('اسم الفرع مطلوب'),
+    show: yup.boolean().optional(),
+    branchOwner: yup.string().optional()
+  }).required('فرع العائلة مطلوب'),
   familyRelationship: yup.string().required('صلة القرابة مطلوبة'),
 });
 
 const RegistrationForm: React.FC = () => {
   const [registeration] = useRegistrationMutation();
+  const { familyBranches } = useFamilyBranches();
 
   const {
     register,
@@ -44,10 +50,8 @@ const RegistrationForm: React.FC = () => {
     formState: { errors },
     reset,
   } = useForm<RegistrationFormData>({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      familyBranch: 'الفرع الاول'
-    }
+    resolver: yupResolver(schema as any),
+    defaultValues: {}
   });
 
 
@@ -60,7 +64,7 @@ const RegistrationForm: React.FC = () => {
       formData.append('email', data.email);
       formData.append('phone', data.phone);
       formData.append('password', data.password);
-      formData.append('familyBranch', data.familyBranch);
+      formData.append('familyBranch', data.familyBranch._id || '');
       formData.append('familyRelationship', data.familyRelationship);
 
       formData.append('image', data.image || DEFAULT_IMAGE);
@@ -140,7 +144,6 @@ const RegistrationForm: React.FC = () => {
           id="familyBranch"
           options={familyBranches}
           register={register}
-          error={errors.familyBranch}
           required
         />
 

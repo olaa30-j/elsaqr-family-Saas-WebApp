@@ -5,9 +5,14 @@ import { useAppSelector } from "../../store/store";
 import { toast } from "react-toastify";
 import { usePermission } from "../../hooks/usePermission";
 import { useGetAuthUserQuery } from "../../store/api/baseApi";
+import { useGetMemberQuery } from "../../store/api/memberApi";
 
 const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
   const { isAuthenticated, user } = useAppSelector(state => state.auth);
+  let memberID = user?.memberId._id;
+
+  const { data:memberData } = useGetMemberQuery(memberID || '');
+  
   const { isSuccess } = useGetAuthUserQuery();
 
   const navigate = useNavigate();
@@ -59,7 +64,7 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
         {/* Family Tree - Conditional */}
         {(canViewFamily || !isAuthenticated) && (
           <button
-            onClick={() => handleNavigation(`/family-tree/${user?.memberId.familyBranch}`)}
+            onClick={() => handleNavigation(`/family-tree/${memberData?.data?.familyBranch.name}`)}
             className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isTabActive('/family-tree') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
           >
             <div className="flex h-8 w-8 items-center justify-center">

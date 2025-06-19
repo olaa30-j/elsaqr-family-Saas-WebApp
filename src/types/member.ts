@@ -1,7 +1,6 @@
+import type { IBranchForm } from "./branch";
+
 export type Gender = "ذكر" | "أنثى";
-export type FamilyBranch =
-    | "الفرع الثاني"
-    | "الفرع الاول";
 
 export type FamilyRelationship =
   | "ابن"
@@ -20,7 +19,7 @@ export interface Member {
     fname: string;
     lname: string;
     gender: "ذكر" | "أنثى";
-    familyBranch: FamilyBranch;
+    familyBranch: string;
     familyRelationship: FamilyRelationship;
     birthday?: Date | string;
     deathDate?: Date | string;
@@ -50,7 +49,7 @@ export interface GetMembers {
     fname: string;
     lname: string;
     gender: "ذكر" | "أنثى";
-    familyBranch: FamilyBranch;
+    familyBranch: IBranchForm;
     familyRelationship: FamilyRelationship;
     birthday?: Date | string;
     deathDate?: Date | string;
@@ -62,7 +61,7 @@ export interface GetMembers {
             fname: string;
             lname: string;
             gender: "ذكر" | "أنثى";
-            familyBranch: FamilyBranch;
+            familyBranch:  IBranchForm | string;
             familyRelationship: FamilyRelationship;
             birthday?: Date | string;
             deathDate?: Date | string;
@@ -75,7 +74,7 @@ export interface GetMembers {
             fname: string;
             lname: string;
             gender: "ذكر" | "أنثى";
-            familyBranch: FamilyBranch;
+            familyBranch:  IBranchForm | string;
             familyRelationship: FamilyRelationship;
         } | string;
     };
@@ -85,7 +84,7 @@ export interface GetMembers {
         fname: string;
         lname: string;
         gender: "ذكر" | "أنثى";
-        familyBranch: FamilyBranch;
+        familyBranch:  IBranchForm | string;
         familyRelationship: FamilyRelationship;
     };
     wives?: {
@@ -94,7 +93,7 @@ export interface GetMembers {
         fname: string;
         lname: string;
         gender: "ذكر" | "أنثى";
-        familyBranch: FamilyBranch;
+        familyBranch:  IBranchForm | string;
         familyRelationship: FamilyRelationship;
     }[];
     children?: {
@@ -103,7 +102,7 @@ export interface GetMembers {
         fname: string;
         lname: string;
         gender: "ذكر" | "أنثى";
-        familyBranch: FamilyBranch;
+        familyBranch:  IBranchForm | string;
         familyRelationship: FamilyRelationship;
     }[];
     image?: string;
@@ -150,11 +149,6 @@ export interface MemberProps {
 export const genderOptions = [
     { value: 'ذكر', label: 'ذكر' },
     { value: 'أنثى', label: 'أنثى' }
-];
-
-export const familyBranches: FamilyBranch[] = [
-    "الفرع الثاني",
-    "الفرع الاول",
 ];
 
 export const familyRelationshipOptions = [

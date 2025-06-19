@@ -1,27 +1,32 @@
+import type { IBranchForm } from "./branch";
+
 export interface IAdvertisement {
   data?: any;
   status: AdvertisementStatus;
   _id: string;
-  userId:UserId;
+  userId: UserId;
   title: string;
   type: AdvertisementType;
   content: string;
-  image?: string;  
+  image?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface UserId {
   _id?: string;
-  fname: string;
-  lname: string;
   email: string;
   phone: number;
   address: string;
-  birthday: string;
-  image: string;
-  role: string[]; 
-  status: 'مقبول' | 'معلق' | 'مرفوض'; 
+  role: string[];
+  memberId: {
+    birthday: string;
+    familyBranch: IBranchForm;
+    fname: string;
+    lname: string;
+    image: string;
+  }
+  status: 'مقبول' | 'معلق' | 'مرفوض';
   tenantId: string;
   createdAt: string;
   updatedAt: string;
@@ -38,7 +43,7 @@ export interface IAdvertisementForm {
   title: string;
   type: string;
   content: string;
-  image?: File | null; 
+  image?: File | null;
   status: string;
 }
 

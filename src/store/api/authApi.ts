@@ -23,7 +23,7 @@ export const authApi = baseApi.injectEndpoints({
       },
     }),
 
-    registration: builder.mutation<User, FormData>({
+    registration: builder.mutation<any, FormData>({
       query: (formData) => ({
         url: '/auth/register',
         method: 'POST',

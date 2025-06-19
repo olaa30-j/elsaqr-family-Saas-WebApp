@@ -6,6 +6,7 @@ import { userSchema, type UserFormValues } from '../../../../types/schemas';
 import { useParams } from 'react-router-dom';
 import { useGetAllRolesQuery } from '../../../../store/api/roleApi';
 import { familyRelationships } from '../../../../types/user';
+import { useFamilyBranches } from '../../../../hooks/useFamilyBranches';
 
 type ErrorWithMessage = {
     message: string;
@@ -39,10 +40,10 @@ const UserForm: React.FC<UserFormProps> = ({
 }) => {
     const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
     const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
-    
-    // جلب الأدوار من API
+
     const { data: rolesResponse, isLoading: isRolesLoading } = useGetAllRolesQuery();
-    
+    const { familyBranches } = useFamilyBranches();
+
     const availableRoles = useMemo(() => {
         return rolesResponse?.data || [];
     }, [rolesResponse]);
@@ -53,7 +54,7 @@ const UserForm: React.FC<UserFormProps> = ({
         try {
             const requestData = {
                 ...data,
-                role: [data.role]  
+                role: [data.role]
             };
 
             if (isEditing && userId) {
@@ -160,11 +161,9 @@ const UserForm: React.FC<UserFormProps> = ({
                                 disabled={isUpdating || isCreating}
                             >
                                 <option value="">اختر فرع العائلة</option>
-                                <option value="الفرع الخامس">الفرع الخامس</option>
-                                <option value="الفرع الرابع">الفرع الرابع</option>
-                                <option value="الفرع الثالث">الفرع الثالث</option>
-                                <option value="الفرع الثاني">الفرع الثاني</option>
-                                <option value="الفرع الاول">الفرع الاول</option>
+                                {familyBranches.map((branch: any, index: any) => (
+                                    <option key={index} value={branch.value}>{branch.label}</option>
+                                ))}
                             </select>
                             {errors.familyBranch && (
                                 <p className="mt-1 text-sm text-red-600">{errors.familyBranch.message}</p>
@@ -226,7 +225,7 @@ const UserForm: React.FC<UserFormProps> = ({
                                     disabled={isUpdating || isCreating || isRolesLoading}
                                 >
                                     <option value="">اختر الدور</option>
-                                    {availableRoles.map((role:string, index:number) => (
+                                    {availableRoles.map((role: string, index: number) => (
                                         <option key={index} value={role}>
                                             {role}
                                         </option>

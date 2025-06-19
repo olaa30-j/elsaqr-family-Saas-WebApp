@@ -20,6 +20,12 @@ export const userSchema = yup.object().shape({
         .min(6, 'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل'),
 });
 
+export const branchSchema = yup.object().shape({
+    name: yup.string().required('اسم الفرع مطلوب'),
+    branchOwner: yup.string().required('مدير الفرع مطلوب'),
+    show: yup.boolean().required('حالة الظهور مطلوبة'),
+});
+
 
 export const profileSchema = yup.object().shape({
     email: yup.string().email('بريد إلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
@@ -199,4 +205,5 @@ export const memberSchema = yup.object().shape({
 
 export type UserFormValues = yup.InferType<typeof userSchema>;
 export type ProfileFormValues = yup.InferType<typeof profileSchema>;
+export type BranchFormValues = yup.InferType<typeof branchSchema>;
 export type MemberFormValues = yup.InferType<typeof memberSchema>;

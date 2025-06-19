@@ -1,6 +1,17 @@
+import type { IBranchForm } from "./branch";
+
 export interface IEvent {
   _id: string;
-  userId: string;
+  userId: {
+    _id: string;
+    email?: string;
+    memberId: {
+      fname: string;
+      lname: string;
+      familyBranch: IBranchForm;
+      image?: string;
+    }
+  };
   address: string;
   description: string;
   location: string;

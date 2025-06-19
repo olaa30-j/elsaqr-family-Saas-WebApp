@@ -7,7 +7,7 @@ const AlbumsList = () => {
     const user = useAppSelector((state) => state.auth.user);
     const { data: albumsData, isLoading, isError } = useGetAlbumsQuery({ page: 1, limit: 10 });
     const filteredAlbums = user?.role[0] === "مستخدم"
-        ? albumsData?.data?.filter((album: any) => album.createdBy?.memberId.familyBranch === user.memberId.familyBranch)
+        ? albumsData?.data?.filter((album: any) => album.createdBy?.memberId.familyBranch.name === user.memberId.familyBranch.name)
         : albumsData?.data;
 
     return (
@@ -17,7 +17,7 @@ const AlbumsList = () => {
                     <Album className="w-5 h-5 mx-2 text-primary" />
                     ألبومات الصور
                     {user?.role[0] === "مستخدم" && (
-                        <span className="text-sm text-gray-500 mr-2">({user.memberId.familyBranch})</span>
+                        <span className="text-sm text-gray-500 mr-2">({user.memberId.familyBranch.name})</span>
                     )}
                 </h2>
             </div>
@@ -43,7 +43,7 @@ const AlbumsList = () => {
                                             </p>
                                             {album.createdBy?.memberId.familyBranch && (
                                                 <p className="text-gray-500 text-xs mt-1">
-                                                    الفرع العائلي: {album.createdBy.memberId.familyBranch || "غير محدد"}    
+                                                    الفرع العائلي: {album.createdBy.memberId.familyBranch.name || "غير محدد"}    
                                                 </p>
                                             )}
                                             <div className="mt-2 text-sm text-primary">

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { DEFAULT_IMAGE } from '../../../auth/RegisterationForm';
 
 interface BranchCardProps {
-    familyBranch: string;
+    familyBranch: any;
     husbands: any[];
     mainHusband?: any;
 }

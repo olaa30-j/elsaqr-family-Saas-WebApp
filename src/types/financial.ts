@@ -1,9 +1,14 @@
+import type { IBranchForm } from "./branch";
+
 interface User {
     email: string | undefined;
     _id: string;
-    fname: string;
-    lname: string;
-    image?: string;
+    memberId: {
+      fname: string;
+      lname: string;
+      familyBranch: IBranchForm;
+      image?: string;
+    }
 }
 
 export interface Transaction {

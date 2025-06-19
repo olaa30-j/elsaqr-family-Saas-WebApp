@@ -10,8 +10,7 @@ import {
 } from '../../../../store/api/memberApi';
 import type { GetMembers } from '../../../../types/member';
 import { familyRelationships } from '../../../../types/user';
-
-type FamilyBranchType = "الفرع الخامس" | "الفرع الرابع" | "الفرع الثالث" | "الفرع الثاني" | "الفرع الاول";
+import { useFamilyBranches } from '../../../../hooks/useFamilyBranches';
 
 interface MemberFormProps {
     memberFormId?: string;
@@ -28,7 +27,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
     onCancel,
     isEditing = false,
 }) => {
-    const [familyBranch, setFamilyBranch] = useState<FamilyBranchType | ''>(defaultValues?.familyBranch || "");
+const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBranch.name || "");
     const [filteredMembers, setFilteredMembers] = useState<GetMembers[]>([]);
     const [maleMembers, setMaleMembers] = useState<GetMembers[]>([]);
     const [femaleMembers, setFemaleMembers] = useState<GetMembers[]>([]);
@@ -55,13 +54,15 @@ const MemberForm: React.FC<MemberFormProps> = ({
         memberID = memberId;
     }
 
+    const { familyBranches } = useFamilyBranches();
+
     const [createMember] = useCreateMemberMutation();
     const [updateMember] = useUpdateMemberMutation();
 
     useEffect(() => {
         if (membersData?.data) {
             const filtered = familyBranch
-                ? membersData.data.filter(m => m.familyBranch === familyBranch)
+                ? membersData.data.filter(m => m.familyBranch.name === familyBranch)
                 : membersData.data;
 
             setFilteredMembers(filtered);
@@ -188,7 +189,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
     };
 
     const handleFamilyBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value as FamilyBranchType | '';
+        const value = e.target.value as string | '';
         setFamilyBranch(value);
     };
 
@@ -287,8 +288,8 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                                     >
                                         <option value="">اختر الفرع</option>
-                                        {(['الفرع الاول', 'الفرع الثاني', 'الفرع الثالث', 'الفرع الرابع', 'الفرع الخامس'] as FamilyBranchType[]).map(b => (
-                                            <option key={b} value={b}>{b}</option>
+                                        {familyBranches.map((branch: any, index: any) => (
+                                            <option key={index} value={branch.value}>{branch.label}</option>
                                         ))}
                                     </select>
                                     {errors.familyBranch && (
@@ -310,7 +311,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                             <option key={relation.value} value={relation.value}>
                                                 {relation.label === "الجد الأعلى" ? `${relation.label} (رأس الأسرة)` : relation.label}
                                             </option>
-                                        ))}                
+                                        ))}
                                     </select>
                                     {errors.familyRelationship && (
                                         <p className="mt-1 text-sm text-red-600">{errors.familyRelationship.message}</p>

@@ -162,7 +162,7 @@ const TransactionsTable = ({
                                             <>
                                                 <img
                                                     className="w-8 h-8 rounded-full mx-2"
-                                                    src={transaction.createdBy.image || DEFAULT_IMAGE}
+                                                    src={transaction.createdBy.memberId.image || DEFAULT_IMAGE}
                                                     alt={transaction.createdBy.email}
                                                 />
                                                 <span>{transaction.createdBy.email}</span>

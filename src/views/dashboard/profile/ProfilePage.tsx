@@ -11,7 +11,7 @@ import ProfileForm from "../../../components/dashboard/free/profile/ProfileForm"
 import { useGetMemberQuery, useUpdateMemberMutation } from "../../../store/api/memberApi";
 import MemberForm from "../../../components/dashboard/free/members/MemberForm";
 import type { User } from "../../../types/user";
-import type { Member } from "../../../types/member";
+import type { GetMembers, Member } from "../../../types/member";
 import { toast } from "react-toastify";
 
 interface ApiResponse<T> {
@@ -90,25 +90,25 @@ const ProfilePage = () => {
     if (!userResponse || !memberResponse) return [];
 
     const user = userResponse.data || userResponse as User;
-    const member = memberResponse.data || memberResponse as Member;
+    const member = memberResponse.data || memberResponse as GetMembers;
 
     const defaultValues = {
-        fname: member.fname ?? '',
-        lname: member.lname ?? '',
-        familyBranch: member.familyBranch ?? 'الفرع الاول',
-        familyRelationship: member.familyRelationship ?? 'ابن',
-        gender: member.gender ?? 'أنثى',
-        birthday: member.birthday ?? null,
-        deathDate: member.deathDate ?? null,
-        parents: {
-            father: member.parents?.father ?? '',
-            mother: member.parents?.mother ?? ''
-        },
-        husband: member.husband?._id ?? '',
-        wives: member.wives ?? [],
-        children: member.children ?? [],
-        image: member.image ?? null,
-        summary: member.summary ?? ''
+      fname: member.fname ?? '',
+      lname: member.lname ?? '',
+      familyBranch: member.familyBranch.name ?? '',
+      familyRelationship: member.familyRelationship ?? 'ابن',
+      gender: member.gender ?? 'أنثى',
+      birthday: member.birthday ?? null,
+      deathDate: member.deathDate ?? null,
+      parents: {
+        father: member.parents?.father ?? '',
+        mother: member.parents?.mother ?? ''
+      },
+      husband: member.husband?._id ?? '',
+      wives: member.wives ?? [],
+      children: member.children ?? [],
+      image: member.image ?? null,
+      summary: member.summary ?? ''
     };
 
     return [
@@ -178,7 +178,7 @@ const ProfilePage = () => {
   }
 
   const user = (userResponse as ApiResponse<User>).data || userResponse as User;
-  const member = (memberResponse as ApiResponse<Member>).data || memberResponse as Member;
+  const member = (memberResponse as ApiResponse<Member>).data || memberResponse as GetMembers;
 
   return (
     <main className="flex-1 overflow-y-auto pb-16">
@@ -257,7 +257,11 @@ const ProfilePage = () => {
                       <span className="font-medium">العنوان:</span> {user?.address || "غير محدد"}
                     </p>
                     <p className="text-muted-foreground">
-                      <span className="font-medium">الفرع:</span> {member.familyBranch || "غير محدد"}
+                      <span className="font-medium">الفرع:</span>
+                      {typeof member.familyBranch === 'string'
+                        ? member.familyBranch
+                        : member.familyBranch?.name || "غير محدد"}
+
                     </p>
                   </div>
                 )}

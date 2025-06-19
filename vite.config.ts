@@ -9,14 +9,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://backend-test-teal.vercel.app',
+        target: 'https://backend-tests-delta.vercel.app',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api/v1'),
         headers: {
           "Access-Control-Allow-Origin": "http://localhost:5173",
           'Access-Control-Allow-Credentials': 'true',
-          'x-vercel-project-id': 'prj_9DjI18PTNADSSZxabCFyzHOYu7Im'
+          'x-vercel-project-id': 'prj_a8J10S0lW2iSCK4mDyT3PHAYx6Lv'
         }
       }
     }

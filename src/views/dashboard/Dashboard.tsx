@@ -19,7 +19,7 @@ const Dashboard = () => {
         </h1>
         <p className="text-gray-600 mt-1">
           {user?.role[0] === "مستخدم" 
-            ? `عضو في ${user?.memberId.familyBranch}`
+            ? `عضو في ${user?.memberId.familyBranch.name}`
             : "مسؤول النظام"}
         </p>
       </header>

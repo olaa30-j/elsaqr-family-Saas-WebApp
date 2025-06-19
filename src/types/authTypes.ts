@@ -1,3 +1,4 @@
+import type { IBranchForm } from "./branch";
 import type { User } from "./user";
 
 export interface AuthCookies {
@@ -27,7 +28,7 @@ export interface RegistrationFormData {
   phone: string;
   password: string;
   confirmPassword: string;
-  familyBranch: string;
+  familyBranch: IBranchForm;
   familyRelationship: string;
   image?: File;
 }

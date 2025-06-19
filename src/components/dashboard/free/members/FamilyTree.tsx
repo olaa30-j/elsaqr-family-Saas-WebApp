@@ -3,12 +3,12 @@ import { motion } from 'framer-motion';
 import { useGetMembersQuery } from '../../../../store/api/memberApi';
 import { DEFAULT_IMAGE } from '../../../auth/RegisterationForm';
 import { Plus, ZoomIn, ZoomOut } from 'lucide-react';
-import type { Gender, FamilyBranch, FamilyRelationship, GetMembers } from '../../../../types/member';
+import type { Gender, FamilyRelationship, GetMembers } from '../../../../types/member';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { Link } from 'react-router-dom';
 
 interface FamilyTreeProps {
-    familyBranch: FamilyBranch | string;
+    familyBranch: string;
 }
 
 const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {

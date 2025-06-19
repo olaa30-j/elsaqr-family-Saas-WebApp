@@ -3,10 +3,10 @@ import { setCredentials } from '../../features/auth/authSlice';
 import type { User } from '../../types/user';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl:'https://backend-test-teal.vercel.app/api/v1',
+  baseUrl:'https://backend-tests-delta.vercel.app/api/v1',
   credentials: 'include',
   prepareHeaders: (headers) => {
-    headers.set('x-vercel-project-id', 'prj_9DjI18PTNADSSZxabCFyzHOYu7Im');
+    headers.set('x-vercel-project-id', 'prj_a8J10S0lW2iSCK4mDyT3PHAYx6Lv');
     return headers;
   },
 });
@@ -23,7 +23,7 @@ const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, 
 
 export const baseApi = createApi({
   reducerPath: 'api',
-  tagTypes: ['Members', 'Users', 'Transaction', 'Albums', 'Events', 'Advertisements', 'Roles', 'ChartsStats', 'Notifications'],
+  tagTypes: ['Members', 'Users', 'Transaction', 'Albums', 'Events', 'Branches' ,'Advertisements', 'Roles', 'ChartsStats', 'Notifications'],
   baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     getAuthUser: builder.query<User, void>({

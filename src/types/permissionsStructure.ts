@@ -1,3 +1,5 @@
+import type { IBranchForm } from "./branch";
+
 export type PermissionEntity = 'مناسبه' | 'عضو' | 'مستخدم' | 'معرض الصور' | 'ماليه' | 'اعلان';
 export type PermissionAction = 'view' | 'create' | 'update' | 'delete';
 
@@ -27,7 +29,7 @@ export interface User {
     _id: string;
     fname: string;
     lname: string;
-    familyBranch: string;
+    familyBranch: IBranchForm;
     gender: 'ذكر' | 'أنثى';
     father?: string;
     birthday: Date | string;

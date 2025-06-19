@@ -1,4 +1,4 @@
-import { Bell, BookOpen, LayoutDashboard, Shield, Users, BarChart4, Eye, UserCheck2 } from 'lucide-react';
+import { Bell, BookOpen, LayoutDashboard, Shield, Users, BarChart4, Eye, UserCheck2, GitBranch } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 const menuItems = [
     {
@@ -21,6 +21,12 @@ const menuItems = [
         description: "تنظيم صلاحيات المستخدمين والأدوار",
         path: "/admin/roles-permissions",
         active: true
+    },
+    {
+        icon: <GitBranch className="h-5 w-5" />,
+        title: " الفروع العائلية",
+        description: "تنظيم الفروع العائلية وشجرة العائلة",
+        path: "/admin/branches",
     },
     {
         icon: <BookOpen className="h-5 w-5" />,

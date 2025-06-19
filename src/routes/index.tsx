@@ -38,6 +38,7 @@ const AlbumsPage = lazy(() => import('../views/album/AlbumsPage'));
 const AlbumsDetailsPage = lazy(() => import('../views/album/AlbumDetailPage'));
 
 const AdminDashboardPage = lazy(() => import('../views/dashboard/admin/dashboard/AdminDashoard'));
+const BranchesPage = lazy(() => import('../views/dashboard/admin/BranchesPage'));
 
 const StatisticsPage = lazy(() => import('../views/dashboard/admin/StatisticsPage'));
 
@@ -91,11 +92,11 @@ const routePermissions = {
     description: 'تفاصيل المعاملة المالية'
   },
   'family-tree/:branch': {
-    permissions: [{ entity: 'عضو', action: 'view' }],
+    permissions: [{ entity: 'مستخدم', action: 'view' }],
     description: 'شجرة العائلة'
   },
   'nested-tree/:memberId': {
-    permissions: [{ entity: 'عضو', action: 'view' }],
+    permissions: [{ entity: 'مستخدم', action: 'view' }],
     description: 'شجرة العائلة'
   },
   albums: {
@@ -112,14 +113,14 @@ const routePermissions = {
   },
   'admin/users': {
     permissions: [
-      { entity: 'مستخدم', action: 'view' },
-      { entity: 'مستخدم', action: 'update' }
+      { entity: 'عضو', action: 'view' },
+      { entity: 'عضو', action: 'update' }
     ],
     description: 'إدارة المستخدمين',
     requiresServerCheck: true
   },
   'admin/users/:userId': {
-    permissions: [{ entity: 'مستخدم', action: 'update' }],
+    permissions: [{ entity: 'عضو', action: 'update' }],
     description: 'تعديل مستخدم'
   },
   'admin/members': {
@@ -131,16 +132,16 @@ const routePermissions = {
     description: 'تعديل عضو'
   },
   'admin/roles-permissions': {
-    permissions: [{ entity: 'مستخدم', action: 'update' }],
+    permissions: [{ entity: 'عضو', action: 'update' }],
     description: 'إدارة الصلاحيات والأدوار',
     requiresServerCheck: true
   },
   'admin/dashboard': {
-    permissions: [{ entity: 'مستخدم', action: 'view' }],
+    permissions: [{ entity: 'عضو', action: 'view' }],
     description: 'لوحة تحكم المدير'
   },
   'admin/statistics': {
-    permissions: [{ entity: 'مستخدم', action: 'view' }],
+    permissions: [{ entity: 'عضو', action: 'view' }],
     description: 'الإحصائيات'
   },
   'admin/notifications': {
@@ -148,9 +149,13 @@ const routePermissions = {
     description: 'تعديل الاشعارات'
   },
   'admin/sections': {
-    permissions: [{ entity: 'مستخدم', action: 'view' }],
+    permissions: [{ entity: 'عضو', action: 'view' }],
     description: 'اقسام التطبيق'
-  }
+  },
+  'admin/branches': {
+    permissions: [{ entity: 'عضو', action: 'view' }],
+    description: 'إدارة الأعضاء'
+  },
 };
 
 // تعريف جميع مسارات التطبيق
@@ -375,6 +380,15 @@ const routes: RouteObject[] = [
                   </SuspenseLoader>
                 ),
                 handle: routePermissions['admin/members/:memberId']
+              },
+                {
+                path: 'branches',
+                element: (
+                  <SuspenseLoader>
+                    <BranchesPage />
+                  </SuspenseLoader>
+                ),
+                handle: routePermissions['admin/members']
               },
               {
                 path: 'roles-permissions',

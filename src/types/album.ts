@@ -1,3 +1,5 @@
+import type { IBranchForm } from "./branch";
+
 export interface Image {
   image: any;
   _id: string;
@@ -12,15 +14,15 @@ export interface Album {
   _id: string;
   name: string;
   description?: string;
-  images: Image[];  
-  createdBy: {  
+  images: Image[];
+  createdBy: {
     _id: string;
-    fname: string;
-    lname: string;
     email?: string;
-    image?: string;
-    memberId:{
-      familyBranch:string;
+    memberId: {
+      fname: string;
+      lname: string;
+      familyBranch: IBranchForm;
+      image?: string;
     }
   };
   createdAt: string | Date;

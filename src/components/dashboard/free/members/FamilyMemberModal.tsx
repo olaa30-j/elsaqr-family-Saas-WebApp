@@ -1,11 +1,11 @@
 import React from 'react';
 import { formatArabicDate } from '../../../../utils/utils';
-import type { Member } from '../../../../types/member';
+import type { GetMembers } from '../../../../types/member';
 
 interface FamilyMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
-  member: Member | null;
+  member: GetMembers | null;
 }
 
 const FamilyMemberModal: React.FC<FamilyMemberModalProps> = ({
@@ -55,7 +55,7 @@ const FamilyMemberModal: React.FC<FamilyMemberModalProps> = ({
             
             <div className="detail-row">
               <span className="detail-label">الفرع:</span>
-              <span>{member.familyBranch}</span>
+              <span>{member.familyBranch.name}</span>
             </div>
           </div>
         </div>

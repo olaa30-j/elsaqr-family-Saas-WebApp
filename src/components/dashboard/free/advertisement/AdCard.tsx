@@ -57,8 +57,8 @@ const AdCard = ({ ad, size = 'small' }: IAdsCard) => {
           </div>
           <h5 className="text-sm font-medium text-right">{ad.title}</h5>
           <div className='flex gap-2 mt-3 items-center'>
-            {/* <img src={ad.userId.createdAt.memberId.image} alt="مدير الاعلانات" className='w-8 h-8 rounded-md' /> */}
-            {/* <h4 className=''>{ad.userId.fname} {ad.userId.lname}</h4> */}
+            <img src={ad.userId.memberId.image} alt="مدير الاعلانات" className='w-8 h-8 rounded-md' />
+            <h4 className=''>{ad.userId.memberId.fname} {ad.userId.memberId.lname}</h4>
           </div>
         </div>
       </div>
