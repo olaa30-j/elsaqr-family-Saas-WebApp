@@ -58,17 +58,17 @@ const ProfilePage = () => {
     setSelectedImage(null);
   };
 
- const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
-      let branchId = typeof member.familyBranch === 'string' 
-        ? member.familyBranch  
+      let branchId = typeof member.familyBranch === 'string'
+        ? member.familyBranch
         : member.familyBranch?._id ?? ''
-      
+
       const formData = new FormData();
-      formData.append('image', file); 
-      formData.append('familyBranch', branchId); 
+      formData.append('image', file);
+      formData.append('familyBranch', branchId);
 
       try {
         await updateMember({
@@ -110,7 +110,7 @@ const ProfilePage = () => {
         father: member.parents?.father ?? '',
         mother: member.parents?.mother ?? ''
       },
-      husband: member.husband?._id ?? '',
+      husband: member.husband ?? '',
       wives: member.wives ?? [],
       children: member.children ?? [],
       image: member.image ?? null,
