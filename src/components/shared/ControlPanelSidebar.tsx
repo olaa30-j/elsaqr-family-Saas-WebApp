@@ -55,14 +55,7 @@ const menuItems = [
         description: "تحليلات واحصائيات استخدام التطبيق",
         path: "/admin/statistics",
         active: false
-    },
-    // {
-    //     icon: <Settings className="h-5 w-5" />,
-    //     title: "إعدادات النظام",
-    //     description: "تعديل الإعدادات العامة للتطبيق",
-    //     path: "/admin/settings",
-    //     active: false
-    // }
+    }
 ];
 const ControlPanelSidebar = ({ closePanel }: { closePanel: () => void }) => {
     const { pathname } = useLocation();

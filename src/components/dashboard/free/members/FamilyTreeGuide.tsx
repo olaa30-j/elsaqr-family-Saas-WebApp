@@ -59,7 +59,7 @@ const FamilyTreeGuide = ({ isOpen, handleClose }: IFamilyTreeGuideProps) => {
                                 </button>
 
                                 <header className="text-center mb-8">
-                                    <h2 className="text-3xl font-bold text-color-2 dark:from-indigo-400 dark:to-purple-400 flex items-center justify-center gap-3">
+                                    <h2 className="text-xl pt-4 font-bold text-color-2 dark:from-indigo-400 dark:to-purple-400 flex items-center justify-center">
                                         <GitMerge size={32} strokeWidth={2.5} />
                                         الدليل العملي لبناء شجرة العائلة
                                     </h2>
