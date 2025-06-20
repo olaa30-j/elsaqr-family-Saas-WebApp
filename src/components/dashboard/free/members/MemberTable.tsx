@@ -6,8 +6,46 @@ import { toast } from "react-toastify";
 import { useDeleteMemberMutation } from "../../../../store/api/memberApi";
 import { genderOptions } from "../../../../types/member";
 import MemberForm from "./MemberForm";
-import { CheckIcon, XIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { CheckIcon, XIcon, ChevronDownIcon, ChevronUpIcon, ShieldQuestion } from "lucide-react";
 import { useFamilyBranches } from "../../../../hooks/useFamilyBranches";
+import FamilyTreeGuide from "./FamilyTreeGuide";
+
+/**
+ * جدول أعضاء العائلة مع إمكانيات الفرز، التصفية، والإدارة
+ * 
+ * @component
+ * @example
+ * // مثال استخدام أساسي
+ * <MembersTable
+ *   currentPage={1}
+ *   membersData={members}
+ *   pagination={{
+ *     totalMembers: 50,
+ *     totalPages: 5,
+ *     currentPage: 1,
+ *     pageSize: 10
+ *   }}
+ *   onPageChange={(page) => console.log('الصفحة المحددة:', page)}
+ *   onBranchChange={(branch) => console.log('الفرع المحدد:', branch)}
+ *   isLoading={false}
+ *   selectedBranch=""
+ *   refetchMembers={() => console.log('إعادة جلب البيانات')}
+ * />
+ * 
+ * @param {Object} props - خصائص المكون
+ * @param {number} props.currentPage - رقم الصفحة الحالية
+ * @param {GetMembers[]} props.membersData - مصفوفة تحتوي على بيانات الأعضاء
+ * @param {Object} [props.pagination] - معلومات التقسيم الصفحي
+ * @param {number} props.pagination.totalMembers - العدد الكلي للأعضاء
+ * @param {number} props.pagination.totalPages - العدد الكلي للصفحات
+ * @param {number} props.pagination.currentPage - الصفحة الحالية
+ * @param {number} props.pagination.pageSize - عدد العناصر في الصفحة الواحدة
+ * @param {function} props.onPageChange - دالة تُستدعى عند تغيير الصفحة
+ * @param {function} props.onBranchChange - دالة تُستدعى عند تغيير الفرع العائلي
+ * @param {boolean} props.isLoading - حالة التحميل
+ * @param {string} props.selectedBranch - الفرع العائلي المحدد
+ * @param {function} [props.refetchMembers] - دالة لإعادة جلب بيانات الأعضاء
+ *  */
 
 interface MembersTableProps {
     currentPage: number;
@@ -44,6 +82,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
     const [searchTerm, setSearchTerm] = useState("");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [deleteMember, { isLoading: isDeleting }] = useDeleteMemberMutation();
+    const [openGuide, setOpenGuide] = useState(false)
 
     const [fatherFilter, setFatherFilter] = useState("");
     const [motherFilter, setMotherFilter] = useState("");
@@ -85,7 +124,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
             const fullName = `${member.fname} ${member.lname}`.toLowerCase();
             const nameMatch = searchTerm === "" || fullName.includes(searchTerm.toLowerCase());
 
-            const branchMatch = selectedBranch === "" || member.familyBranch.name === selectedBranch;
+            const branchMatch = selectedBranch === "" || member.familyBranch._id === selectedBranch;
 
             const fatherMatch = fatherFilter === "" ||
                 (member.parents?.father &&
@@ -99,10 +138,8 @@ const MembersTable: React.FC<MembersTableProps> = ({
                         member.parents.mother.includes(motherFilter) :
                         member.parents.mother.fname.includes(motherFilter)));
 
-            // Account filter
             const accountMatch = hasAccountFilter === null || member.isUser === hasAccountFilter;
 
-            // Gender filter
             const genderMatch = genderFilter === "" || member.gender === genderFilter;
 
             return nameMatch && branchMatch && fatherMatch && motherMatch && accountMatch && genderMatch;
@@ -200,9 +237,15 @@ const MembersTable: React.FC<MembersTableProps> = ({
     return (
         <div className="relative flex flex-col w-full h-full text-primary bg-white rounded-xl shadow-sm">
             <div className="p-6">
-                <div>
-                    <h3 className="text-2xl font-bold text-primary">إدارة أعضاء العائلة</h3>
-                    <p className="text-slate-500 mt-1">قائمة بجميع أعضاء العائلة المسجلين في النظام</p>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h3 className="text-2xl font-bold text-primary">إدارة أعضاء العائلة</h3>
+                        <p className="text-slate-500 mt-1">قائمة بجميع أعضاء العائلة المسجلين في النظام</p>
+                    </div>
+
+                    <button onClick={()=> setOpenGuide(!openGuide)}>
+                        <ShieldQuestion className="w-5 h-5"/>
+                    </button>
                 </div>
 
                 {/* Search and Filter Controls */}
@@ -437,7 +480,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-center">
                                                 <div className="font-medium text-slate-900">
-                                                    {member.familyBranch.name}
+                                                    {member.familyBranch.name != null ? member.familyBranch.name : 'غير محدد'}
                                                 </div>
                                             </div>
                                         </td>
@@ -585,6 +628,10 @@ const MembersTable: React.FC<MembersTableProps> = ({
                             }}
                         />
                     </Modal>
+                )}
+
+                {openGuide && (
+                    <FamilyTreeGuide isOpen={openGuide} handleClose={()=>setOpenGuide(false)}/>
                 )}
             </div>
         </div>

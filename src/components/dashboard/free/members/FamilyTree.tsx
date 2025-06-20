@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useGetMembersQuery } from '../../../../store/api/memberApi';
-import { DEFAULT_IMAGE } from '../../../auth/RegisterationForm';
-import { Plus, ZoomIn, ZoomOut } from 'lucide-react';
-import type { Gender, FamilyRelationship, GetMembers } from '../../../../types/member';
+import { ZoomIn, ZoomOut } from 'lucide-react';
+import type { GetMembers } from '../../../../types/member';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { Link } from 'react-router-dom';
+import { AddButton } from './reusable/AddButton';
+import { MemberCard } from './reusable/MemberCard';
 
 interface FamilyTreeProps {
     familyBranch: string;
@@ -18,10 +19,10 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
 
     const members = membersData?.data || [];
 
-    const familyTree = useMemo(() => {        
+    const familyTree = useMemo(() => {
         const husband = members.find(m =>
             (m.familyRelationship === 'الجد الأعلى' || m.familyRelationship === 'ابن') &&
-            (m.familyBranch.branchOwner && m._id) && 
+            (m.familyBranch.branchOwner && m._id) &&
             (m.familyBranch._id === familyBranch)
         );
 
@@ -59,54 +60,6 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         };
     }, [members]);
 
-    const formatDate = (date: Date | string | undefined) => {
-        if (!date) return 'غير معروف';
-        const d = new Date(date);
-        return isNaN(d.getTime()) ? 'غير معروف' : d.toLocaleDateString('ar-EG');
-    };
-
-    const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
-        let gender: Gender = 'ذكر';
-
-        if ('gender' in member && member.gender) {
-            gender = member.gender;
-        } else {
-            gender = (member.familyRelationship === 'ابن' || member.familyRelationship === 'زوج')
-                ? 'ذكر'
-                : 'أنثى';
-        }
-
-        return (
-            <div className="flex flex-col items-center min-w-[120px] max-w-[150px] mx-2 relative">
-                <div className="w-full h-48 bg-gray-200 mb-2 overflow-hidden flex items-center justify-center border border-gray-300 rounded-md">
-                    {member.image ? (
-                        <img
-                            src={member.image || DEFAULT_IMAGE}
-                            alt={`${member.fname} ${member.lname}`}
-                            className="w-full h-full object-cover"
-                        />
-                    ) : (
-                        <div className="text-gray-400 text-4xl">
-                            {gender === 'ذكر' ? '👨' : '👩'}
-                        </div>
-                    )}
-                </div>
-
-                <div className="text-center w-full">
-                    <p className="font-medium text-gray-700 text-sm leading-tight truncate">
-                        {member.fname} {member.lname}
-                    </p>
-                    <p className="text-xs text-gray-400">({role})</p>
-                    <div className="text-xs text-gray-500 mt-1 flex gap-1 justify-center">
-                        <p>{formatDate(member.birthday)}</p>
-                        {member.deathDate && (
-                            <p> - {formatDate(member.deathDate)}</p>
-                        )}
-                    </div>
-                </div>
-            </div>
-        );
-    };
 
     const familyStats = useMemo(() => {
         if (!familyTree) return null;
@@ -137,22 +90,6 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         };
     }, [familyTree, members]);
 
-    const renderAddButton = (text: string, onClick?: () => void) => {
-        return (
-            <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="border border-dashed border-gray-400 px-3 py-2 bg-gray-50 rounded-md transition-all duration-300 hover:bg-blue-50 cursor-pointer min-w-[120px] max-w-[150px] mx-auto"
-                onClick={onClick}
-            >
-                <div className="flex flex-col items-center">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 mb-1 overflow-hidden flex items-center justify-center">
-                        <Plus className="w-5 h-5 text-gray-400" />
-                    </div>
-                    <p className="font-medium text-gray-700 text-sm">{text}</p>
-                </div>
-            </motion.div>
-        );
-    };
 
     const renderConnectionLine = (type: 'parent' | 'sibling' | 'spouse', position?: 'first' | 'last' | 'middle') => {
         const baseClass = "absolute pointer-events-none border-gray-400";
@@ -211,7 +148,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                     <div className="absolute top-0 left-0 right-0 h-6 flex justify-center">
                         {renderConnectionLine('parent')}
                     </div>
-                    {renderAddButton('إضافة ابن/ابنة')}
+                    {<AddButton text='إضافة ابن/ابنة' />}
                 </div>
             );
         }
@@ -246,7 +183,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-primary/10 w-fit mx-auto"
                                 >
-                                    {renderMemberCard(son, 'ابن')}
+                                    {<MemberCard member={son} role='ابن' />}
                                 </motion.div>
                             </Link>
 
@@ -277,7 +214,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50 w-fit mx-auto"
                                 >
-                                    {renderMemberCard(daughter, 'ابنة')}
+                                    {<MemberCard member={daughter} role='ابنة' />}
                                 </motion.div>
                             </div>
 
@@ -341,7 +278,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-2 py-1 bg-white rounded-md transition-all duration-300 hover:bg-green-50"
                                 >
-                                    {renderMemberCard(grandChild, grandChild.familyRelationship === 'ابن' ? 'ابن' : 'ابنة')}
+                                    {<MemberCard member={grandChild} role={grandChild.familyRelationship === 'ابن' ? 'ابن' : 'ابنة'} />}
                                 </motion.div>
                             </div>
                         </motion.li>
@@ -355,7 +292,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
         return (
             <div className="text-center py-4 text-gray-500">
                 <p>لا يوجد بيانات للعائلة في هذا الفرع</p>
-                {renderAddButton('إضافة رب الأسرة')}
+                {<AddButton text='إضافة رب الأسرة' />}
             </div>
         );
     }
@@ -460,7 +397,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                 whileHover={{ scale: 1.05 }}
                                                 className="border border-gray-300 bg-white rounded-md mx-auto w-fit p-4 relative"
                                             >
-                                                {renderMemberCard(familyTree.husband, 'زوج')}
+                                                {<MemberCard member={familyTree.husband} role={'زوج'} />}
                                                 <div className="absolute -bottom-6 left-0 right-2 h-24 flex justify-center pointer-events-none z-[-1]">
                                                     {renderConnectionLine('spouse')}
                                                 </div>
@@ -495,7 +432,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                                         whileHover={{ scale: 1.05 }}
                                                                         className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50 w-fit mx-auto"
                                                                     >
-                                                                        {renderMemberCard(wife, 'زوجة')}
+                                                                        {<MemberCard member={wife} role='زوجة' />}
                                                                     </motion.div>
                                                                     {/* عرض أبناء هذه الزوجة مع الزوج */}
                                                                     {familyTree.husband._id && wife._id && renderChildren(familyTree.husband._id, wife._id)}
@@ -506,7 +443,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
                                                     </ul>
                                                 ) : (
                                                     <div className="flex justify-center">
-                                                        {renderAddButton('إضافة زوجة')}
+                                                        {<AddButton text='إضافة زوجة' />}
                                                     </div>
                                                 )}
 

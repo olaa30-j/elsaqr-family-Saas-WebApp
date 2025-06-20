@@ -17,6 +17,8 @@ const Member = () => {
         familyBranch: familyBranch || undefined
     });
 
+    console.log(membersData);
+    
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
     };

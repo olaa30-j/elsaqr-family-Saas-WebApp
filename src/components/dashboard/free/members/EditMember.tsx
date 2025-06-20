@@ -64,7 +64,7 @@ const EditMember = () => {
             father: member.parents?.father ?? '',
             mother: member.parents?.mother ?? ''
         },
-        husband: member.husband?._id ?? '',
+        husband: member.husband ?? '',
         wives: member.wives ?? [],
         children: member.children ?? [],
         image: member.image ?? null,

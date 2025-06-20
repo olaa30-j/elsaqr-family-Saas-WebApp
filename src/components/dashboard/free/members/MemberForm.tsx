@@ -27,7 +27,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
     onCancel,
     isEditing = false,
 }) => {
-    const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBranch._id || "");
+    const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBranch);
     const [filteredMembers, setFilteredMembers] = useState<GetMembers[]>([]);
     const [maleMembers, setMaleMembers] = useState<GetMembers[]>([]);
     const [femaleMembers, setFemaleMembers] = useState<GetMembers[]>([]);
@@ -131,8 +131,6 @@ const MemberForm: React.FC<MemberFormProps> = ({
     }, [membersData, familyBranch, defaultValues, isEditing]);
 
     const handleSubmit = async (data: any) => {
-        console.log(data);
-        
         parentOptions
         try {
             const formData = new FormData();
@@ -161,12 +159,15 @@ const MemberForm: React.FC<MemberFormProps> = ({
                 prepareData('parents[mother]', data.parents.mother);
             }
 
-            Object.entries(data).forEach(([key, value]) => {
+            if(data.husband){
+                prepareData('husband', data.husband)
+            }
 
+            Object.entries(data).forEach(([key, value]) => {
                 if (selectedImage && key === 'image') {
                     formData.append('image', selectedImage);
                 }
-                else if (key !== 'parents' && key !== 'image') {
+                else if (key !== 'parents' && key !== 'image' && key !== 'husband') {
                     prepareData(key, value);
                 }
             });
@@ -187,7 +188,16 @@ const MemberForm: React.FC<MemberFormProps> = ({
 
     const getIdFromValue = (value: any): string => {
         if (!value) return '';
-        return typeof value === 'object' ? value._id : value;
+
+        if (typeof value === 'object') {
+            return value._id || value;
+        }
+
+        if (typeof value === 'string') {
+            return value;
+        }
+
+        return '';
     };
 
     const handleFamilyBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -355,16 +365,12 @@ const MemberForm: React.FC<MemberFormProps> = ({
                                             <select
                                                 {...register('husband')}
                                                 disabled={maleMembers.length === 0}
-                                                defaultValue={
-                                                    defaultValues?.husband._id ||
-                                                    defaultValues?.husband ||
-                                                    ''
-                                                }
+                                                defaultValue={getIdFromValue(defaultValues?.husband) || ''}
                                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border disabled:bg-gray-100"
                                             >
                                                 <option value="">اختر الزوج</option>
                                                 {maleMembers.map(m => {
-                                                    const currentHusbandId = getIdFromValue(defaultValues?.husband._id || defaultValues?.husband);
+                                                    const currentHusbandId = getIdFromValue(defaultValues?.husband._id);
                                                     const isCurrentHusband = currentHusbandId === m._id;
 
                                                     return (

@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useGetMembersQuery } from '../../../../store/api/memberApi';
-import { DEFAULT_IMAGE } from '../../../auth/RegisterationForm';
-import { Plus, ZoomIn, ZoomOut } from 'lucide-react';
-import type { Gender, FamilyRelationship, GetMembers } from '../../../../types/member';
+import { ZoomIn, ZoomOut } from 'lucide-react';
+import type { GetMembers } from '../../../../types/member';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { Link, useParams } from 'react-router-dom';
+import { MemberCard } from './reusable/MemberCard';
+import { AddButton } from './reusable/AddButton';
 
 
 const ChildFamilyTree = () => {
@@ -141,71 +142,6 @@ const ChildFamilyTree = () => {
         };
     }, [familyTree, members]);
 
-    const formatDate = (date: Date | string | undefined) => {
-        if (!date) return 'غير معروف';
-        const d = new Date(date);
-        return isNaN(d.getTime()) ? 'غير معروف' : d.toLocaleDateString('ar-EG');
-    };
-
-    const renderMemberCard = (member: GetMembers, role: FamilyRelationship) => {
-        let gender: Gender = 'ذكر';
-
-        if ('gender' in member && member.gender) {
-            gender = member.gender;
-        } else {
-            gender = (member.familyRelationship === 'ابن' || member.familyRelationship === 'زوج')
-                ? 'ذكر'
-                : 'أنثى';
-        }
-
-        return (
-            <div className="flex flex-col items-center min-w-[120px] max-w-[150px] mx-2 relative">
-                <div className="w-full h-48 bg-gray-200 mb-2 overflow-hidden flex items-center justify-center border border-gray-300 rounded-md">
-                    {member.image ? (
-                        <img
-                            src={member.image || DEFAULT_IMAGE}
-                            alt={`${member.fname} ${member.lname}`}
-                            className="w-full h-full object-cover"
-                        />
-                    ) : (
-                        <div className="text-gray-400 text-4xl">
-                            {gender === 'ذكر' ? '👨' : '👩'}
-                        </div>
-                    )}
-                </div>
-
-                <div className="text-center w-full">
-                    <p className="font-medium text-gray-700 text-sm leading-tight truncate">
-                        {member.fname} {member.lname}
-                    </p>
-                    <p className="text-xs text-gray-400">({role})</p>
-                    <div className="text-xs text-gray-500 mt-1">
-                        <p>{formatDate(member.birthday)}</p>
-                        {member.deathDate && (
-                            <p>{formatDate(member.deathDate)}</p>
-                        )}
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const renderAddButton = (text: string, onClick?: () => void) => {
-        return (
-            <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="border border-dashed border-gray-400 px-3 py-2 bg-gray-50 rounded-md transition-all duration-300 hover:bg-blue-50 cursor-pointer min-w-[120px] max-w-[150px] mx-auto"
-                onClick={onClick}
-            >
-                <div className="flex flex-col items-center">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 mb-1 overflow-hidden flex items-center justify-center">
-                        <Plus className="w-5 h-5 text-gray-400" />
-                    </div>
-                    <p className="font-medium text-gray-700 text-sm">{text}</p>
-                </div>
-            </motion.div>
-        );
-    };
 
     const renderConnectionLine = (type: 'parent' | 'sibling' | 'spouse', position?: 'first' | 'last' | 'middle') => {
         const baseClass = "absolute pointer-events-none border-gray-400";
@@ -264,7 +200,7 @@ const ChildFamilyTree = () => {
                     <div className="absolute top-0 left-0 right-0 h-6 flex justify-center">
                         {renderConnectionLine('parent')}
                     </div>
-                    {renderAddButton('إضافة ابن/ابنة')}
+                    {<AddButton text='إضافة ابن/ابنة' />}
                 </div>
             );
         }
@@ -301,7 +237,7 @@ const ChildFamilyTree = () => {
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50 w-fit mx-auto"
                                 >
-                                    {renderMemberCard(daughter, 'ابنة')}
+                                    {<MemberCard member={daughter} role='ابنة' />}
                                 </motion.div>
                             </div>
 
@@ -336,7 +272,7 @@ const ChildFamilyTree = () => {
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-primary/10 w-fit mx-auto"
                                 >
-                                    {renderMemberCard(son, 'ابن')}
+                                    {<MemberCard member={son} role='ابن' />}
                                 </motion.div>
                             </Link>
 
@@ -396,7 +332,7 @@ const ChildFamilyTree = () => {
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-2 py-1 bg-white rounded-md transition-all duration-300 hover:bg-green-50"
                                 >
-                                    {renderMemberCard(grandChild, grandChild.familyRelationship === 'ابن' ? 'ابن' : 'ابنة')}
+                                    {<MemberCard member={grandChild} role={grandChild.familyRelationship === 'ابن' ? 'ابن' : 'ابنة'} />}
                                 </motion.div>
                             </div>
                         </motion.li>
@@ -525,7 +461,7 @@ const ChildFamilyTree = () => {
                                                         whileHover={{ scale: 1.05 }}
                                                         className="border border-gray-300 bg-white rounded-md mx-auto w-fit p-4 relative"
                                                     >
-                                                        {renderMemberCard(familyTree.member, 'زوج')}
+                                                        {<MemberCard member={familyTree.member} role={'زوج'} />}
                                                         <div className="absolute -bottom-6 left-0 right-2 h-24 flex justify-center pointer-events-none z-[-1]">
                                                             {renderConnectionLine('spouse')}
                                                         </div>
@@ -560,7 +496,7 @@ const ChildFamilyTree = () => {
                                                                                 whileHover={{ scale: 1.05 }}
                                                                                 className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-purple-50 w-fit mx-auto"
                                                                             >
-                                                                                {renderMemberCard(wife, 'زوجة')}
+                                                                                {<MemberCard member={wife} role='زوجة' />}
                                                                             </motion.div>
                                                                             {/* Show children with this wife */}
                                                                             {familyTree.member._id && wife._id && renderChildren(familyTree.member._id, wife._id)}
@@ -570,7 +506,7 @@ const ChildFamilyTree = () => {
                                                             </ul>
                                                         ) : (
                                                             <div className="flex justify-center">
-                                                                {renderAddButton('إضافة زوجة')}
+                                                                {<AddButton text='إضافة زوجة' />}
                                                             </div>
                                                         )}
                                                     </div>
@@ -582,7 +518,7 @@ const ChildFamilyTree = () => {
                                                         whileHover={{ scale: 1.05 }}
                                                         className="border border-gray-300 bg-white rounded-md mx-auto w-fit p-4 relative"
                                                     >
-                                                        {renderMemberCard(familyTree.husband, 'زوج')}
+                                                        {<MemberCard member={familyTree.husband} role={'زوج'} />}
                                                         <div className="absolute -bottom-6 left-0 right-2 h-24 flex justify-center pointer-events-none z-[-1]">
                                                             {renderConnectionLine('spouse')}
                                                         </div>
@@ -613,7 +549,7 @@ const ChildFamilyTree = () => {
                                                                                 whileHover={{ scale: 1.05 }}
                                                                                 className={`border border-gray-300 px-3 py-2 rounded-md transition-all duration-300 w-fit mx-auto ${wife._id === familyTree.member._id ? 'bg-purple-100 hover:bg-purple-200' : 'bg-white hover:bg-purple-50'}`}
                                                                             >
-                                                                                {renderMemberCard(wife, 'زوجة')}
+                                                                                {<MemberCard member={wife} role='زوجة' />}
                                                                             </motion.div>
                                                                             {/* Show children with this wife */}
                                                                             {familyTree.husband._id && wife._id && renderChildren(familyTree.husband._id, wife._id)}
@@ -623,7 +559,7 @@ const ChildFamilyTree = () => {
                                                             </ul>
                                                         ) : (
                                                             <div className="flex justify-center">
-                                                                {renderAddButton('إضافة زوجة')}
+                                                                {<AddButton text='إضافة زوجة' />}
                                                             </div>
                                                         )}
                                                     </div>
@@ -635,7 +571,7 @@ const ChildFamilyTree = () => {
                                                         whileHover={{ scale: 1.05 }}
                                                         className="border border-gray-300 bg-purple-100 rounded-md mx-auto w-fit p-4 relative"
                                                     >
-                                                        {renderMemberCard(familyTree.member, 'زوجة')}
+                                                        {<MemberCard member={familyTree.member} role='زوجة' />}
                                                         <div className="absolute -bottom-6 left-0 right-2 h-24 flex justify-center pointer-events-none z-[-1]">
                                                             {renderConnectionLine('spouse')}
                                                         </div>
@@ -666,7 +602,7 @@ const ChildFamilyTree = () => {
                                                                                 whileHover={{ scale: 1.05 }}
                                                                                 className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-primary/10 w-fit mx-auto"
                                                                             >
-                                                                                {renderMemberCard(child, child.familyRelationship === 'ابن' ? 'ابن' : 'ابنة')}
+                                                                                {<MemberCard member={child} role={child.familyRelationship === 'ابن' ? 'ابن' : 'ابنة'} />}
                                                                             </motion.div>
                                                                             {/* Show grandchildren */}
                                                                             {child._id && renderGrandChildren(child._id)}
@@ -676,7 +612,7 @@ const ChildFamilyTree = () => {
                                                             </ul>
                                                         ) : (
                                                             <div className="flex justify-center">
-                                                                {renderAddButton('إضافة ابن/ابنة')}
+                                                                {<AddButton text='إضافة ابن/ابنة' />}
                                                             </div>
                                                         )}
                                                     </div>
