@@ -18,10 +18,11 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ familyBranch }) => {
 
     const members = membersData?.data || [];
 
-    const familyTree = useMemo(() => {
+    const familyTree = useMemo(() => {        
         const husband = members.find(m =>
             (m.familyRelationship === 'الجد الأعلى' || m.familyRelationship === 'ابن') &&
-            (!m.parents?.father && !m.parents?.mother)
+            (m.familyBranch.branchOwner && m._id) && 
+            (m.familyBranch._id === familyBranch)
         );
 
         if (!husband) return null;
