@@ -39,7 +39,9 @@ const schema = yup.object().shape({
 const RegistrationForm: React.FC = () => {
   const [registeration] = useRegistrationMutation();
   const { familyBranches } = useFamilyBranches();
-  let filterFamilyBranches = familyBranches.filter((v)=> v.label != 'الفرع الاداري' || v.label != 'جذر العيلة')
+  let filterFamilyBranches = familyBranches.filter(
+    (v) => v.label !== 'الفرع الاداري' && v.label !== 'جذر العيلة'
+  );
 
   const {
     register,
@@ -53,7 +55,7 @@ const RegistrationForm: React.FC = () => {
 
 
   const onSubmit = async (data: RegistrationFormData) => {
-  const branchId = typeof data.familyBranch === 'object' ? data.familyBranch._id : data.familyBranch;
+    const branchId = typeof data.familyBranch === 'object' ? data.familyBranch._id : data.familyBranch;
     try {
       const formData = new FormData();
 
