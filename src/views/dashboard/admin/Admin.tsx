@@ -10,7 +10,7 @@ const Admin = () => {
         <section className="flex flex-col md:flex-row w-full">
             <button
                 onClick={() => setShowControlPanel(!showControlPanel)}
-                className={`md:hidden right-4 z-50 bg-white p-2 border-2  ${showControlPanel ? "hidden" : "absolute top-20"} `}
+                className={`md:hidden right-4 z-5 bg-white p-2 border-2  ${showControlPanel ? "hidden" : "absolute top-20"} `}
             >
                 <ListCollapse
                     width={15}
