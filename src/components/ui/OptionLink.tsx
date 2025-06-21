@@ -172,7 +172,7 @@ export const options: ProtectedOptionLinkProps[] = [
     bgColor: "bg-purple-50",
     borderColor: "border-purple-200",
     hoverColor: "hover:bg-purple-100",
-    requiredPermission: ["USER_CREATE", "USER_DELETE"]
+    requiredPermission: ["MEMBER_CREATE", "MEMBER_DELETE"]
   },
   {
     href: "/admin/roles-permissions",
@@ -181,7 +181,7 @@ export const options: ProtectedOptionLinkProps[] = [
     bgColor: "bg-purple-50",
     borderColor: "border-purple-200",
     hoverColor: "hover:bg-purple-100",
-    requiredPermission: ["USER_CREATE", "USER_DELETE"]
+    requiredPermission: ["MEMBER_CREATE", "MEMBER_DELETE"]
   },
   {
     href: "/financial",
