@@ -64,7 +64,7 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
         {/* Family Tree - Conditional */}
         {(canViewFamily || !isAuthenticated) && (
           <button
-            onClick={() => handleNavigation(`/family-tree/${memberData?.data?.familyBranch.name}`)}
+            onClick={() => handleNavigation(`/family-tree/${memberData?.data?.familyBranch._id}`)}
             className={`nav-item flex flex-col items-center justify-center text-xs font-medium transition-colors ${isTabActive('/family-tree') ? 'text-primary' : 'text-color-2/60 hover:text-primary'}`}
           >
             <div className="flex h-8 w-8 items-center justify-center">
