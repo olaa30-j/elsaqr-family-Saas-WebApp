@@ -1,54 +1,138 @@
-# React + TypeScript + Vite
+# نظام إدارة عائلة الدهماش
+## جدول المحتويات
+- [نظرة عامة](#نظرة-عامة)
+- [المميزات](#المميزات)
+- [هيكل المشروع](#هيكل-المشروع)
+- [التقنيات المستخدمة](#التقنيات-المستخدمة)
+- [التثبيت](#التثبيت)
+- [أوامر التطوير](#أوامر-التطوير)
+- [المساهمة](#المساهمة)
+- [الترخيص](#الترخيص)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## نظرة عامة
 
-Currently, two official plugins are available:
+نظام إدارة عائلة الدهماش هو منصة متكاملة لإدارة شؤون العائلة تشمل:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- إدارة شجرة العائلة
+- تنظيم الأحداث والمناسبات
+- متابعة الأمور المالية
+- أرشيف الصور والذكريات
+- نظام صلاحيات متقدم
 
-## Expanding the ESLint configuration
+## المميزات
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### المميزات الأساسية
+- 🌳 **شجرة العائلة** - تصور العلاقات العائلية
+- 🔐 **نظام صلاحيات** - تحكم دقيق في الصلاحيات
+- 📅 **الأحداث** - تقويم لإدارة المناسبات
+- 💰 **المالية** - متابعة الدخل والمصروفات
+- 🖼️ **الألبومات** - تنظيم الصور والذكريات
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+### مميزات إضافية
+- لوحة تحكم مع إحصائيات
+- نظام إشعارات
+- إنشاء تقارير PDF
+- بحث متقدم
+- تصميم متجاوب لجميع الأجهزة
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## هيكل المشروع
+dahmash-family/
+├── components/
+│   ├── auth/
+│   ├── dashboard/
+│   ├── free/
+│   ├── admin/
+│   ├── advertisement/
+│   ├── album/
+│   ├── events/
+│   ├── financial/
+│   ├── main/
+│   ├── members/
+│   ├── profile/
+│   ├── roles/
+│   ├── users/
+│   ├── EditImage.tsx
+│   ├── premium/
+│   ├── home/
+│   ├── layouts/
+│   ├── shared/
+│   └── ui/
+├── features/
+│   ├── auth/
+│   ├── notifications/
+│   ├── permissions/
+│   ├── subscription/
+│   ├── hooks/
+│   │   ├── useAlbumImages.ts
+│   │   ├── useAlbums.ts
+│   │   ├── useFamilyBranches.ts
+│   │   └── usePermission.ts
+│   ├── middleware/
+│   │   └── permissionMiddleware.ts
+│   └── routes/
+│       ├── index.tsx
+│       ├── premiumRoutes.tsx
+│       └── ProtectedRoute.tsx
+├── services/
+│   ├── advertisementApi.ts
+│   ├── albumApi.ts
+│   ├── authApi.ts
+│   ├── baseApi.ts
+│   ├── branchApi.ts
+│   ├── chartsApi.ts
+│   ├── eventApi.ts
+│   ├── financialApi.ts
+│   ├── memberApi.ts
+│   ├── notificationApi.ts
+│   ├── permissionApi.ts
+│   ├── roleApi.ts
+│   ├── usersApi.ts
+│   └── store.ts
+├── utils/
+│   ├── motion.ts
+│   ├── permissions.ts
+│   ├── swiper-setup.ts
+│   └── utils.ts
+├── views/
+│   ├── album/
+│   ├── auth/
+│   ├── contactus/
+│   ├── dashboard/
+│   ├── admin/
+│   ├── familyTree/
+│   ├── financial/
+│   └── profile/
+├── dashboard.module.tsx
+├── Dashboard.tsx
+├── errors/
+├── home/
+└── App.tsx
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## التقنيات المستخدمة
+
+### الواجهة الأمامية
+- React 19
+- TypeScript
+- Redux Toolkit
+- React Router
+- TailwindCSS
+
+### التصور البياني
+- Chart.js
+- D3.js
+- OrgChart.js
+
+### الأدوات المساعدة
+- date-fns
+- Yup
+- React Hook Form
+
+## التثبيت
+
+1. تنزيل المشروع:
+   ```bash
+   git clone https://github.com/olaa30-j/elsaqr-family-Saas-WebApp.git
+   cd dahmash-family
+   npm install
+   npm run dev
