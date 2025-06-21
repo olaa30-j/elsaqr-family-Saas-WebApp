@@ -16,6 +16,18 @@ import Modal from '../../../ui/Modal';
 import { ar } from 'date-fns/locale';
 import { usePermission } from '../../../../hooks/usePermission';
 
+/**
+ * State variables for component operation:
+ * - currentMonth: Currently displayed month (Date object)
+ * - selectedDate: Selected date in calendar view (Date | null)
+ * - showForm: Toggles event form modal (boolean)
+ * - editingEvent: Current event being edited (IEvent | null)
+ * - deletingEvent: Event marked for deletion (IEvent | null)
+ * - isDeleteEvent: Delete confirmation modal state (boolean)
+ * - sortConfig: Table sorting configuration ({key, direction})
+ * - activeTab: Current view mode ('calendar' | 'table')
+ */
+
 const EventCalendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -36,7 +48,6 @@ const EventCalendar = () => {
     refetch
   } = useGetEventsQuery({});
 
-  // فرز جميع الأحداث
   const sortedEvents = useMemo(() => {
     const sortableItems = [...apiResponse.data];
     if (sortConfig) {
@@ -71,17 +82,14 @@ const EventCalendar = () => {
     setSortConfig({ key, direction });
   };
 
-  // الحصول على أيام الشهر الحالي
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  // تصفية الأحداث للتاريخ المحدد
   const selectedEvents = selectedDate
     ? events.filter(event => isSameDay(new Date(event.startDate), selectedDate))
     : [];
 
-  // إرسال النموذج
   const handleSubmit = async (eventData: any) => {
     try {
       if (editingEvent) {
@@ -359,7 +367,6 @@ const EventCalendar = () => {
             </div>
           </motion.div>
         ) : (
-          /* عرض جدول جميع الأحداث */
           <motion.div
             variants={fadeIn('up', 'spring', 0.4, 0.7)}
             className="bg-white rounded-lg shadow p-4"
@@ -502,7 +509,6 @@ const EventCalendar = () => {
           </motion.div>
         )}
 
-        {/* نموذج إضافة/تعديل حدث */}
         {isDeleteEvent &&
           (
             <Modal

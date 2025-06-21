@@ -23,7 +23,6 @@ import { X, Heart, Droplets, GitMerge, ChevronRight, AlertTriangle } from "lucid
  * @param {boolean} props.isOpen - حالة فتح/إغلاق الدليل
  * @param {function} props.handleClose - دالة لإغلاق الدليل
  * 
- * @returns {JSX.Element} نافذة منبثقة تحتوي على دليل شجرة العائلة
  */
 
 interface IFamilyTreeGuideProps {

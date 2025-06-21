@@ -67,7 +67,7 @@ const AdvertisementTable = () => {
     const [updateAd, { isLoading: isUpdating }] = useUpdateAdvertisementMutation();
 
     const { hasPermission: canCreateAD } = usePermission('AD_CREATE');
-    const { hasPermission: canDeleteAD } = usePermission('AD_EDIT');
+    const { hasPermission: canDeleteAD } = usePermission('AD_DELETE');
     const { hasPermission: canEditAD } = usePermission('AD_EDIT');
 
     useEffect(() => {

@@ -39,6 +39,7 @@ const schema = yup.object().shape({
 const RegistrationForm: React.FC = () => {
   const [registeration] = useRegistrationMutation();
   const { familyBranches } = useFamilyBranches();
+  let filterFamilyBranches = familyBranches.filter((v)=> v.label != 'الفرع الاداري' || v.label != 'جذر العيلة')
 
   const {
     register,
@@ -139,7 +140,7 @@ const RegistrationForm: React.FC = () => {
           label="فرع العائلة"
           name="familyBranch"
           id="familyBranch"
-          options={familyBranches}
+          options={filterFamilyBranches}
           register={register}
           required
         />

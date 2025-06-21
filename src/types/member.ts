@@ -45,6 +45,7 @@ export interface GetMembers {
     userId?: {
         _id: string;
         email:string;
+        role: string[];
     };
     fname: string;
     lname: string;

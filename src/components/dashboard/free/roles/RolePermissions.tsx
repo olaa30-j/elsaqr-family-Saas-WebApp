@@ -5,7 +5,8 @@ import { type PermissionEntity, type PermissionAction } from '../../../../types/
 import { usePermission } from '../../../../hooks/usePermission';
 import { toast } from 'react-toastify';
 import { Controller, useForm } from 'react-hook-form';
-import { Shield, Search, UserCog, Save, Loader2, AlertCircle, ShieldCheck, Box, History, ChevronDown } from 'lucide-react';
+import { Shield, Search, UserCog, Save, Loader2, AlertCircle, ShieldCheck, Box, History, ChevronDown, ShieldQuestion } from 'lucide-react';
+import PermissionsGuide from './PermissionsGuide';
 
 export type Role = string;
 
@@ -18,12 +19,12 @@ interface Permission {
 }
 
 const RolePermissions: React.FC = () => {
-    // State management
     const [selectedRole, setSelectedRole] = useState<Role>('');
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [initialPermissions, setInitialPermissions] = useState<Permission[]>([]);
     const [hasChanges, setHasChanges] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
 
     const permissionEntities: PermissionEntity[] = ['مناسبه', 'عضو', 'مستخدم', 'معرض الصور', 'ماليه', 'اعلان'];
     const actions: PermissionAction[] = ['view', 'create', 'update', 'delete'];
@@ -40,7 +41,6 @@ const RolePermissions: React.FC = () => {
         }
     });
 
-    // API calls
     const {
         data: rolesResponse,
         isLoading: isLoadingRoles,
@@ -188,14 +188,20 @@ const RolePermissions: React.FC = () => {
 
     return (
         <div className="container py-6">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-                    <Shield className="w-6 h-6 mx-2 text-primary-600" />
-                    إدارة صلاحيات الأدوار
-                </h2>
-                {(isLoadingPermissions || isSubmitting) && (
-                    <Loader2 className="w-6 h-6 text-primary-600 animate-spin" />
-                )}
+            <div className="flex justify-between items-center mb-6 text-primary">
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                        <Shield className="w-6 h-6 mx-2 text-primary-600" />
+                        إدارة صلاحيات الأدوار
+                    </h2>
+                    {(isLoadingPermissions || isSubmitting) && (
+                        <Loader2 className="w-6 h-6 text-primary-600 animate-spin" />
+                    )}
+                </div>
+
+                <button onClick={() => setIsGuideOpen(!isGuideOpen)}>
+                    <ShieldQuestion className="w-5 h-5" />
+                </button>
             </div>
 
             {/* Role Selection Card */}
@@ -373,6 +379,12 @@ const RolePermissions: React.FC = () => {
                     </div>
                 </>
             )}
+
+
+            {isGuideOpen && (
+                <PermissionsGuide isOpen={isGuideOpen} handleClose={() => setIsGuideOpen(false)} />
+            )}
+
         </div>
     );
 };

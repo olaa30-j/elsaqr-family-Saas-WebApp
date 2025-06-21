@@ -21,7 +21,7 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
   const homeButton = isAuthenticated ? '/dashboard' : '/';
 
   // Permission checks
-  const { hasPermission: canViewAds } = usePermission('AD_VIEW');
+  const { hasPermission: canViewAds } = usePermission('AD_EDIT');
   const { hasPermission: canViewGallery } = usePermission('GALLERY_VIEW');
   const { hasPermission: canViewFamily } = usePermission('MEMBER_VIEW');
 
@@ -128,7 +128,7 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
         {/* More - Always visible */}
         <button
           onClick={() => {
-            if (!isSuccess) {
+            if (!isAuthenticated) {
               navigate('/login');
               return;
             }

@@ -24,7 +24,6 @@ const TransactionsList = () => {
     const { hasPermission: canDeleteFinancial } = usePermission('FINANCIAL_DELETE');
     const { hasPermission: canEditFinancial } = usePermission('FINANCIAL_EDIT');
 
-
     const limit = 10;
     const navigate = useNavigate();
 
@@ -208,44 +207,64 @@ const TransactionsList = () => {
                         onView={(transaction) => navigate(`/financial/${transaction._id}`)}
                     />
                 </motion.div>
+
                 {/* Pagination */}
-                <div className="flex items-center justify-between mt-4 px-2">
+                <div className="flex items-center justify-between mt-4 mb-16 px-2">
                     <div className="text-sm text-slate-500">
                         عرض <span className="font-medium">{(page - 1) * limit + 1}</span> إلى{' '}
                         <span className="font-medium">
-                            {Math.min(page * limit, allTransactionsData?.transactions?.length || 0)}
+                            {Math.min(page * limit, filteredTransactions.length)}
                         </span>{' '}
-                        من <span className="font-medium">{allTransactionsData?.transactions?.length || 0}</span> نتائج
+                        من <span className="font-medium">{filteredTransactions.length}</span> نتائج
                     </div>
-                    <div className="flex space-x-2 gap-2">
+                    <div className="flex space-x-2">
                         <button
-                            onClick={() => setPage(page - 1)}
+                            onClick={() => setPage(Math.max(1, page - 1))}
                             disabled={page === 1}
-                            className={`px-3 py-1 rounded-md border ${page === 1 ?
-                                'bg-slate-100 text-slate-400 cursor-not-allowed' :
-                                'bg-white text-primary hover:bg-slate-50'
+                            className={`px-3 py-1 rounded-md mx-2 ${page === 1
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                : 'bg-primary text-white hover:bg-primary/90'
                                 }`}
                         >
                             السابق
                         </button>
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                            <button
-                                key={pageNum}
-                                onClick={() => setPage(pageNum)}
-                                className={`px-3 py-1 rounded-md ${page === pageNum ?
-                                    'bg-primary text-white' :
-                                    'bg-white text-primary hover:bg-slate-100 border'
-                                    }`}
-                            >
-                                {pageNum}
-                            </button>
-                        ))}
+
+                        {Array.from(
+                            { length: Math.min(5, totalPages) },
+                            (_, i) => {
+                                let pageNum;
+
+                                if (totalPages <= 5) {
+                                    pageNum = i + 1;
+                                } else if (page <= 3) {
+                                    pageNum = i + 1;
+                                } else if (page >= totalPages - 2) {
+                                    pageNum = totalPages - 4 + i;
+                                } else {
+                                    pageNum = page - 2 + i;
+                                }
+
+                                return (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => setPage(pageNum)}
+                                        className={`px-3 py-1 rounded-md ${page === pageNum
+                                            ? 'bg-primary text-white'
+                                            : 'bg-white text-primary hover:bg-primary/10 border border-primary'
+                                            }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                );
+                            }
+                        )}
+
                         <button
                             onClick={() => setPage(page + 1)}
-                            disabled={page === totalPages}
-                            className={`px-3 py-1 rounded-md border ${page === totalPages ?
-                                'bg-slate-100 text-slate-400 cursor-not-allowed' :
-                                'bg-white text-primary hover:bg-slate-50'
+                            disabled={page >= totalPages}
+                            className={`px-3 py-1 rounded-md ${page >= totalPages
+                                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                : "bg-primary text-white hover:bg-primary/90"
                                 }`}
                         >
                             التالي

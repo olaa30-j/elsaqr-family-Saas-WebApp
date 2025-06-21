@@ -5,10 +5,12 @@ import { useGetAdvertisementQuery } from "../../../../store/api/advertisementApi
 import RichTextRenderer from "../../../shared/RichTextRenderer";
 import AdvertisementTypeBadge from "./AdvertisementTypeBadge";
 import AdvertisementStatusBadge from "./AdvertisementStatusBadge";
+import { usePermission } from "../../../../hooks/usePermission";
 
 const AdDetails = () => {
     const { id } = useParams<{ id: string }>();
     const { data: ad, isLoading, error } = useGetAdvertisementQuery(id!);
+    const { hasPermission: canEditAD } = usePermission('AD_EDIT');
 
     if (isLoading) return <LoadingSpinner />;
     if (error) return <ErrorState />;
@@ -59,6 +61,9 @@ const AdDetails = () => {
                         <ActionButtons
                             id={id!}
                             status={ad.data.status}
+                            canEditAD={
+                                canEditAD
+                            }
                         />
                     </div>
                 </div>
@@ -206,15 +211,19 @@ const ContactInfoSection = ({ user }: { user: any }) => (
     </div>
 );
 
-const ActionButtons = ({ id, status }: { id: string; status: any }) => (
+const ActionButtons = ({ id, status, canEditAD }: { id: string; status: any; canEditAD:any }) => (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 pt-4 sm:pt-6">
-        <Link
-            to={`/advertisement-edit/${id}`}
-            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 sm:px-8 py-2 sm:py-3 bg-primary text-white rounded-lg hover:bg-primary transition-colors shadow-md hover:shadow-lg text-sm sm:text-base"
-        >
-            <Edit className="w-5 h-5" />
-            <span>تعديل الإعلان</span>
-        </Link>
+        {(canEditAD) && (
+                <Link
+                    to={`/advertisement-edit/${id}`}
+                    className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 sm:px-8 py-2 sm:py-3 bg-primary text-white rounded-lg hover:bg-primary transition-colors shadow-md hover:shadow-lg text-sm sm:text-base"
+                >
+                    <Edit className="w-5 h-5" />
+                    <span>تعديل الإعلان</span>
+                </Link>
+
+            )
+        }
 
         <div className="flex items-center gap-2 text-sm sm:text-base text-gray-700">
             <Palette className="w-5 h-5 text-primary" />
