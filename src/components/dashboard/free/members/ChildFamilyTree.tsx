@@ -319,15 +319,18 @@ const ChildFamilyTree = () => {
                             transition={{ duration: 0.5, delay: index * 0.1 }}
                             className="relative px-1"
                         >
-                            <div className="absolute top-0 left-0 right-0 h-10 flex justify-center">
-                                {renderConnectionLine('sibling',
-                                    index === 0 ? 'first' :
-                                        index === grandChildren.length - 1 ? 'last' :
-                                            'middle'
+                            {
+                                grandChildren.length > 1 && (
+                                    <div className="absolute top-0 left-0 -right-4 h-10 flex justify-center">
+                                        {renderConnectionLine('sibling',
+                                            index === 0 ? 'first' :
+                                                index === grandChildren.length - 1 ? 'last' :
+                                                    'middle'
+                                        )}
+                                    </div>
                                 )}
-                            </div>
 
-                            <div className="pt-6">
+                                <div className={`${grandChildren.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     className="border border-gray-300 px-2 py-1 bg-white rounded-md transition-all duration-300 hover:bg-green-50"
@@ -368,7 +371,7 @@ const ChildFamilyTree = () => {
                         <div className="flex flex-col items-center gap-4 mb-4 bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
                             <div className='flex flex-col md:flex-row justify-between w-full gap-3'>
                                 <div className="text-right">
-                                    <Link to={`/family-tree/${familyTree.member.familyBranch.name}`}
+                                    <Link to={`/family-tree/${familyTree.member.familyBranch._id}`}
                                         className="text-sm text-primary hover:underline mb-2"
                                     >
                                         ← العودة إلى الشجرة الرئيسية
@@ -536,13 +539,17 @@ const ChildFamilyTree = () => {
                                                                         animate={{ opacity: 1, x: 0 }}
                                                                         transition={{ duration: 0.3, delay: index * 0.1 }}
                                                                     >
-                                                                        <div className="absolute top-0 left-0 -right-4 h-10 flex justify-center">
-                                                                            {renderConnectionLine('sibling',
-                                                                                index === 0 ? 'first' :
-                                                                                    index === familyTree.wives.length - 1 ? 'last' :
-                                                                                        'middle'
-                                                                            )}
-                                                                        </div>
+                                                                        {familyTree.wives.length > 1 && (
+                                                                            <div className="absolute top-0 left-0 -right-4 h-10 flex justify-center">
+                                                                                {renderConnectionLine('sibling',
+                                                                                    index === 0 ? 'first' :
+                                                                                        index === familyTree.wives.length - 1 ? 'last' :
+                                                                                            'middle'
+                                                                                )}
+                                                                            </div>
+
+                                                                        )
+                                                                        }
 
                                                                         <div className={`${familyTree.wives.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                                                             <motion.div
@@ -565,7 +572,6 @@ const ChildFamilyTree = () => {
                                                     </div>
                                                 </>
                                             ) : (
-                                                // Female member without husband - show just her with her children
                                                 <>
                                                     <motion.div
                                                         whileHover={{ scale: 1.05 }}
@@ -589,15 +595,18 @@ const ChildFamilyTree = () => {
                                                                         animate={{ opacity: 1, x: 0 }}
                                                                         transition={{ duration: 0.3, delay: index * 0.1 }}
                                                                     >
-                                                                        <div className="absolute top-0 left-0 -right-4 h-10 flex justify-center">
-                                                                            {renderConnectionLine('sibling',
-                                                                                index === 0 ? 'first' :
-                                                                                    index === familyTree.children.length - 1 ? 'last' :
-                                                                                        'middle'
+                                                                        {
+                                                                            familyTree.children.length > 1 && (
+                                                                                <div className="absolute top-0 left-0 -right-4 h-10 flex justify-center">
+                                                                                    {renderConnectionLine('sibling',
+                                                                                        index === 0 ? 'first' :
+                                                                                            index === familyTree.children.length - 1 ? 'last' :
+                                                                                                'middle'
+                                                                                    )}
+                                                                                </div>
                                                                             )}
-                                                                        </div>
 
-                                                                        <div className="pt-6">
+                                                                        <div className={`${familyTree.children.length > 1 ? 'pt-6' : 'pt-0'}`}>
                                                                             <motion.div
                                                                                 whileHover={{ scale: 1.05 }}
                                                                                 className="border border-gray-300 px-3 py-2 bg-white rounded-md transition-all duration-300 hover:bg-primary/10 w-fit mx-auto"

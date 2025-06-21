@@ -60,13 +60,9 @@ const MemberForm: React.FC<MemberFormProps> = ({
   const [updateMember] = useUpdateMemberMutation();
 
   const getIdFromValue = (value: any): string => {
-    if (!value) return '';
-    if (typeof value === 'object') return value._id || value;
-    if (typeof value === 'string') return value;
-    return '';
+        return typeof value === 'object' ? value._id || value: value._id || value;
   };
 
-  // Initialize form values
   useEffect(() => {
     if (defaultValues) {
       if (defaultValues.image) {
@@ -149,54 +145,57 @@ const MemberForm: React.FC<MemberFormProps> = ({
     else setDeathDateInput(value);
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: any) => {    
     startTransition(async () => {
-      try {
-        const formData = new FormData();
+        try {
+            const formData = new FormData();
+            const prepareData = (key: string, value: any) => {
+                if (value === null || value === undefined || value === '') return;
 
-        const prepareData = (key: string, value: any) => {
-          if (value == null || value === '') return;
+                else if (key === 'wives') {
+                    selectedWives.forEach((wifeId, i) => {
+                        formData.append(`wives[${i}]`, wifeId);
+                    });
+                }
+                else if (key === 'children') {
+                    selectedChildren.forEach((childrenId, i) => {
+                        formData.append(`children[${i}]`, childrenId);
+                    });
+                } else if (typeof value === 'object' && value._id) {
+                    formData.append(key, value._id);
+                }
+                else {
+                    formData.append(key, String(value));
+                }
+            };
 
-          if (Array.isArray(value)) {
-            value.forEach((item, i) => formData.append(`${key}[${i}]`, item));
-          } else if (typeof value === 'object' && value._id) {
-            formData.append(key, value._id);
-          } else {
-            formData.append(key, String(value));
-          }
-        };
-
-        if (data.parents) {
-          prepareData('parents[father]', data.parents.father);
-          prepareData('parents[mother]', data.parents.mother);
-        }
-
-        if (data.husband) {
-          prepareData('husband', data.husband);
-        }
-
-        Object.entries(data).forEach(([key, value]) => {
-          if (key !== 'parents' && key !== 'husband') {
-            if (key === 'image' && selectedImage) {
-              formData.append('image', selectedImage);
-            } else if (key !== 'image') {
-              prepareData(key, value);
+            if (data.parents) {
+                prepareData('parents[father]', data.parents.father);
+                prepareData('parents[mother]', data.parents.mother);
             }
-          }
-        });
 
-        if (isEditing && memberID) {
-          await updateMember({ id: memberID, data: formData }).unwrap();
-          toast.success("تم تحديث العضو بنجاح");
-        } else {
-          await createMember(formData).unwrap();
-          toast.success("تم إضافة العضو بنجاح");
+            Object.entries(data).forEach(([key, value]) => {
+
+                if (selectedImage && key === 'image') {
+                    formData.append('image', selectedImage);
+                }
+                else if (key !== 'parents' && key !== 'image') {
+                    prepareData(key, value);
+                }
+            });
+
+            if (isEditing && memberID) {
+                await updateMember({ id: memberID, data: formData }).unwrap();
+                toast.success("تم تحديث العضو بنجاح");
+            } else {
+                await createMember(formData).unwrap();
+                toast.success("تم إضافة العضو بنجاح");
+            }
+
+            onSuccess?.();
+        } catch (error: any) {
+            toast.error(error.data?.message || "حدث خطأ");
         }
-
-        onSuccess?.();
-      } catch (error: any) {
-        toast.error(error.data?.message || "حدث خطأ");
-      }
     });
   };
 
