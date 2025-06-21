@@ -112,7 +112,7 @@ const DropdownNotification = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute -left-6 md:left-0 top-16 w-80 bg-white rounded-md shadow-lg overflow-hidden z-[1000]  min-h-[40vh] max-h-[70vh]">
+        <div className="absolute -left-12 md:left-0 top-16 w-80 bg-white rounded-md shadow-lg overflow-hidden z-[1000]  min-h-[40vh] max-h-[70vh]">
           <div className="flex flex-col h-[500px]">
             {/* Header */}
             <div className="px-4 py-4 flex justify-between items-center border-b bg-gray-100">
