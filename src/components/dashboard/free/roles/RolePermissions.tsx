@@ -324,7 +324,7 @@ const RolePermissions: React.FC = () => {
                                                     الأقسام
                                                 </th>
                                                 {actions.map((action) => (
-                                                    <th key={action} scope="col" className="px-6 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                                                    <th key={action} scope="col" className="px-6 py-3 text-center text-xs font-medium text-primary uppercase tracking-wider">
                                                         {action === 'view' ? 'عرض' :
                                                             action === 'create' ? 'إنشاء' :
                                                                 action === 'update' ? 'تعديل' : 'حذف'}
