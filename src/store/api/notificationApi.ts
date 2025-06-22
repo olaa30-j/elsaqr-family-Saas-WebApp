@@ -19,7 +19,7 @@ export const notificationApi = baseApi.injectEndpoints({
                     : [{ type: 'Notifications' as const, id: 'LIST' }],
         }),
 
-        getUnreadCount: build.query<{ count: number }, void>({
+        getUnreadCount: build.query<{ data:{ count: number} }, void>({
             query: () => ({
                 url: '/notification/unread-count',
                 method: 'GET',

@@ -25,8 +25,9 @@ const DropdownNotification = () => {
   const [markAsRead] = useMarkAsReadMutation();
   const [markAllAsRead] = useMarkAllAsReadMutation();
 
+  
   const notifications = notificationsData?.data || [];
-  const unreadCount = unreadCountData?.count || 0;
+  const unreadCount = unreadCountData?.data.count || 0;
 
   useEffect(() => {
     if (isOpen && unreadCount > 0) {

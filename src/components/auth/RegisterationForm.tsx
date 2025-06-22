@@ -40,7 +40,7 @@ const RegistrationForm: React.FC = () => {
   const [registeration] = useRegistrationMutation();
   const { familyBranches } = useFamilyBranches();
   let filterFamilyBranches = familyBranches.filter(
-    (v) => v.label !== 'الفرع الاداري' && v.label !== 'جذر العيلة'
+    (v) => v.label !== 'الفرع الاداري' && v.label !== 'جذر العائلة'
   );
 
   const {

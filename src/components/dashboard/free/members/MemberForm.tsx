@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useTransition } from 'react';
 import { toast } from 'react-toastify';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import {
   useCreateMemberMutation,
   useUpdateMemberMutation,
@@ -27,8 +27,16 @@ const MemberForm: React.FC<MemberFormProps> = ({
   onCancel,
   isEditing = false,
 }) => {
+  const location = useLocation();
   const [_isPending, startTransition] = useTransition();
   const { familyBranches } = useFamilyBranches();
+
+  let branches = familyBranches;
+  if (!location.pathname.includes('/admin/members')) {
+    branches = familyBranches.filter(
+      (v) => v.label !== 'الفرع الاداري' && v.label !== 'جذر العائلة'
+    );
+  }
 
   const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBranch || '');
   const [filteredMembers, setFilteredMembers] = useState<GetMembers[]>([]);
@@ -281,7 +289,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                     className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border ${errors.familyBranch ? 'border-red-500' : ''}`}
                   >
                     <option value="">اختر الفرع</option>
-                    {familyBranches.map((branch: any) => (
+                    {branches.map((branch: any) => (
                       <option key={branch.value} value={branch.value}>{branch.label}</option>
                     ))}
                   </select>

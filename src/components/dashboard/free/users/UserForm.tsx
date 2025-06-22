@@ -109,23 +109,21 @@ const UserForm: React.FC<UserFormProps> = ({
                             )}
                         </div>
 
-                        {!isEditing && (
-                            <div className="space-y-2">
-                                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                    كلمة المرور
-                                </label>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    {...register('password')}
-                                    className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    disabled={isUpdating || isCreating}
-                                />
-                                {errors.password && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-                                )}
-                            </div>
-                        )}
+                        <div className="space-y-2">
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                كلمة المرور
+                            </label>
+                            <input
+                                id="password"
+                                type="password"
+                                {...register('password')}
+                                className="block w-full rounded-md border border-gray-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                disabled={isUpdating || isCreating}
+                            />
+                            {errors.password && (
+                                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                            )}
+                        </div>
 
                         {/* Phone Field */}
                         <div className="space-y-2">
