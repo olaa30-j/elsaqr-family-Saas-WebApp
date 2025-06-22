@@ -127,7 +127,6 @@ const ChildFamilyTree = () => {
                     (typeof m.parents.mother === 'object'
                         ? m.parents.mother._id === child._id
                         : m.parents.mother === child._id);
-                console.log(motherMatch);
 
                 return (fatherMatch || motherMatch);
             });

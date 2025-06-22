@@ -50,7 +50,6 @@ const NotificationSettingsPage = () => {
         
         entityTypes.forEach(({ value }) => {
             if (allQueries[value]?.data?.data) {
-                console.log(allQueries[value]?.data);
                 newToggleStates[value] = allQueries[value].data.data.show;
             }
         });

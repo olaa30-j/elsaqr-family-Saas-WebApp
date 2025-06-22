@@ -60,17 +60,17 @@ const MemberForm: React.FC<MemberFormProps> = ({
   const [updateMember] = useUpdateMemberMutation();
 
   const getIdFromValue = (value: any): string => {
-        return typeof value === 'object' ? value._id || value: value._id || value;
+    if (typeof value === 'object') {
+      return value._id || value
+    }
+    if (typeof value === 'string') return value;
+    return '';
   };
 
   useEffect(() => {
     if (defaultValues) {
       if (defaultValues.image) {
         setImagePreview(defaultValues.image);
-      }
-
-      if (defaultValues.husband) {
-        getIdFromValue(defaultValues.husband);
       }
 
       if (defaultValues.birthday) {
@@ -145,57 +145,57 @@ const MemberForm: React.FC<MemberFormProps> = ({
     else setDeathDateInput(value);
   };
 
-  const onSubmit = async (data: any) => {    
+  const onSubmit = async (data: any) => {
     startTransition(async () => {
-        try {
-            const formData = new FormData();
-            const prepareData = (key: string, value: any) => {
-                if (value === null || value === undefined || value === '') return;
+      try {
+        const formData = new FormData();
+        const prepareData = (key: string, value: any) => {
+          if (value === null || value === undefined || value === '') return;
 
-                else if (key === 'wives') {
-                    selectedWives.forEach((wifeId, i) => {
-                        formData.append(`wives[${i}]`, wifeId);
-                    });
-                }
-                else if (key === 'children') {
-                    selectedChildren.forEach((childrenId, i) => {
-                        formData.append(`children[${i}]`, childrenId);
-                    });
-                } else if (typeof value === 'object' && value._id) {
-                    formData.append(key, value._id);
-                }
-                else {
-                    formData.append(key, String(value));
-                }
-            };
-
-            if (data.parents) {
-                prepareData('parents[father]', data.parents.father);
-                prepareData('parents[mother]', data.parents.mother);
-            }
-
-            Object.entries(data).forEach(([key, value]) => {
-
-                if (selectedImage && key === 'image') {
-                    formData.append('image', selectedImage);
-                }
-                else if (key !== 'parents' && key !== 'image') {
-                    prepareData(key, value);
-                }
+          else if (key === 'wives') {
+            selectedWives.forEach((wifeId, i) => {
+              formData.append(`wives[${i}]`, wifeId);
             });
+          }
+          else if (key === 'children') {
+            selectedChildren.forEach((childrenId, i) => {
+              formData.append(`children[${i}]`, childrenId);
+            });
+          } else if (typeof value === 'object' && value._id) {
+            formData.append(key, value._id);
+          }
+          else {
+            formData.append(key, String(value));
+          }
+        };
 
-            if (isEditing && memberID) {
-                await updateMember({ id: memberID, data: formData }).unwrap();
-                toast.success("تم تحديث العضو بنجاح");
-            } else {
-                await createMember(formData).unwrap();
-                toast.success("تم إضافة العضو بنجاح");
-            }
-
-            onSuccess?.();
-        } catch (error: any) {
-            toast.error(error.data?.message || "حدث خطأ");
+        if (data.parents) {
+          prepareData('parents[father]', data.parents.father);
+          prepareData('parents[mother]', data.parents.mother);
         }
+
+        Object.entries(data).forEach(([key, value]) => {
+
+          if (selectedImage && key === 'image') {
+            formData.append('image', selectedImage);
+          }
+          else if (key !== 'parents' && key !== 'image') {
+            prepareData(key, value);
+          }
+        });
+
+        if (isEditing && memberID) {
+          await updateMember({ id: memberID, data: formData }).unwrap();
+          toast.success("تم تحديث العضو بنجاح");
+        } else {
+          await createMember(formData).unwrap();
+          toast.success("تم إضافة العضو بنجاح");
+        }
+
+        onSuccess?.();
+      } catch (error: any) {
+        toast.error(error.data?.message || "حدث خطأ");
+      }
     });
   };
 
@@ -493,6 +493,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                               <option
                                 key={m._id}
                                 value={m._id}
+                                selected={isCurrentFather}
                                 className={isCurrentFather ? "bg-blue-100 font-medium" : ""}
                               >
                                 {m.fname} {m.lname}
@@ -524,6 +525,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                               <option
                                 key={m._id}
                                 value={m._id}
+                                selected={isCurrentMother}
                                 className={isCurrentMother ? "bg-blue-100 font-medium" : ""}
                               >
                                 {m.fname} {m.lname}
