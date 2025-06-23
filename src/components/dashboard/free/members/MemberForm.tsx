@@ -31,14 +31,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
   const [_isPending, startTransition] = useTransition();
   const { familyBranches } = useFamilyBranches();
 
-  let branches = familyBranches;
-  if (!location.pathname.includes('/admin/members')) {
-    branches = familyBranches.filter(
-      (v) => v.label !== 'الفرع الاداري' && v.label !== 'جذر العائلة'
-    );
-  }
-
-  const [familyBranch, setFamilyBranch] = useState<string>(defaultValues?.familyBranch || '');
+  const [familyBranch, setFamilyBranch] = useState<any>(defaultValues?.familyBranch || '');
   const [filteredMembers, setFilteredMembers] = useState<GetMembers[]>([]);
   const [maleMembers, setMaleMembers] = useState<GetMembers[]>([]);
   const [femaleMembers, setFemaleMembers] = useState<GetMembers[]>([]);
@@ -63,6 +56,19 @@ const MemberForm: React.FC<MemberFormProps> = ({
     const { memberId } = useParams<{ memberId: string }>();
     memberID = memberId;
   }
+
+let branches = familyBranches;
+const currentBranch = familyBranches.find((v) => v.value === familyBranch);
+
+const isAdminOrRootBranch = currentBranch &&
+  ['الفرع الاداري', 'جذر العائلة'].includes(currentBranch.label);
+
+const isNotAdminRoute = !location.pathname.includes('/admin/members');
+if (isNotAdminRoute && !isAdminOrRootBranch) {  
+  branches = familyBranches.filter(
+    (v) => v.label !== 'الفرع الاداري' && v.label !== 'جذر العائلة'
+  );
+}
 
   const [createMember] = useCreateMemberMutation();
   const [updateMember] = useUpdateMemberMutation();

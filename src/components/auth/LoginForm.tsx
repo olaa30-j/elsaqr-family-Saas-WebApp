@@ -11,7 +11,6 @@ import type { LoginFormData } from '../../types/authTypes';
 import { useAppDispatch } from '../../store/store';
 import { setError, setLoading } from '../../features/auth/authSlice';
 import { useNavigate } from 'react-router-dom';
-import { useGetAllBranchesQuery } from '../../store/api/branchApi';
 
 const schema = yup.object().shape({
   identifier: yup
@@ -35,10 +34,6 @@ const schema = yup.object().shape({
 });
 
 const LoginForm: React.FC = () => {
-    const  { data: getAllBranches }  = useGetAllBranchesQuery({page:1, limit:30});
-  
-    console.log(getAllBranches);
-  
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -60,7 +55,7 @@ const LoginForm: React.FC = () => {
         identifier: data.identifier,
         password: data.password
       }).unwrap();
-      
+
       toast.success('تم تسجيل الدخول بنجاح');
       navigate('/dashboard')
     } catch (error) {

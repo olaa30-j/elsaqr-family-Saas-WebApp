@@ -28,7 +28,7 @@ export interface RegistrationFormData {
   phone: string;
   password: string;
   confirmPassword: string;
-  familyBranch: IBranchForm;
+  familyBranch: IBranchForm | string;
   familyRelationship: string;
   image?: File;
 }

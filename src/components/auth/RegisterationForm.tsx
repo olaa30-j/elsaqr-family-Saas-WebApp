@@ -55,7 +55,7 @@ const RegistrationForm: React.FC = () => {
 
 
   const onSubmit = async (data: RegistrationFormData) => {
-    const branchId = typeof data.familyBranch === 'object' ? data.familyBranch._id : data.familyBranch;
+    const branchId = typeof data.familyBranch === 'object' ? data.familyBranch._id : data.familyBranch;    
     try {
       const formData = new FormData();
 

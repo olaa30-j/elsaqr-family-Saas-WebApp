@@ -9,9 +9,11 @@ import { useGetMemberQuery } from "../../store/api/memberApi";
 
 const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
   const { isAuthenticated, user } = useAppSelector(state => state.auth);
-  let memberID = user?.memberId._id;
+  const memberID = user?.memberId?._id || '';
 
-  const { data:memberData } = useGetMemberQuery(memberID || '');
+  const { data: memberData } = useGetMemberQuery(memberID, {
+    skip: !isAuthenticated || !memberID
+  });
   
   const { isSuccess } = useGetAuthUserQuery();
 
@@ -20,7 +22,6 @@ const TabBar: React.FC<TabBarProps> = ({ setShowMoreOptions }) => {
 
   const homeButton = isAuthenticated ? '/dashboard' : '/';
 
-  // Permission checks
   const { hasPermission: canViewAds } = usePermission('AD_EDIT');
   const { hasPermission: canViewGallery } = usePermission('GALLERY_VIEW');
   const { hasPermission: canViewFamily } = usePermission('MEMBER_VIEW');

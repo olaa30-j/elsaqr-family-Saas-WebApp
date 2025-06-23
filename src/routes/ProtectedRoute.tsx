@@ -13,7 +13,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
   const [checkPermission] = useCheckPermissionMutation();
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
 
-  // الحصول على بيانات المسار الحالي
   const currentRoute = matches.find(match => match.pathname === location.pathname);
   const routeHandle = currentRoute?.handle as any;
 

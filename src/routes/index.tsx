@@ -15,7 +15,6 @@ declare module 'react-router-dom' {
     requiresServerCheck?: boolean;
   }
 }
-// استيراد المكونات بطريقة lazy loading
 const Home = lazy(() => import('../views/home/Home'));
 const LoginPage = lazy(() => import('../views/auth/LoginPage'));
 const RegisterPage = lazy(() => import('../views/auth/RegisterationPage'));
@@ -23,7 +22,6 @@ const ForgetPasswordPage = lazy(() => import('../components/auth/ForgotPasswordP
 const ResetPasswordPage = lazy(() => import('../components/auth/ResetPasswordPage'));
 const ContactUsPage = lazy(() => import('../views/contactus/ContactUs'));
 
-// المسارات المحمية
 const DashboardPage = lazy(() => import('../views/dashboard/Dashboard'));
 const ProfilePage = lazy(() => import('../views/dashboard/profile/ProfilePage'));
 const AdminPage = lazy(() => import('../views/dashboard/admin/Admin'));
@@ -62,7 +60,6 @@ const EditAdPage = lazy(() => import('../components/dashboard/free/advertisement
 
 const NotFoundPage = lazy(() => import('../views/errors/NotFoundPage'));
 
-// مكون تحميل مؤقت
 const SuspenseLoader = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={<LoadingSpinner fullScreen />}>
     {children}
@@ -158,7 +155,6 @@ const routePermissions = {
   },
 };
 
-// تعريف جميع مسارات التطبيق
 const routes: RouteObject[] = [
   {
     path: '/',
