@@ -57,18 +57,18 @@ const MemberForm: React.FC<MemberFormProps> = ({
     memberID = memberId;
   }
 
-let branches = familyBranches;
-const currentBranch = familyBranches.find((v) => v.value === familyBranch);
+  let branches = familyBranches;
+  const currentBranch = familyBranches.find((v) => v.value === familyBranch);
 
-const isAdminOrRootBranch = currentBranch &&
-  ['الفرع الاداري', 'جذر العائلة'].includes(currentBranch.label);
+  const isAdminOrRootBranch = currentBranch &&
+    ['الفرع الاداري', 'جذر العائلة'].includes(currentBranch.label);
 
-const isNotAdminRoute = !location.pathname.includes('/admin/members');
-if (isNotAdminRoute && !isAdminOrRootBranch) {  
-  branches = familyBranches.filter(
-    (v) => v.label !== 'الفرع الاداري' && v.label !== 'جذر العائلة'
-  );
-}
+  const isNotAdminRoute = !location.pathname.includes('/admin/members');
+  if (isNotAdminRoute && !isAdminOrRootBranch) {
+    branches = familyBranches.filter(
+      (v) => v.label !== 'الفرع الاداري' && v.label !== 'جذر العائلة'
+    );
+  }
 
   const [createMember] = useCreateMemberMutation();
   const [updateMember] = useUpdateMemberMutation();
@@ -296,7 +296,7 @@ if (isNotAdminRoute && !isAdminOrRootBranch) {
                   >
                     <option value="">اختر الفرع</option>
                     {branches.map((branch: any) => (
-                      <option key={branch.value} value={branch.value}>{branch.label}</option>
+                      <option selected={defaultValues?.familyBranch._id} key={branch.value} value={branch.value}>{branch.label}</option>
                     ))}
                   </select>
                   {errors.familyBranch && (
