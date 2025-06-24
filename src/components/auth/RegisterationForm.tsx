@@ -1,4 +1,28 @@
-import React from 'react';
+/**
+ * RegistrationForm Component
+ * 
+ * This component provides a user registration form with validation and submission handling.
+ * It collects user information including email, phone, password, family branch, and relationship.
+ * 
+ * Features:
+ * - Form validation using Yup and react-hook-form
+ * - Phone number input with specific format validation
+ * - Password strength requirements
+ * - Family branch selection from available options
+ * - Relationship to family selection
+ * - Success/error feedback using toast notifications
+ * - Loading state during form submission
+ * - Automatic redirection after successful registration
+ * 
+ * Dependencies:
+ * - react-hook-form for form management
+ * - yup for validation schema
+ * - react-toastify for notifications
+ * - Custom UI components (InputField, SelectField, PhoneInput)
+ * - API hooks for registration and family branches data
+ */
+
+import React, { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -13,10 +37,21 @@ import { familyRelationships } from '../../types/user';
 import { Link } from 'react-router-dom';
 import { useFamilyBranches } from '../../hooks/useFamilyBranches';
 
+// Default values for form fields
 export const DEFAULT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSsuWiNNpEjZxIi0uQPyEq6qecEqY0XaI27Q&s';
 const DEFAULT_LNAME = 'الدهمش';
-const DEFAULT_FNAME = 'الاسم الاول'
+const DEFAULT_FNAME = 'الاسم الاول';
 
+/**
+ * Validation schema using Yup
+ * Defines the validation rules for each form field:
+ * - email: Required, must be valid email format
+ * - phone: Required, must start with 5 and be 9 digits total
+ * - password: Required, min 8 chars, must contain uppercase, lowercase, number, and special char
+ * - confirmPassword: Must match password field
+ * - familyBranch: Required selection
+ * - familyRelationship: Required selection
+ */
 const schema = yup.object().shape({
   email: yup.string().email('البريد الإلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
   phone: yup.string()
@@ -36,13 +71,27 @@ const schema = yup.object().shape({
   familyRelationship: yup.string().required('صلة القرابة مطلوبة'),
 });
 
+/**
+ * RegistrationForm Component
+ * 
+ * @returns {React.ReactElement} The registration form JSX
+ */
 const RegistrationForm: React.FC = () => {
+  // API mutation for registration
   const [registeration] = useRegistrationMutation();
+  
+  // Hook to fetch family branches data
   const { familyBranches } = useFamilyBranches();
+  
+  // React transition for handling loading states
+  const [isPending, startTransition] = useTransition();
+  
+  // Filter out administrative branches from family branches
   let filterFamilyBranches = familyBranches.filter(
     (v) => v.label !== 'الفرع الاداري' && v.label !== 'جذر العائلة'
   );
 
+  // Form handling using react-hook-form
   const {
     register,
     handleSubmit,
@@ -53,48 +102,60 @@ const RegistrationForm: React.FC = () => {
     defaultValues: {}
   });
 
-
+  /**
+   * Handles form submission
+   * @param {RegistrationFormData} data - The form data
+   */
   const onSubmit = async (data: RegistrationFormData) => {
-    const branchId = typeof data.familyBranch === 'object' ? data.familyBranch._id : data.familyBranch;    
-    try {
-      const formData = new FormData();
+    startTransition(async () => {
+      // Handle both object and string values for familyBranch
+      const branchId = typeof data.familyBranch === 'object' ? data.familyBranch._id : data.familyBranch;    
+      try {
+        // Prepare form data for submission
+        const formData = new FormData();
 
-      formData.append('fname', DEFAULT_FNAME);
-      formData.append('lname', DEFAULT_LNAME);
-      formData.append('email', data.email);
-      formData.append('phone', data.phone);
-      formData.append('password', data.password);
-      formData.append('familyBranch', branchId || '');
-      formData.append('familyRelationship', data.familyRelationship);
+        // Append all required fields to formData
+        formData.append('fname', DEFAULT_FNAME);
+        formData.append('lname', DEFAULT_LNAME);
+        formData.append('email', data.email);
+        formData.append('phone', data.phone);
+        formData.append('password', data.password);
+        formData.append('familyBranch', branchId || '');
+        formData.append('familyRelationship', data.familyRelationship);
+        formData.append('image', data.image || DEFAULT_IMAGE);
 
-      formData.append('image', data.image || DEFAULT_IMAGE);
+        // Call registration API
+        await registeration(formData).unwrap();
 
-      await registeration(formData).unwrap();
+        // Show success message
+        toast.success('تم التسجيل بنجاح! سيتم مراجعة طلبك وارسال رسالة تأكيد', {
+          position: 'top-center',
+          autoClose: 3000,
+        });
 
-      toast.success('تم التسجيل بنجاح! سيتم مراجعة طلبك وارسال رسالة تأكيد', {
-        position: 'top-center',
-        autoClose: 3000,
-      });
+        // Reset form after successful submission
+        reset();
 
-      reset();
+        // Redirect to home page after 3 seconds
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 3000);
 
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 3000);
-
-    } catch (error) {
-      toast.error('حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى', {
-        position: 'top-center',
-        autoClose: 3000,
-      });
-      console.error('Registration error:', error);
-    }
+      } catch (error) {
+        // Show error message if registration fails
+        toast.error('حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى', {
+          position: 'top-center',
+          autoClose: 3000,
+        });
+        console.error('Registration error:', error);
+      }
+    });
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+        {/* Email Input Field */}
         <InputField
           label="البريد الإلكتروني"
           type="email"
@@ -106,6 +167,7 @@ const RegistrationForm: React.FC = () => {
           required
         />
 
+        {/* Phone Input Field */}
         <PhoneInput
           label="رقم الهاتف"
           name="phone"
@@ -116,6 +178,7 @@ const RegistrationForm: React.FC = () => {
           description="يجب أن يتكون رقم الهاتف من 9 أرقام ويبدأ بـ 5"
         />
 
+        {/* Password Input Field */}
         <InputField
           label="كلمة المرور"
           type="password"
@@ -127,6 +190,7 @@ const RegistrationForm: React.FC = () => {
           required
         />
 
+        {/* Confirm Password Input Field */}
         <InputField
           label="تأكيد كلمة المرور"
           type="password"
@@ -138,6 +202,7 @@ const RegistrationForm: React.FC = () => {
           required
         />
 
+        {/* Family Branch Selection */}
         <SelectField
           label="فرع العائلة"
           name="familyBranch"
@@ -147,6 +212,7 @@ const RegistrationForm: React.FC = () => {
           required
         />
 
+        {/* Family Relationship Selection */}
         <SelectField
           label="صلة القرابة بالعائلة"
           name="familyRelationship"
@@ -158,21 +224,33 @@ const RegistrationForm: React.FC = () => {
         />
       </div>
 
+      {/* Information Note for Users */}
       <div className="bg-amber-50 border border-amber-200 p-4 rounded-md">
         <p className="text-amber-800 text-sm">
           <span className="font-semibold">ملاحظة:</span> " يمكنك إضافة معلومات إضافية مثل تاريخ الميلاد والعنوان والنبذة الشخصية لاحقاً بعد تسجيل الدخول من صفحة الملف الشخصي. "
         </p>
       </div>
 
+      {/* Submit Button */}
       <div className="space-y-4 mt-8">
         <button
           type="submit"
-          className="inline-flex items-center justify-center text-white gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary hover:bg-primary/90 h-11 rounded-md px-8 w-full py-3 text-lg"
+          disabled={isPending}
+          className={`inline-flex items-center justify-center text-white gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary hover:bg-primary/90 h-11 rounded-md px-8 w-full py-3 text-lg ${isPending ? 'opacity-75 cursor-not-allowed' : ''}`}
         >
-          تسجيل حساب جديد
+          {isPending ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              جاري المعالجة...
+            </>
+          ) : 'تسجيل حساب جديد'}
         </button>
       </div>
 
+      {/* Login Link for existing users */}
       <div className="border-t border-gray-200 mt-8 pt-6">
         <Link
           to="/login"

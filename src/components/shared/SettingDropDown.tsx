@@ -2,30 +2,33 @@ import { useNavigate } from "react-router-dom";
 import type { User } from "../../types/user";
 
 interface SettingDropDownProps {
-  user: User| null;
+  user: User | null;
   onLogout: () => void;
   toggleProfileMenu: () => void;
 }
 
 const SettingDropDown = ({ user, onLogout, toggleProfileMenu }: SettingDropDownProps) => {
   let navigate = useNavigate()
-    const handleNavigation = (path: string) => {
-      toggleProfileMenu()
-      navigate(path);
-    };
-  
+  const handleNavigation = (path: string) => {
+    toggleProfileMenu()
+    navigate(path);
+  };
+
   return (
     <div className="absolute left-0 mt-6 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
       <div className="px-4 py-3 bg-gray-100">
         <p className="text-md font-medium text-primary">
-          {user?.memberId?.fname} {user?.memberId?.lname}
+          {user?.memberId
+            ? `${user.memberId.fname || ''} ${user.memberId.lname || ''}`.trim()
+            : user?.email || "مستخدم جديد"
+          }
         </p>
         <p className="text-sm text-gray-700 truncate">{user?.role[0]}</p>
       </div>
 
       <div className="py-1">
         <button
-          onClick={()=>handleNavigation('/profile')}
+          onClick={() => handleNavigation('/profile')}
           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full"
         >
           <div className="flex items-center">

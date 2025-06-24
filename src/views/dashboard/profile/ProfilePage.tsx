@@ -225,7 +225,10 @@ const ProfilePage = () => {
               <div className="text-center md:text-right flex-1 space-y-2">
                 <div>
                   <h3 className="text-2xl font-bold tracking-tight text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-primary">
-                    {user?.memberId?.fname} {user?.memberId?.lname}
+                    {user?.memberId
+                      ? `${user.memberId.fname || ''} ${user.memberId.lname || ''}`.trim()
+                      : user?.email || "مستخدم جديد"
+                    }
                   </h3>
                   <div className="flex items-center justify-center md:justify-start gap-2 mt-1">
                     {user?.role?.[0] && (

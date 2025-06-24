@@ -2,11 +2,13 @@ import { BellRingIcon } from 'lucide-react';
 import type { IAdvertisement } from '../../../../types/advertisement';
 import { Link } from 'react-router-dom';
 import RichTextRenderer from '../../../shared/RichTextRenderer';
+import { DEFAULT_IMAGE } from '../../../auth/RegisterationForm';
 
 interface IAdsCard {
   ad: IAdvertisement;
   size: string;
 }
+
 
 const AdCard = ({ ad, size = 'small' }: IAdsCard) => {
   if (size === 'large') {
@@ -53,8 +55,14 @@ const AdCard = ({ ad, size = 'small' }: IAdsCard) => {
         <div className='absolute bottom-0 left-0 right-0 z-5 text-white rounded-b-lg p-4'>
           <h5 className="text-sm font-medium text-right">{ad.title}</h5>
           <div className='flex gap-2 mt-3 items-center'>
-            {/* <img src={ad.userId.memberId.image} alt="مدير الاعلانات" className='w-8 h-8 rounded-md' />
-            <h4 className=''>{ad.userId.memberId.fname} {ad.userId.memberId.lname}</h4> */}
+            <img
+              src={ad?.userId?.memberId?.image || DEFAULT_IMAGE}
+              alt="مدير الاعلانات"
+              className='w-8 h-8 rounded-md'
+            />
+            <h4 className=''>
+              {ad?.userId?.memberId?.fname || "مستخدم غير معروف"} {ad?.userId?.memberId?.lname || ""}
+            </h4>
           </div>
         </div>
       </div>

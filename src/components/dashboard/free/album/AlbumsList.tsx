@@ -2,14 +2,17 @@ import { Album } from 'lucide-react';
 import { useAppSelector } from '../../../../store/store';
 import { useGetAlbumsQuery } from '../../../../store/api/albumApi';
 import { Link } from 'react-router-dom';
+import { DEFAULT_IMAGE } from '../../../auth/RegisterationForm';
 
 const AlbumsList = () => {
     const user = useAppSelector((state) => state.auth.user);
     const { data: albumsData, isLoading, isError } = useGetAlbumsQuery({ page: 1, limit: 10 });
-    const filteredAlbums = user?.role[0] === "مستخدم"
-        ? albumsData?.data?.filter((album: any) => album.createdBy?.memberId.familyBranch.name === user.memberId.familyBranch.name)
+    const filteredAlbums = user?.role[0] === "مستخدم" && user?.memberId?.familyBranch?.name
+        ? albumsData?.data?.filter((album: any) =>
+            album.createdBy?.memberId?.familyBranch?.name === user.memberId.familyBranch.name
+        )
         : albumsData?.data;
-
+        
     return (
         <div className="bg-white mx-4 rounded-lg border border-gray-300 shadow-sm h-full flex flex-col mb-16">
             <div className="px-4 py-3 border-b border-gray-300">
@@ -17,7 +20,7 @@ const AlbumsList = () => {
                     <Album className="w-5 h-5 mx-2 text-primary" />
                     ألبومات الصور
                     {user?.role[0] === "مستخدم" && (
-                        <span className="text-sm text-gray-500 mr-2">({user.memberId.familyBranch.name})</span>
+                        <span className="text-sm text-gray-500 mr-2">({user?.memberId?.familyBranch?.name || 'جذر العائلة'})</span>
                     )}
                 </h2>
             </div>
@@ -43,7 +46,7 @@ const AlbumsList = () => {
                                             </p>
                                             {album.createdBy?.memberId.familyBranch && (
                                                 <p className="text-gray-500 text-xs mt-1">
-                                                    الفرع العائلي: {album.createdBy.memberId.familyBranch.name || "غير محدد"}    
+                                                    الفرع العائلي: {album.createdBy.memberId.familyBranch.name || "غير محدد"}
                                                 </p>
                                             )}
                                             <div className="mt-2 text-sm text-primary">
@@ -53,7 +56,7 @@ const AlbumsList = () => {
                                         {album.images.length > 0 && (
                                             <div className="ml-3 w-48 h-28 flex-shrink-0">
                                                 <img
-                                                    src={album.images[0].image || "https://cdn.prod.website-files.com/6469e2294ac68c3d5caea372/65ca83d97a2c75ae48200fc7_65b4bf4950658bb8410bd877_images_and_gifs.webp"}
+                                                    src={album.images[0].image || DEFAULT_IMAGE}
                                                     alt={`صورة ${album.name}`}
                                                     className="w-full h-full object-cover rounded-md"
                                                 />

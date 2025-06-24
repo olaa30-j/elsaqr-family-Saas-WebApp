@@ -38,7 +38,6 @@ const EditAd = () => {
         }
     };
 
-    // التنسيقات المدعومة
     const formats = [
         'header',
         'bold', 'italic', 'underline', 'strike',
@@ -261,19 +260,19 @@ const EditAd = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div className="flex items-center gap-2 sm:gap-3">
                                     <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
-                                    <span className="text-sm sm:text-base">{ad?.data.userId.email}</span>
+                                    <span className="text-sm sm:text-base">{ad?.data?.userId?.email || 'غير متوفر'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 sm:gap-3">
                                     <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
-                                    <span className="text-sm sm:text-base">{ad?.data.userId.phone || 'غير متوفر'}</span>
+                                    <span className="text-sm sm:text-base">{ad?.data?.userId?.phone || 'غير متوفر'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 sm:gap-3">
                                     <Home className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
-                                    <span className="text-sm sm:text-base">{ad?.data.userId.address || 'غير متوفر'}</span>
+                                    <span className="text-sm sm:text-base">{ad?.data?.userId?.address || 'غير متوفر'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 sm:gap-3">
                                     <span className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-100 text-gray-800 text-xs sm:text-sm rounded-full">
-                                        {ad?.data.userId.familyRelationship || 'غير محدد'}
+                                        {ad?.data?.userId?.familyRelationship || 'غير محدد'}
                                     </span>
                                 </div>
                             </div>
