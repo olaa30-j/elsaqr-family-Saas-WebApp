@@ -26,7 +26,7 @@ export interface UserId {
     lname: string;
     image: string;
   }
-  status: 'مقبول' | 'معلق' | 'مرفوض';
+  status: string;
   tenantId: string;
   createdAt: string;
   updatedAt: string;

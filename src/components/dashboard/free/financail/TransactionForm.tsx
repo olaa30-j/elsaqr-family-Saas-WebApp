@@ -411,7 +411,7 @@ export const TransactionForm = ({
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className={`px-6 py-2.5 rounded-lg font-medium shadow-sm flex items-center bg-primary/90 hover:bg-primary text-white disabled:opacity-70 disabled:cursor-not-allowed transition-colors font-cairo`}
+                        className={`md:px-6 px-3 py-2.5 rounded-lg font-medium shadow-sm flex items-center bg-primary/90 hover:bg-primary text-white disabled:opacity-70 disabled:cursor-not-allowed transition-colors font-cairo`}
                     >
                         {isSubmitting ? (
                             <>

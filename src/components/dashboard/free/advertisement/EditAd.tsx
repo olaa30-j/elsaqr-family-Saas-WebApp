@@ -49,8 +49,8 @@ const EditAd = () => {
     useEffect(() => {
         if (ad) {
             setFormData({
-                title: ad.data.title,
-                type: ad.data.type,
+                title: ad.data.title || "عنوان غير متاح",
+                type: ad.data.type || "النوع غير محدد",
                 content: ad.data.content,
                 status: ad.data.status,
                 image: null
@@ -118,7 +118,7 @@ const EditAd = () => {
         </div>
     );
 
-    const formattedDate = ad ? new Date(ad.data.createdAt).toLocaleDateString('ar-SA', {
+    const formattedDate = ad ? new Date(ad.data?.createdAt || Date.now()).toLocaleDateString('ar-SA', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -230,12 +230,12 @@ const EditAd = () => {
                         <div className="border-t border-b border-gray-200 py-4 sm:py-6 my-3 sm:my-4">
                             <div className="flex flex-row justify-center gap-4 sm:gap-8 w-full">
                                 <div className="text-center">
-                                    <h3 className="text-lg sm:text-xl font-bold text-gray-900">{ad ? new Date(ad.data.createdAt).getDate() : ''}</h3>
+                                    <h3 className="text-lg sm:text-xl font-bold text-gray-900">{ad ? new Date(ad.data?.createdAt || Date.now()).getDate() : ''}</h3>
                                     <p className="text-xs sm:text-sm text-gray-600">
-                                        {ad ? new Date(ad.data.createdAt).toLocaleDateString('ar-SA', { month: 'long' }) : ''}
+                                        {ad ? new Date(ad.data?.createdAt || Date.now()).toLocaleDateString('ar-SA', { month: 'long' }) : ''}
                                     </p>
                                     <p className="text-xs sm:text-sm text-gray-600">
-                                        {ad ? new Date(ad.data.createdAt).getFullYear() : ''}
+                                        {ad ? new Date(ad.data?.createdAt || Date.now()).getFullYear() : ''}
                                     </p>
                                 </div>
 
@@ -244,7 +244,7 @@ const EditAd = () => {
                                     <div className="flex gap-2">
                                         <h4 className="text-sm font-semibold text-gray-500">الموقع</h4>
                                         <span className="text-sm text-gray-800">
-                                            {ad?.data.userId.address || 'غير محدد'}
+                                            {ad?.data?.userId?.address || 'غير محدد'}
                                         </span>
                                     </div>
                                 </div>
@@ -260,15 +260,15 @@ const EditAd = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div className="flex items-center gap-2 sm:gap-3">
                                     <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
-                                    <span className="text-sm sm:text-base">{ad?.data?.userId?.email || 'غير متوفر'}</span>
+                                    <span className="text-sm sm:text-base">{ad?.data?.userId?.email || 'مستخدم غير معروف'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 sm:gap-3">
                                     <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
-                                    <span className="text-sm sm:text-base">{ad?.data?.userId?.phone || 'غير متوفر'}</span>
+                                    <span className="text-sm sm:text-base">{ad?.data?.userId?.phone || 'مستخدم غير معروف'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 sm:gap-3">
                                     <Home className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
-                                    <span className="text-sm sm:text-base">{ad?.data?.userId?.address || 'غير متوفر'}</span>
+                                    <span className="text-sm sm:text-base">{ad?.data?.userId?.address || 'مستخدم غير معروف'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 sm:gap-3">
                                     <span className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-100 text-gray-800 text-xs sm:text-sm rounded-full">

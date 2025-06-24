@@ -70,7 +70,10 @@ const AdvertisementForm = ({
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        await onSubmit(formData);
+        await onSubmit({
+            ...formData,
+            status: formData.status || 'pending' 
+        });
     };
 
     return (
@@ -123,7 +126,7 @@ const AdvertisementForm = ({
                 <label className="block text-sm font-medium text-gray-700 mb-1">المحتوى</label>
                 <RichTextEditor
                     value={formData.content}
-                    onChange={(content:any) => setFormData({ ...formData, content })}
+                    onChange={(content: any) => setFormData({ ...formData, content })}
                     placeholder="اكتب محتوى المقال هنا..."
                     className="border rounded-md focus-within:ring-2 focus-within:ring-blue-500"
                 />

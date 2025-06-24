@@ -16,7 +16,7 @@ const AdDetails = () => {
     if (error) return <ErrorState />;
     if (!ad) return <NotFoundState />;
 
-    const formattedDate = new Date(ad.data.createdAt).toLocaleDateString('ar-SA', {
+    const formattedDate = new Date(ad.data?.createdAt || Date.now()).toLocaleDateString('ar-SA', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -38,29 +38,29 @@ const AdDetails = () => {
                     <div className="space-y-4 md:space-y-6">
                         {/* Title and Type */}
                         <TitleSection
-                            title={ad.data.title}
-                            type={ad.data.type}
+                            title={ad.data?.title || "لا يوجد عنوان"}
+                            type={ad.data?.type || "غير متوفر"}
                         />
 
                         {/* Date */}
                         <DateSection date={formattedDate} />
 
                         {/* Content */}
-                        <ContentSection content={ad.data.content} />
+                        <ContentSection content={ad.data?.content || "لا يوجد محتوي"} />
 
                         {/* Publisher Info */}
                         <PublisherInfoSection
-                            createdAt={ad.data.createdAt}
-                            address={ad.data.userId.address}
+                            createdAt={ad.data?.createdAt || new Date().toISOString()}
+                            address={ad.data?.userId?.address || "لا يوجد عنوان"}
                         />
 
                         {/* Contact Info */}
-                        <ContactInfoSection user={ad.data.userId} />
+                        <ContactInfoSection user={ad.data?.userId || {}} />
 
                         {/* Action Buttons */}
                         <ActionButtons
                             id={id!}
-                            status={ad.data.status}
+                            status={ad.data?.status || "مقبول"}
                             canEditAD={
                                 canEditAD
                             }
@@ -192,15 +192,15 @@ const ContactInfoSection = ({ user }: { user: any }) => (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-gray-500" />
-                <span className="text-sm sm:text-base">{user.email || 'غير متوفر'}</span>
+                <span className="text-sm sm:text-base">{user.email || 'مستخدم غير معروف'}</span>
             </div>
             <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-gray-500" />
-                <span className="text-sm sm:text-base">{user.phone || 'غير متوفر'}</span>
+                <span className="text-sm sm:text-base">{user.phone || 'مستخدم غير معروف'}</span>
             </div>
             <div className="flex items-center gap-3">
                 <Home className="w-5 h-5 text-gray-500" />
-                <span className="text-sm sm:text-base">{user.address || 'غير متوفر'}</span>
+                <span className="text-sm sm:text-base">{user.address || 'مستخدم غير معروف'}</span>
             </div>
             <div className="flex items-center gap-3">
                 <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">
