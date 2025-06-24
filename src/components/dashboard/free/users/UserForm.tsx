@@ -52,19 +52,24 @@ const UserForm: React.FC<UserFormProps> = ({
 
     const handleSubmit = async (data: UserFormValues) => {
         try {
-            const requestData = {
-                ...data,
-                role: [data.role]
-            };
-
             if (isEditing && userId) {
+                const isRoleChanged = defaultValues?.role !== data.role;
+
+                const requestData = isRoleChanged
+                    ? { ...data, role: [data.role] }
+                    : { ...data, role: undefined };
+
                 await updateUser({ id: userId, data: requestData }).unwrap();
                 toast.success("تم تحديث المستخدم بنجاح");
+
+                if (isRoleChanged) {
+                    window.location.reload();
+                }
+
             } else {
-                await createUser({ data: requestData }).unwrap();
+                await createUser({ data: { ...data, role: [data.role] } }).unwrap();
                 toast.success("تم إنشاء المستخدم بنجاح");
             }
-
             onSuccess?.();
         } catch (error) {
             if (isFetchBaseQueryError(error)) {

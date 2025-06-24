@@ -117,7 +117,7 @@ const routePermissions = {
     requiresServerCheck: true
   },
   'admin/users/:userId': {
-    permissions: [{ entity: 'عضو', action: 'update' }],
+    permissions: [{ entity: 'عضو', action: 'create' }],
     description: 'تعديل مستخدم'
   },
   'admin/members': {
@@ -125,7 +125,7 @@ const routePermissions = {
     description: 'إدارة الأعضاء'
   },
   'admin/members/:memberId': {
-    permissions: [{ entity: 'عضو', action: 'update' }],
+    permissions: [{ entity: 'عضو', action: 'create' }],
     description: 'تعديل عضو'
   },
   'admin/roles-permissions': {
