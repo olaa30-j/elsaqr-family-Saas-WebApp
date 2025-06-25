@@ -3,20 +3,18 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  optimizeDeps: {
-    include: ['swiper'],
-  },
   server: {
     proxy: {
       '/api': {
-        target: 'https://backend-tests-delta.vercel.app',
+        target: 'https://script.google.com',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '/api/v1'),
-        headers: {
-          "Access-Control-Allow-Origin": "http://localhost:5173",
-          'Access-Control-Allow-Credentials': 'true',
-          'x-vercel-project-id': 'prj_a8J10S0lW2iSCK4mDyT3PHAYx6Lv'
+        rewrite: (path) => path.replace(/^\/api/, ''),
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'http://localhost:5173')
+            proxyReq.setHeader('Referer', 'http://localhost:5173')
+          })
         }
       }
     }

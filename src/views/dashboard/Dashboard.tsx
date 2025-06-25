@@ -14,7 +14,7 @@ const Dashboard = () => {
     <section className="w-full overflow-x-hidden">
       <header className="bg-white -mt-8 mb-8 px-4 pb-4 shadow-sm border-b border-gray-200">
         <h1 className="text-2xl font-bold text-primary">
-          مرحباً بك، {user?.email} 👋
+          مرحباً بك، {user?.memberId?.fname || user?.email || ""} {user?.memberId?.lname|| ""} 👋
         </h1>
         <p className="text-gray-600 mt-1">
           {user?.role[0] === "مستخدم" 

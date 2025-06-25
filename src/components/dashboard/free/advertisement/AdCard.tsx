@@ -18,17 +18,17 @@ const AdCard = ({ ad, size = 'small' }: IAdsCard) => {
           {ad.image && (
             <img
               className="object-cover h-full w-full rounded-lg"
-              src={ad.image}
-              alt={ad.title}
+              src={ad.image || DEFAULT_IMAGE}
+              alt={ad?.title || "لا يوجد عنوان محدد"}
             />
           )}
           <div className="absolute bottom-0 left-0 right-0 p-6 bg-black bg-opacity-50 text-white rounded-b-lg">
             <div className="w-10 h-10 mb-3 flex items-center justify-center bg-white rounded-lg">
               <BellRingIcon className="text-primary" />
             </div>
-            <h5 className="text-lg font-bold text-white text-right">{ad.title}</h5>
+            <h5 className="text-lg font-bold text-white text-right">{ad?.title || "لا يوجد عنوان محدد"}</h5>
             <div className="text-sm opacity-80 text-right mt-2">
-              <RichTextRenderer content={ad.content} />
+              <RichTextRenderer content={ad?.content || "لا يوجد محتوى"} />
             </div>
             <div className="text-md text-left mt-3 opacity-70">
               {new Date(ad.createdAt).toLocaleDateString('ar-EG')}
@@ -47,13 +47,13 @@ const AdCard = ({ ad, size = 'small' }: IAdsCard) => {
           <img
             className="object-cover h-full w-full rounded-lg"
             src={ad.image || ''}
-            alt={ad.title}
+            alt={ad?.title || "لا يوجد عنوان محدد"}
           />
         )}
         <div className="absolute bottom-0 h-full left-0 right-0 p-4 bg-black bg-opacity-50 text-white rounded-b-lg">
         </div>
         <div className='absolute bottom-0 left-0 right-0 z-5 text-white rounded-b-lg p-4'>
-          <h5 className="text-sm font-medium text-right">{ad.title}</h5>
+          <h5 className="text-sm font-medium text-right">{ad?.title || "لا يوجد عنوان محدد"}</h5>
           <div className='flex gap-2 mt-3 items-center'>
             <img
               src={ad?.userId?.memberId?.image || DEFAULT_IMAGE}

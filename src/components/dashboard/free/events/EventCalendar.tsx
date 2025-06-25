@@ -394,6 +394,18 @@ const EventCalendar = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-primary">
                   <tr>
+                    <th scope="col" className="px-6 py-3 text-center  text-md font-medium text-white font-cairo   tracking-wider">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        onClick={() => requestSort('address')}
+                        className="flex items-center justify-center gap-2 w-full"
+                      >
+                        العنوان
+                        {sortConfig.key === 'address' && (
+                          sortConfig.direction === 'asc' ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
+                        )}
+                      </motion.button>
+                    </th>
                     <th scope="col" className="px-6 py-3 text-center  text-md font-medium text-white font-cairo  tracking-wider">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
@@ -406,14 +418,14 @@ const EventCalendar = () => {
                         )}
                       </motion.button>
                     </th>
-                    <th scope="col" className="px-6 py-3 text-center  text-md font-medium text-white font-cairo   tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-center  text-md font-medium text-white font-cairo  tracking-wider">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
-                        onClick={() => requestSort('address')}
+                        onClick={() => requestSort('location')}
                         className="flex items-center justify-center gap-2 w-full"
                       >
                         الموقع
-                        {sortConfig.key === 'address' && (
+                        {sortConfig.key === 'description' && (
                           sortConfig.direction === 'asc' ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
                         )}
                       </motion.button>
@@ -452,11 +464,14 @@ const EventCalendar = () => {
                         transition={{ delay: index * 0.05 }}
                         className="hover:bg-gray-50"
                       >
+                        <td className="px-6 py-4 whitespace-nowrap  text-md text-gray-500">
+                          {event.address}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap  text-md font-medium text-gray-900">
                           {event.description}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap  text-md text-gray-500">
-                          {event.address}
+                        <td className="px-6 py-4 whitespace-nowrap  text-md font-medium text-gray-900">
+                          {event.location}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap  text-md text-gray-500">
                           {format(new Date(event.startDate), 'yyyy/MM/dd - h:mm a')}
