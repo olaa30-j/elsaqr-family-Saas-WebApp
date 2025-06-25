@@ -14,19 +14,19 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/google-script/, ''),
         headers: {
-          "Origin": "http://localhost:5173",
-          "Access-Control-Allow-Origin": "http://localhost:5173",
+          "Origin": "https://elsaqr-family-saas-web-app-56kk.vercel.app",
+          "Access-Control-Allow-Origin": "https://elsaqr-family-saas-web-app-56kk.vercel.app",
           "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization"
+          "Access-Control-Allow-Headers": "Content-Type",
+          "x-vercel-project-id": "prj_cvNtKP4hZcK2nwGOm04G0N4FyxLr"
         },
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq) => {
-            proxyReq.setHeader('Referer', 'http://localhost:5173');
+            proxyReq.setHeader('Referer', 'https://elsaqr-family-saas-web-app-56kk.vercel.app');
             proxyReq.setHeader('X-Requested-With', 'XMLHttpRequest');
           });
           proxy.on('proxyRes', (proxyRes) => {
-            proxyRes.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173';
-            proxyRes.headers['Access-Control-Allow-Credentials'] = 'true';
+            proxyRes.headers['Access-Control-Allow-Origin'] = 'https://elsaqr-family-saas-web-app-56kk.vercel.app';
           });
         }
       },

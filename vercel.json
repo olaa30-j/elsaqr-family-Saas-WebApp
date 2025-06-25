@@ -1,5 +1,29 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/google-script/(.*)",
+      "dest": "https://script.google.com/$1",
+      "headers": {
+        "Origin": "https://elsaqr-family-saas-web-app-56kk.vercel.app",
+        "Access-Control-Allow-Origin": "https://elsaqr-family-saas-web-app-56kk.vercel.app",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "x-vercel-project-id": "prj_cvNtKP4hZcK2nwGOm04G0N4FyxLr"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
