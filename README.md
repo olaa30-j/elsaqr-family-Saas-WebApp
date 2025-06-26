@@ -69,7 +69,7 @@ dahmash-family/
 │   │   └── usePermission.ts
 │   ├── middleware/
 │   │   └── permissionMiddleware.ts
-│   └── routes/
+│── routes/
 │       ├── index.tsx
 │       ├── premiumRoutes.tsx
 │       └── ProtectedRoute.tsx

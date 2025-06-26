@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">dahmash-family</string>
+    <string name="title_activity_main">dahmash-family</string>
+    <string name="package_name">com.dahmash.app</string>
+    <string name="custom_url_scheme">com.dahmash.app</string>
+</resources>
