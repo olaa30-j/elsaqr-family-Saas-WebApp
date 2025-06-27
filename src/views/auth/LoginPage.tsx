@@ -1,7 +1,19 @@
 import { Link } from "react-router-dom"
 import LoginForm from "../../components/auth/LoginForm"
+import PrivacyPolicyPopup from "../../components/shared/PrivacyPolicyPopup"
+import { useEffect, useState } from "react";
 
 const LoginPage = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const hasSeenPopup = localStorage.getItem("privacyPopupSeen");
+    if (!hasSeenPopup) {
+      setIsOpen(true);
+      localStorage.setItem("privacyPopupSeen", "true");
+    }
+  }, []);
+
   return (
     <div className="app-container min-h-screen flex flex-col ">
       <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
@@ -68,19 +80,25 @@ const LoginPage = () => {
                   عندما تقوم بتسجيل الدخول، فإنك توافق على
                 </p>
                 <div className="flex justify-center gap-2 text-sm text-primary">
-                  <a href="#" className="hover:underline">
+                  <p className="hover:underline">
                     شروط الاستخدام
-                  </a>
+                  </p>
                   <span className="text-color-2">و</span>
-                  <a href="#" className="hover:underline">
+                  <button onClick={() => setIsOpen(true)} className="hover:underline">
                     سياسة الخصوصية
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {
+        isOpen && (
+          <PrivacyPolicyPopup closePopup={() => setIsOpen(false)} />
+        )
+      }
+
     </div>
   )
 }
