@@ -178,6 +178,14 @@ const routes: RouteObject[] = [
         ),
       },
       {
+        path: 'test',
+        element: (
+          <SuspenseLoader>
+            <ErrorPage />
+          </SuspenseLoader>
+        ),
+      },
+      {
         element: <AuthLayout />,
         errorElement: <ErrorPage />,
         children: [
