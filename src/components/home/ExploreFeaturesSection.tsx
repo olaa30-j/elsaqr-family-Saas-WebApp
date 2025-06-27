@@ -7,7 +7,7 @@ const ExploreFeaturesSection = () => {
     const [activeTab, setActiveTab] = useState('family-tree');
 
     return (
-        <section className="bg-gray-50">
+        <section className="bg-gray-50" id='more'>
             <div className="container mx-auto px-6">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground font-heading">

@@ -3,7 +3,7 @@ import FamilyFeaturesCard from './reusable/FamilyFeaturesCard'
 
 const BoxFeaturesSection = () => {
     return (
-        <section className="container px-8">
+        <section className="container px-8" id="explore">
             <div className="text-center mb-16">
                 {/* Badge/Tag */}
                 <span

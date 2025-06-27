@@ -7,15 +7,15 @@ const MainSection = () => {
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div 
-          className="absolute inset-0 overflow-hidden" 
+        <div
+          className="absolute inset-0 overflow-hidden"
           style={{ background: 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 60%)' }}
         ></div>
-        <div 
+        <div
           className="absolute top-1/4 w-full h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent blur-md"
           style={{ transform: 'translateX(-334.798px)' }}
         ></div>
-        <div 
+        <div
           className="absolute top-3/4 w-full h-2 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent blur-md"
           style={{ transform: 'translateX(778.142px)' }}
         ></div>
@@ -25,34 +25,34 @@ const MainSection = () => {
       <div className="hero-content relative z-10 max-w-4xl mx-auto w-full flex flex-col items-center justify-around max-h-[90vh]">
         <div className="w-full mb-2">
           <div className="relative w-32 h-32 mx-auto">
-            <div 
-              className="absolute inset-0 rounded-full" 
-              style={{ 
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
                 background: 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.3) 0%, transparent 70%)',
                 transform: 'scale(1.09963)'
               }}
             ></div>
-            <div 
-              className="absolute inset-0 rounded-full overflow-hidden" 
-              style={{ 
+            <div
+              className="absolute inset-0 rounded-full overflow-hidden"
+              style={{
                 background: 'conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.2), transparent, transparent)',
                 transform: 'rotate(78.096deg)'
               }}
             ></div>
-            <div 
-              className="absolute inset-0 rounded-full border-2 border-primary/20" 
+            <div
+              className="absolute inset-0 rounded-full border-2 border-primary/20"
               style={{ transform: 'rotate(39.048deg)' }}
             ></div>
-            <div 
-              className="absolute inset-4 rounded-full border-2 border-amber-500/30" 
+            <div
+              className="absolute inset-4 rounded-full border-2 border-amber-500/30"
               style={{ transform: 'rotate(121.428deg)' }}
             ></div>
-            <div 
-              className="absolute inset-10 rounded-full bg-gradient-to-br from-primary/20 to-amber-500/20 blur-sm" 
+            <div
+              className="absolute inset-10 rounded-full bg-gradient-to-br from-primary/20 to-amber-500/20 blur-sm"
               style={{ transform: 'scale(1.08098)' }}
             ></div>
             <div className="absolute inset-16 rounded-full bg-white/20"></div>
-            
+
             <div className="relative w-full h-full flex items-center justify-center" style={{ transform: 'rotate(2.13127deg)' }}>
               {/* Small dots around the circle */}
               {[
@@ -63,24 +63,24 @@ const MainSection = () => {
                 { opacity: 0, transform: 'translateX(-19.1051px) translateY(-33.091px)' },
                 { opacity: 0, transform: 'translateX(11.7218px) translateY(-20.3027px)' },
               ].map((style, index) => (
-                <div 
+                <div
                   key={index}
                   className="absolute w-2 h-2 bg-white rounded-full shadow-glow"
                   style={style}
                 ></div>
               ))}
-              
+
               {/* Main logo image */}
               <div className="rounded-full overflow-hidden border-4 border-white/30 shadow-2xl" style={{ boxShadow: 'rgba(255, 255, 255, 0.4) 0px 0px 30px' }}>
                 <div className="relative w-28 h-28 overflow-hidden rounded-full">
-                  <div 
-                    className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/50 to-transparent z-10 mix-blend-overlay" 
+                  <div
+                    className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/50 to-transparent z-10 mix-blend-overlay"
                     style={{ left: '30.16%', top: '30.16%' }}
                   ></div>
-                  <img 
+                  <img
                     loading='lazy'
-                    src="https://res.cloudinary.com/dmhvfuuke/image/upload/v1748029147/family-logo_z54fug.png" 
-                    alt="شعار عائلة الصقر الدهمش" 
+                    src="https://res.cloudinary.com/dmhvfuuke/image/upload/v1748029147/family-logo_z54fug.png"
+                    alt="شعار عائلة الصقر الدهمش"
                     width={112}
                     height={112}
                     className="w-full h-full object-cover rounded-full"
@@ -108,7 +108,7 @@ const MainSection = () => {
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-2">
           {/* Login button */}
-          <Button 
+          <Button
             buttonLink='/login'
             variant="primary"
             extraStyle="group relative overflow-hidden bg-gradient-to-r from-primary via-primary/95 to-primary/90"
@@ -120,15 +120,15 @@ const MainSection = () => {
                 { left: '60.8881%', top: '61.7205%', transform: 'translateX(-2.72035px) translateY(-3.1172px) scale(1.09259)' },
                 { left: '43.4669%', top: '45.7767%', transform: 'translateX(8.07924px) translateY(5.72986px) scale(1.14784)' },
               ].map((style, index) => (
-                <div 
+                <div
                   key={index}
                   className="absolute w-1 h-1 bg-white rounded-full"
                   style={style}
                 ></div>
               ))}
             </div>
-            <div 
-              className="relative z-[100] bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100" 
+            <div
+              className="relative z-[100] bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100"
               style={{ transform: 'translateX(-62.0875%)' }}
             ></div>
             <span className="relative z-10">تسجيل الدخول</span>
@@ -139,7 +139,7 @@ const MainSection = () => {
           </Button>
 
           {/* Register button */}
-          <Button 
+          <Button
             variant="amber"
             extraStyle="group relative overflow-hidden bg-gradient-to-r from-amber-600/90 via-amber-500/85 to-amber-600/90"
             buttonLink='/register'
@@ -151,15 +151,15 @@ const MainSection = () => {
                 { left: '48.2021%', top: '44.9012%', transform: 'translateX(0.11437px) translateY(3.25552px) scale(1.39122)' },
                 { left: '72.9055%', top: '72.4766%', transform: 'translateX(4.27733px) translateY(-3.55839px) scale(0.647563)' },
               ].map((style, index) => (
-                <div 
+                <div
                   key={index}
                   className="absolute w-1 h-1 bg-white rounded-full"
                   style={style}
                 ></div>
               ))}
             </div>
-            <div 
-              className="relative z-[100] bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100" 
+            <div
+              className="relative z-[100] bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100"
               style={{ transform: 'translateX(-62.0875%)' }}
             ></div>
             <span className="relative z-10">تسجيل عضوية جديدة</span>
@@ -170,29 +170,33 @@ const MainSection = () => {
           </Button>
 
           {/* Discover more button */}
-          <Button 
-            variant="outline"
-            extraStyle="group border-2 relative overflow-hidden"
-            buttonLink=''
-          >
-            <span className="absolute inset-0 border-2 border-primary/30 rounded-md opacity-0 group-hover:opacity-100" style={{ transform: 'scale(1.06166)' }}></span>
-            <span className="relative z-10 text-primary/90 group-hover:text-primary">اكتشف المزيد</span>
-            <span className="mx-2 inline-block relative z-10" style={{ transform: 'translateY(2.4762px)' }}>
-              <ChevronDownIcon className="h-5 w-5" />
-            </span>
-            <span className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-          </Button>
+          <a href="#more">
+            <Button
+              variant="outline"
+              extraStyle="group border-2 relative overflow-hidden"
+              buttonLink=''
+            >
+              <span className="absolute inset-0 border-2 border-primary/30 rounded-md opacity-0 group-hover:opacity-100" style={{ transform: 'scale(1.06166)' }}></span>
+              <span className="relative z-10 text-primary/90 group-hover:text-primary">اكتشف المزيد</span>
+              <span className="mx-2 inline-block relative z-10" style={{ transform: 'translateY(2.4762px)' }}>
+                <ChevronDownIcon className="h-5 w-5" />
+              </span>
+              <span className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+            </Button>
+          </a>
         </div>
       </div>
 
       {/* Scroll down indicator */}
       <div className="absolute bottom-8 left-0 right-0 flex justify-center" style={{ opacity: 0.9 }}>
-        <div 
-          className="cursor-pointer p-2 rounded-full bg-primary/10 backdrop-blur-sm" 
-          style={{ transform: 'translateY(6.16591px)' }}
-        >
-          <ChevronDownIcon className="text-primary" size={28} />
-        </div>
+        <a href="#explore">
+          <div
+            className="cursor-pointer p-2 rounded-full bg-primary/10 backdrop-blur-sm"
+            style={{ transform: 'translateY(6.16591px)' }}
+          >
+            <ChevronDownIcon className="text-primary" size={28} />
+          </div>
+        </a>
       </div>
     </section>
   );
